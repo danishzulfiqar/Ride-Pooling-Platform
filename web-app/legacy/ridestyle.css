@@ -1,0 +1,278 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    letter-spacing: 1px;
+    font-family: 'Rubik', sans-serif;
+}
+
+body {
+    background-color: white;
+}
+
+#navbar {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1a73e8;
+    /* background-color: #1d1956; */
+    width: 100%;
+    padding: 2.5rem 3rem 2.5rem 3rem;
+    z-index: 5;
+    height: 80px;
+    margin: 0%;
+}
+
+
+#Site-name {
+    width: max-content;
+    height: max-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+
+#Site-name a {
+    text-decoration: none;
+    color: white;
+    font-size: 2.2em;
+    font-weight: 600;
+}
+
+.hamburger {
+    display: flex;
+    flex-direction: column;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.hamburger:hover {
+    background-color: rgba(255, 255, 255, 0.138);
+}
+
+
+.hamburger div {
+    height: 3.2px;
+    width: 25px;
+    background-color: white;
+}
+
+#help {
+    position: absolute;
+    bottom: 2.5rem;
+    right: 5rem;
+    z-index: 10;
+    width: max-content;
+    height: max-content;
+}
+
+#help a {
+    text-decoration: none;
+    background-color: #1a73e8;
+    color: white;
+    padding: 0.7rem;
+    font-size: 2rem;
+    border-radius: 50%;
+}
+
+.right-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.right-nav a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 5px;
+    height: 42px;
+    width: 95px;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.Login {
+    background-color: white;
+    color: #1a73e8;
+    transition: all 0.3s ease;
+}
+
+.Login:hover {
+    scale: 1.08;
+}
+
+.signup {
+    color: #1a73e8;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.signup:hover {
+    scale: 1.08;
+}
+
+#main-container {
+    background-color: transparent;
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(80px);
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+#controls {
+    height: 100%;
+    width: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: white;
+    gap: 2rem;
+    border-right: 5px solid #1a73e8;
+
+}
+
+.sideNavChange {
+    display: none;
+}
+
+#controls div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+#controls div i {
+    color: #1a73e8;
+    font-size: 1.1rem;
+}
+
+#seat-selection {
+    margin-bottom: 1.8rem;
+}
+
+#seat-selection label {
+    font-size: 1.2rem;
+}
+
+#seats {
+    padding: 0.3rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+
+#controls div input {
+    font-size: 1.1rem;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid gray;
+}
+
+#controls div input::placeholder {
+    color: rgba(0, 0, 0, 0.686);
+}
+
+#controls button {
+    font-size: 1.1rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 5px;
+    border: none;
+    background-color: #1a73e8;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+#output {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    width: max-content;
+    height: max-content;
+    margin-top: 2rem;
+}
+
+#output span {
+    font-size: 1.1rem;
+}
+
+#output p {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 35px;
+    border-radius: 6px;
+    border: 1px solid grey;
+    font-size: 1.15rem;
+}
+
+#share {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2.5rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+#share a {
+    text-decoration: none;
+    color: white;
+}
+
+#share a i {
+    color: white;
+    font-size: 1.8rem;
+}
+
+.whatsapp {
+    background-color: #25d366;
+    padding: 0.55rem;
+    border-radius: 50%;
+}
+
+.link {
+    background-color: #0cb792;
+    padding: 0.55rem;
+    border-radius: 50%;
+}
+
+.messenger {
+    background-color: #006AFF;
+    padding: 0.55rem;
+    border-radius: 50%;
+}
+
+#map {
+    height: 100%;
+    width: 80%;
+}
