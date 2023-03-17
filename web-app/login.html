@@ -1,0 +1,55 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="Css/login.css">
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <title>RidePool App</title>
+</head>
+
+<body>
+    <div id="LOGO">
+        <a href=""><span>RidePool</span></a>
+    </div>
+
+    <div id="order">
+        <span onclick="">Console</span>
+    </div>
+
+    <section id="Login-main-section">
+
+        <div class="Login-right">
+            <div id="Login-form" class="form">
+                <form>
+                    <input type="email" id="Login-email" placeholder="Email">
+                    <input type="password" id="Login-password" placeholder="Password">
+                    <button onclick="LoginAsUser()">Sign In</button>
+                    <p class="message">Not registered? <a onclick="ShowSignup()" id="Signup-show-btn" href="#">Create an
+                            account</a></p>
+                </form>
+            </div>
+            <div id="Signup-form" class="form">
+                <input type="email" id="Signup-email" placeholder="Email">
+                <input type="text" id="Signup-username" placeholder="Username">
+                <input type="password" id="Signup-password" placeholder="Password">
+                <button onclick="Register()">Sign Up</button>
+                <p class="message">Already registered? <a onclick="ShowLogin()" id="Signup-show-btn" href="#"> Login</a>
+                </p>
+            </div>
+        </div>
+
+    </section>
+
+    <script src="Js/Firebase.js"></script>
+    <script src="Js/login.js"></script>
+</body>
+
+</html>

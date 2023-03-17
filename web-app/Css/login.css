@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Itim&family=Rubik&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Rubik', sans-serif;
+}
+
+/* Login Start */
+
+body {
+    border-bottom: 1.2rem solid rgb(0, 72, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(235, 238, 242) !important;
+}
+
+#particles-js {
+    position: absolute;
+    background-color: transparent;
+    height: 100%;
+}
+
+#LOGO {
+    position: absolute;
+    top: 1.5rem;
+    left: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#LOGO a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+}
+
+#LOGO a span {
+    text-decoration: none;
+    color: rgb(0, 72, 255);
+    font-size: 2.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    font-family: 'Itim', cursive;
+}
+
+#order {
+    position: absolute;
+    right: 2.5rem;
+    top: 2.5rem;
+}
+
+#order span {
+    background-color: rgb(0, 72, 255);
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    font-size: 1.1rem;
+}
+
+#Login-main-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8rem;
+    padding-top: 5rem;
+}
+
+.Login-right .form {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    background-color: rgb(255, 254, 254);
+    max-width: 360px;
+    margin: 0 auto 100px;
+    padding: 45px;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+    border-radius: 8px;
+}
+
+.Login-right .form input {
+    outline: 0;
+    color: gray;
+    background: rgb(231, 231, 231);
+    width: 100%;
+    border: 0;
+    border-radius: 6px;
+    margin: 0 0 20px;
+    padding: 12px;
+    box-sizing: border-box;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+}
+
+.Login-right .form input::placeholder {
+    color: gray;
+}
+
+.Login-right button {
+    text-transform: uppercase;
+    outline: 0;
+    background: rgb(0, 72, 255);
+    width: 100%;
+    border: 0;
+    border-radius: 6px;
+    padding: 15px;
+    color: #FFFFFF;
+    font-size: 14px;
+    -webkit-transition: all 0.3 ease;
+    transition: all 0.3 ease;
+    cursor: pointer;
+}
+
+.form .message {
+    margin-top: 25px;
+    color: gray;
+}
+
+.form .message #Signup-show-btn {
+    color: rgb(0, 72, 255);
+    text-decoration: none;
+}
+
+#Signup-form {
+    display: none;
+}
+
+
+@media (max-width:985px) {
+    #Login-main-section .Login-left {
+        display: none;
+    }
+}
+
+@media (max-width:1120px) {
+    #Login-main-section {
+        gap: 0;
+    }
+}
+
+
+/* Login End */
+
+/* User Start */
+
+#User-Body {
+    border: none;
+}
+
+#User-Main-Container {
+    position: absolute;
+    top: 4rem;
+    width: 100%;
+    margin-top: 5rem;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    /* border: 1px solid red; */
+    width: max-content;
+}
+
+#User-Details {
+    display: flex;
+    flex-direction: column;
+    background-color: transparent;
+    color: white;
+    justify-content: center;
+    padding: 0rem;
+    gap: 2rem;
+    border-radius: 10px;
+    background-color: #313b43;
+    min-width: 350px;
+    border-bottom: 15px solid rgb(0, 72, 255);
+}
+
+#User-Basic-Details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+#User-Basic-Details img {
+    width: 130px;
+}
+
+#gpsData {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: center;
+    letter-spacing: 1px;
+    padding-left: 3rem;
+}
+
+#map {
+    width: 800px;
+    height: 520px;
+}
