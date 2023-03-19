@@ -122,7 +122,7 @@ window.addEventListener("load", function () {
 auth.onAuthStateChanged((user) => {
     if (user) {
         console.log("You are Logged in");
-        window.location.replace('Html/user.html');
+        window.location.replace('../Html/user.html');
     }
 })
 
