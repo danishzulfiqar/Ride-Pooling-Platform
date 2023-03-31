@@ -8,6 +8,16 @@
     font-family: 'Rubik', sans-serif;
 }
 
+:root {
+    --blue: #1e90ff;
+    --white: rgba(255, 255, 255, 0.92);
+    --yellow: rgba(255, 255, 0, 0.931);
+    --grey: rgba(128, 128, 128, 0.293);
+    --black: black;
+    --orange: rgb(200, 101, 19);
+    --inputsGrey: rgba(128, 128, 128, 0.096);
+}
+
 /* Login Start */
 
 body {

@@ -8,13 +8,24 @@
     font-family: 'Rubik', sans-serif;
 }
 
+:root {
+    --blue: #1e90ff;
+    --white: rgba(255, 255, 255, 0.92);
+    --yellow: rgba(255, 255, 0, 0.931);
+    --grey: rgba(128, 128, 128, 0.293);
+    --black: black;
+    --orange: rgb(200, 101, 19);
+    --inputsGrey: rgba(128, 128, 128, 0.096);
+    --textgrey: rgba(0, 0, 0, 0.801);
+}
+
 nav {
     display: flex;
-    background-color: rgb(2, 3, 13);
+    background-color: var(--black);
     height: 65px;
     align-items: center;
     justify-content: space-between;
-    color: rgba(255, 255, 255, 0.92);
+    color: var(--white);
     padding: 20px 75px 20px 40px;
     font-family: 'Poppins', sans-serif;
     width: 100%;
@@ -29,16 +40,16 @@ nav {
     flex-direction: row;
     align-items: center;
     text-decoration: none;
-    /* color: rgba(255, 255, 255, 0.911); */
-    color: rgba(255, 255, 0, 0.931);
+    color: var(--white);
     font-size: 40px;
     font-weight: 600;
     font-family: 'Itim', cursive;
 }
 
-.logo a img {
-    width: 60px;
-    border-radius: 50%;
+.logo a i {
+    color: var(--yellow);
+    width: 50px;
+    font-size: 40px;
 }
 
 nav ul {
@@ -53,7 +64,7 @@ nav ul li {
 nav ul li a,
 nav ul li span {
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.92);
+    color: var(--white);
     font-size: 18px;
     padding: 0.5rem 0.5rem;
     transition: all 0.3s ease;
@@ -104,7 +115,7 @@ nav ul li span ul li {
 }
 
 .subMenu:hover {
-    background-color: rgba(128, 128, 128, 0.293);
+    background-color: var(--grey);
 }
 
 .subIcon {
@@ -112,14 +123,8 @@ nav ul li span ul li {
     margin-right: 0.8rem;
 }
 
-
-/* nav ul li a:hover,
-nav ul li span:hover {
-
-} */
-
 .active-page {
-    color: rgba(255, 255, 0, 0.931);
+    color: var(--yellow);
 }
 
 nav .menu-btn i {
@@ -154,7 +159,7 @@ nav .menu-btn i {
 
     nav ul {
         position: fixed;
-        top: 80px;
+        top: 65px;
         left: -100%;
         background-color: black;
         height: 100vh;
@@ -178,7 +183,7 @@ nav .menu-btn i {
     .active-page,
     nav ul li span:hover {
         background: none;
-        color: #04AA6D;
+        color: var(--yellow);
     }
 
     #user-nav-down {
@@ -200,46 +205,45 @@ nav .menu-btn i {
     width: 406px;
     left: 160px;
     border-radius: 10px;
-    /* border: 1px solid black; */
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
     z-index: 2;
     background-color: white;
+    /* border-bottom: 8px solid var(--yellow); */
 }
 
-.control-header{
+.control-header {
     height: max-content;
     width: 100%;
 }
 
-.control-header span{
+.control-header span {
     display: flex;
     font-weight: 600;
     font-size: 2.2em;
     padding: 1rem;
 }
 
-#Map-Section
-{
+#Map-Section {
     width: 100%;
     height: 100%;
 }
 
-#map{
+#map {
     height: 100%;
 }
 
-#Input-Section{
+#Input-Section {
     display: flex;
     flex-direction: column;
     gap: 1rem;
     margin: 0 0 1.2rem 0
 }
 
-.PlaceInputs{
+.PlaceInputs {
     display: flex;
     margin: auto;
     width: 90%;
-    background-color: rgba(128, 128, 128, 0.096);
+    background-color: var(--inputsGrey);
     height: 40px;
     border-radius: 6px;
     align-items: center;
@@ -247,7 +251,12 @@ nav .menu-btn i {
     padding: 0 15px 0 10px;
 }
 
-.PlaceInputs input{
+.input-focus {
+    border: 2px solid black;
+
+}
+
+.PlaceInputs input {
     background-color: transparent;
     border: none;
     outline: none;
@@ -258,8 +267,218 @@ nav .menu-btn i {
 .SearchIcon {
     font-size: 1rem;
     margin-right: 0.8rem;
+    cursor: pointer;
 }
 
-.fa-circle-xmark{
+.fa-circle-xmark {
     visibility: hidden;
+}
+
+.User-Current-Location {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin: 1.3rem;
+    cursor: pointer;
+}
+
+.User-Current-Location-Div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.User-Current-Location-Div-Logo {
+    padding: 0.6rem;
+    border-radius: 50%;
+    background-color: rgb(238, 238, 238);
+    margin-right: 1rem;
+}
+
+.CurrentLocation {
+    background-color: var(--black);
+}
+
+.CurrentLocation i {
+    color: var(--white);
+}
+
+.User-Current-Location-Div-SubDiv {
+    font-size: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    letter-spacing: 1px;
+}
+
+.User-Current-Location-Div-SubDiv-div {
+    color: rgba(0, 0, 0, 0.801);
+    font-size: 0.85rem;
+}
+
+.Confirm-Ride {
+    display: flex;
+    margin: auto;
+    width: 90%;
+    margin-bottom: 1rem;
+}
+
+.Confirm-Ride button {
+    font-size: 1em;
+    letter-spacing: 1px;
+    border-radius: 6px;
+    outline: none;
+    border: none;
+    background-color: var(--black);
+    color: var(--white);
+    width: 400px;
+    padding: 0.5rem 0rem;
+}
+
+#ConfirmBtn {
+    display: none;
+    cursor: pointer;
+}
+
+.Rout-Data {
+    display: flex;
+    margin: auto;
+    width: 90%;
+    flex-direction: row;
+    margin-bottom: 1.5rem;
+    display: none;
+}
+
+.Distance-Duration {
+    display: flex;
+    flex-direction: column;
+}
+
+.route-specs {
+    letter-spacing: 1px;
+}
+
+#Distance {
+    font-size: 1.1rem;
+}
+
+#Duration {
+    color: rgba(0, 0, 0, 0.801);
+    font-size: 0.85rem;
+}
+
+/* Settings Area */
+
+.settings-main-container {
+    display: flex;
+    flex-direction: row;
+    transform: translateY(90px);
+    max-width: 1280px;
+    margin: auto;
+    /* border: 1px solid black; */
+    gap: 3rem;
+}
+
+.left-nav {
+    margin-top: 1rem;
+}
+
+.left-nav ul {
+    text-decoration: none;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 200px;
+}
+
+.left-nav ul li {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    /* border: 1px solid red; */
+    cursor: pointer;
+}
+
+.left-nav ul li a {
+    text-decoration: none;
+    color: var(--black);
+    font-size: 1.1em;
+    letter-spacing: 1px;
+}
+
+.active-left-nav-page {
+    background-color: rgba(128, 128, 128, 0.167);
+    border-left: 6px solid var(--black);
+}
+
+.settings-right-container{
+    width: max-content;
+}
+
+.user-details-components {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin-bottom: 1.4rem;
+}
+
+.user-details-components div img {
+    width: 65px;
+    border-radius: 50%;
+}
+
+.user-details-name-div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+#Settings-Name {
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+#Settings-Phone {
+    color: var(--textgrey)
+}
+
+.user-details-components-column{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.4rem;
+}
+
+.user-details-components-column-data{
+    background-color: rgba(128, 128, 128, 0.167);
+    padding: 0.5rem 0.5em;
+    border-radius: 6px;
+    width: 300px;
+}
+
+.user-details-components-column button{
+    width: max-content;
+    padding: 0.5rem;
+    outline: none;
+    border: none;
+    border-radius:6px;
+    font-size: 1em;
+    color: var(--blue);
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+    cursor: pointer;
+}
+
+.user-details-components-bottom{
+    border-top: 1px solid var(--grey);
+    height: 10px;
+    width: 600px;
+    margin-top: 1rem;
+}
+
+#Settings-Logout{
+    color: red;
+}
+
+.Settings-Msg{
+    margin-left: 0.4rem;
 }

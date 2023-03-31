@@ -19,11 +19,10 @@
 </head>
 
 <body>
-    <!-- <button onclick="signout()">Logout</button> -->
 
     <nav id="navbar">
         <section class="logo">
-            <a href="#">RidePool</a>
+            <a href="#"><i class="fa-solid fa-car"></i>RidePool</a>
         </section>
         <input type="checkbox" id="click">
         <label for="click" class="menu-btn">
@@ -33,12 +32,14 @@
             <li><a class="active-page" href="Admin.html">HOME</a></li>
             <li><a href="#">MORE</a></li>
             <li>
-                <span id="User-drop"> <span id="User-Name">USERS</span><i id="user-nav-down" class="fa-solid fa-caret-down drop-down-icons"></i>
+                <span id="User-drop"> <span id="User-Name">USERS</span><i id="user-nav-down"
+                        class="fa-solid fa-caret-down drop-down-icons"></i>
                     <ul id="User-dropdown">
                         <li class="subMenu"><a href="#"><i class="fa-solid fa-rectangle-list subIcon"></i> My Trips</a>
                         </li>
                         <li class="subMenu"><a href="#"><i class="fa-solid fa-wallet subIcon"></i> Wallet</a></li>
-                        <li class="subMenu"><a href="#"><i class="fa-solid fa-gear subIcon"></i> Settings</a></li>
+                        <li class="subMenu"><a href="usersettings.html"><i class="fa-solid fa-gear subIcon"></i>
+                                Settings</a></li>
                         <li class="subMenu"><a onclick="signout()"><i
                                     class="fa-solid fa-right-from-bracket subIcon"></i> Logout</a></li>
                     </ul>
@@ -52,21 +53,63 @@
     </section>
 
     <section id="Main-Controls-Area">
+
         <div class="control-header">
             <span>Where can we pick you up?</span>
         </div>
+
         <div id="Input-Section">
-            <div class="PlaceInputs">
+            <div class="PlaceInputs" id="PickData" onclick="PickandDropToggle()">
                 <i class="fa-solid fa-location-dot SearchIcon"></i>
-                <input onkeyup="ClearPickUpValue()" class="PlaceSearch" id="SearchPickUp" placeholder="Add a Pickup Location" type="text">
+                <input onkeyup="ClearPickUpValue()" class="PlaceSearch" id="SearchPickUp"
+                    placeholder="Add a Pickup Location" type="text">
                 <i id="clearPick" class="fa-solid fa-circle-xmark"></i>
             </div>
-            <div class="PlaceInputs">
+            <div class="PlaceInputs" id="DropData" onclick="PickandDropToggle()">
                 <i class="fa-solid fa-circle-dot SearchIcon"></i>
-                <input onkeyup="ClearDropOffValue()" class="PlaceSearch" id="SearchDropOff" placeholder="Add a Drop Off Location" type="text">
+                <input onkeyup="ClearDropOffValue()" class="PlaceSearch" id="SearchDropOff"
+                    placeholder="Add a Drop Off Location" type="text">
                 <i id="clearDrop" class="fa-solid fa-circle-xmark"></i>
             </div>
         </div>
+
+        <div class="User-Current-Location">
+            <div onclick="getCurrentLocation()" class="User-Current-Location-Div">
+                <div class="User-Current-Location-Div-Logo CurrentLocation">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                </div>
+                <div class="User-Current-Location-Div-SubDiv">
+                    <div><span id="Current-Locaton">Fetching Details...</span></div>
+                    <div class="User-Current-Location-Div-SubDiv-div" id="Current-Locaton-Msg">Your Current Location
+                    </div>
+                </div>
+            </div>
+
+            <div class="User-Current-Location-Div">
+                <div class="User-Current-Location-Div-Logo">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div class="User-Current-Location-Div-SubDiv">
+                    <div class="User-Current-Location-Div-SubDiv">Choose from Map</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="Rout-Data" id="Rout-Data-Div">
+            <div class="User-Current-Location-Div-Logo">
+                <i class="fa-solid fa-route"></i>
+            </div>
+            <div class="Distance-Duration">
+                <span class="route-specs" id="Distance"></span>
+                <span class="route-specs" id="Duration"></span>
+            </div>
+        </div>
+
+        <div class="Confirm-Ride">
+            <button onclick="BookRide()" id="ConfirmBtn">Confirm Ride</button>
+        </div>
+
     </section>
 
     <script
