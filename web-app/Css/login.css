@@ -21,68 +21,209 @@
 /* Login Start */
 
 body {
-    border-bottom: 1.2rem solid rgb(0, 72, 255);
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgb(235, 238, 242) !important;
+    /* background-image: url("/Assets/back\ 3.jpg");
+    background-size: 100% 100%; */
+    background-color: var(--white);
 }
 
-#particles-js {
-    position: absolute;
-    background-color: transparent;
-    height: 100%;
+canvas {
+    opacity: 0.4;
+    position: fixed;
+    left: 0;
+    top: 0;
 }
 
-#LOGO {
-    position: absolute;
-    top: 1.5rem;
-    left: 2rem;
+nav {
     display: flex;
-    justify-content: center;
+    background-color: var(--black);
+    height: 65px;
     align-items: center;
+    justify-content: space-between;
+    color: var(--white);
+    padding: 20px 75px 20px 40px;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 10;
 }
 
-#LOGO a {
+
+.logo a {
     display: flex;
-    justify-content: center;
+    flex-direction: row;
     align-items: center;
-    gap: 0.6rem;
     text-decoration: none;
-}
-
-#LOGO a span {
-    text-decoration: none;
-    color: rgb(0, 72, 255);
-    font-size: 2.8rem;
+    color: var(--white);
+    font-size: 40px;
     font-weight: 600;
-    letter-spacing: 1px;
     font-family: 'Itim', cursive;
 }
 
-#order {
-    position: absolute;
-    right: 2.5rem;
-    top: 2.5rem;
+.logo a i {
+    color: var(--yellow);
+    width: 50px;
+    font-size: 40px;
 }
 
-#order span {
-    background-color: rgb(0, 72, 255);
-    color: white;
-    padding: 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    font-size: 1.1rem;
+nav ul {
+    display: flex;
+    list-style: none;
 }
+
+nav ul li {
+    margin: 0px 10px;
+}
+
+nav ul li a,
+nav ul li span {
+    text-decoration: none;
+    color: var(--white);
+    font-size: 18px;
+    padding: 0.5rem 0.5rem;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+nav ul li span ul {
+    display: none;
+}
+
+nav ul li span ul li {
+    padding: 0.5rem 0.4rem;
+    width: 100%;
+    font-size: 1rem;
+}
+
+#User-drop:hover #User-dropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+    margin-top: 0.65rem;
+    padding: 1rem;
+    width: max-content;
+    border-radius: 6px;
+    right: 2rem;
+}
+
+#user-nav-down {
+    margin-left: 0.2rem;
+}
+
+.subMenu {
+    width: 100%
+}
+
+.subMenu a {
+    background-color: transparent;
+    justify-content: space-between;
+    padding-bottom: 0.3rem;
+    margin-bottom: 15px;
+    color: black;
+    width: 100%;
+}
+
+.subMenu:hover {
+    background-color: var(--grey);
+}
+
+.subIcon {
+    font-size: 1rem;
+    margin-right: 0.8rem;
+}
+
+.active-page {
+    color: var(--yellow);
+}
+
+nav .menu-btn i {
+    color: rgba(255, 255, 255, 0.934);
+    font-size: 24px;
+    cursor: pointer;
+    display: none;
+}
+
+#click {
+    display: none;
+}
+
+
+@media (max-width:990px) {
+
+    nav {
+        padding-left: 25px;
+    }
+
+    nav .menu-btn i {
+        display: block;
+    }
+
+    #click:checked~ul {
+        left: 0%;
+    }
+
+    #click:checked~.menu-btn i::before {
+        content: "\f00d";
+    }
+
+    nav ul {
+        position: fixed;
+        top: 65px;
+        left: -100%;
+        background-color: black;
+        height: 100vh;
+        width: 100%;
+        display: block;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    nav ul li {
+        margin: 40px 0px;
+    }
+
+    nav ul li a,
+    nav ul li span {
+        font-size: 22px;
+        display: block;
+    }
+
+    nav ul li a:hover,
+    .active-page,
+    nav ul li span:hover {
+        background: none;
+        color: var(--yellow);
+    }
+
+    #user-nav-down {
+        display: none;
+    }
+
+}
+
+.fa-car {
+    color: var(--yellow);
+}
+
 
 #Login-main-section {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
-    gap: 8rem;
-    padding-top: 5rem;
+    gap: 10rem;
+    /* padding-top: 5rem; */
+}
+
+.Login-right{
+    padding-top: 2rem;
 }
 
 .Login-right .form {
@@ -118,7 +259,7 @@ body {
 .Login-right button {
     text-transform: uppercase;
     outline: 0;
-    background: rgb(0, 72, 255);
+    background: var(--black);
     width: 100%;
     border: 0;
     border-radius: 6px;
@@ -136,7 +277,7 @@ body {
 }
 
 .form .message #Signup-show-btn {
-    color: rgb(0, 72, 255);
+    color: var(--black);
     text-decoration: none;
 }
 
@@ -144,6 +285,38 @@ body {
     display: none;
 }
 
+.Login-left {
+    padding: 1rem;
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.45);
+    /* border: 1px solid black; */
+    width: 650px;
+}
+
+.Login-left-header {
+    display: flex;
+    flex-direction: column;
+}
+
+.Login-left-header img {
+    width: 300px;
+}
+
+.Login-left-header p {
+    color: rgba(0, 0, 0, 0.732);
+    letter-spacing: 1px;
+    padding: 0.8rem 0.5rem;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+}
+
+.Salogan {
+    font-size: 2em;
+    margin-left: 0.5rem;
+    font-weight: 600;
+}
 
 @media (max-width:985px) {
     #Login-main-section .Login-left {
@@ -157,62 +330,4 @@ body {
     }
 }
 
-
 /* Login End */
-
-/* User Start */
-
-#User-Body {
-    border: none;
-}
-
-#User-Main-Container {
-    position: absolute;
-    top: 4rem;
-    width: 100%;
-    margin-top: 5rem;
-    display: flex;
-    flex-direction: row;
-    gap: 2rem;
-    /* border: 1px solid red; */
-    width: max-content;
-}
-
-#User-Details {
-    display: flex;
-    flex-direction: column;
-    background-color: transparent;
-    color: white;
-    justify-content: center;
-    padding: 0rem;
-    gap: 2rem;
-    border-radius: 10px;
-    background-color: #313b43;
-    min-width: 350px;
-    border-bottom: 15px solid rgb(0, 72, 255);
-}
-
-#User-Basic-Details {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-}
-
-#User-Basic-Details img {
-    width: 130px;
-}
-
-#gpsData {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    justify-content: center;
-    letter-spacing: 1px;
-    padding-left: 3rem;
-}
-
-#map {
-    width: 800px;
-    height: 520px;
-}

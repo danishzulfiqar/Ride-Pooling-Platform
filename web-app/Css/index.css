@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Itim&family=Rubik&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Rubik', sans-serif;
+}
+
+:root {
+    --blue: #1e90ff;
+    --white: rgba(255, 255, 255, 0.92);
+    --yellow: rgba(255, 255, 0, 0.931);
+    --grey: rgba(128, 128, 128, 0.293);
+    --black: black;
+    --orange: rgb(200, 101, 19);
+    --inputsGrey: rgba(128, 128, 128, 0.096);
+}
+
+body{
+    background-color: var(--black);
+}
+
+.Continue-Button{
+    display: block;
+    margin: auto;
+    transform: translateY(40vh);
+    background-color: var(--blue);
+    outline:none;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1em;
+    border-radius: 6px;
+}
+
+.Continue-Button a{
+    text-decoration: none;
+    color: var(--white);
+}

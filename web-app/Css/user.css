@@ -410,7 +410,7 @@ nav .menu-btn i {
     border-left: 6px solid var(--black);
 }
 
-.settings-right-container{
+.settings-right-container {
     width: max-content;
 }
 
@@ -433,7 +433,7 @@ nav .menu-btn i {
 }
 
 #Settings-Name {
-    font-size: 1.5em;
+    font-size: 1.7em;
     font-weight: 600;
 }
 
@@ -441,26 +441,26 @@ nav .menu-btn i {
     color: var(--textgrey)
 }
 
-.user-details-components-column{
+.user-details-components-column {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     margin-bottom: 1.4rem;
 }
 
-.user-details-components-column-data{
+.user-details-components-column-data {
     background-color: rgba(128, 128, 128, 0.167);
     padding: 0.5rem 0.5em;
     border-radius: 6px;
     width: 300px;
 }
 
-.user-details-components-column button{
+.user-details-components-column button {
     width: max-content;
     padding: 0.5rem;
     outline: none;
     border: none;
-    border-radius:6px;
+    border-radius: 6px;
     font-size: 1em;
     color: var(--blue);
     margin-bottom: 0.5rem;
@@ -468,17 +468,124 @@ nav .menu-btn i {
     cursor: pointer;
 }
 
-.user-details-components-bottom{
+.user-details-components-bottom {
     border-top: 1px solid var(--grey);
     height: 10px;
     width: 600px;
     margin-top: 1rem;
 }
 
-#Settings-Logout{
+#Settings-Logout {
     color: red;
 }
 
-.Settings-Msg{
+.Settings-Msg {
     margin-left: 0.4rem;
+}
+
+#loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+    position: absolute;
+    background-color: white
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 5px solid #333;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.Settings-Logo {
+    padding: 0px 50px;
+    display: flex;
+    flex-direction: column;
+    /* box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24); */
+}
+
+.Settings-Logo img {
+    border-radius: 6px;
+    padding: 1rem 0rem;
+}
+
+.Salogan {
+    font-size: 1.2em;
+    padding: 0rem 1rem;
+    font-weight: 600;
+}
+
+.Settings-Ride-Now {
+    width: max-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--black);
+    border: none;
+    outline: none;
+    margin-top: 1.5rem;
+    margin-left: 1rem;
+    display: flex;
+    border-radius: 6px;
+    letter-spacing: 1px;
+    transition: all 0.3s ease-in-out;
+}
+
+.Settings-Ride-Now:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+
+.Settings-Ride-Now a {
+    color: var(--white);
+    font-size: 1.25em;
+    text-decoration: none;
+    display: block;
+    padding: 12px 16px;
+}
+
+.Trips-Container {
+    width: 600px;
+    height: 600px;
+    overflow-y: auto;
+    padding: 0.5rem 0rem 0.1rem 1rem;
+}
+
+.Trips-Header {
+    /* border: 1px solid black; */
+    margin-bottom: 1rem;
+}
+
+.Trips-Header h2 {
+    margin-bottom: 0.2rem;
+}
+
+.trips-messege {
+    color: rgba(79, 77, 77, 0.613);
+}
+
+.Trips-List-Container {
+    /* border: 1px solid black; */
+}
+
+#List-Warning{
+    font-size: 2em;
+    font-weight: 600;
 }

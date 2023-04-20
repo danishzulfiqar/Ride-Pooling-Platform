@@ -1,0 +1,81 @@
+1.
+
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "riders": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('bookings/' + $uid + '/rider').val() === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+      
+    "bookings": {
+      "$bid": {
+        ".read": "root.child('riders/' + auth.uid).exists() || root.child('users/' + auth.uid).exists() || root.child('bookings/' + $bid + '/rider').val() === auth.uid",
+        ".write": "root.child('bookings/' + $bid + '/rider').val() === auth.uid || root.child('bookings/' + $bid + '/user').val() === auth.uid",
+        "user": {
+          ".validate": "newData.val() === auth.uid"
+        },
+        "rider": {
+          ".validate": "newData.val() === auth.uid"
+        }
+      }
+    },
+    "admin": {
+      ".read": "auth.token.admin === true",
+      ".write": "auth.token.admin === true"
+    }
+  }
+}
+
+2.
+
+{
+    "rules": {
+      "users": {
+        "$uid": {
+          ".read": "$uid === auth.uid",
+          ".write": "$uid === auth.uid"
+        }
+      },
+      "riders": {
+        "$uid": {
+          ".read": "$uid === auth.uid || root.child('bookings/' + $uid + '/rider').val() === auth.uid",
+          ".write": "$uid === auth.uid"
+        }
+      },
+        "ridersAvailable": {
+        "$uid": {
+          ".read": "true",
+          ".write": "auth.uid === $uid",
+          "userReq": {
+            ".write": "auth.uid === $uid || root.child('users').child(auth.uid).child('full_name').val() != null",
+            ".read": "auth.uid === $uid"
+          }
+        }
+      } ,   
+      "bookings": {
+        "$bid": {
+          ".read": "root.child('riders/' + auth.uid).exists() || root.child('users/' + auth.uid).exists() || root.child('bookings/' + $bid + '/rider').val() === auth.uid",
+          ".write": "root.child('bookings/' + $bid + '/rider').val() === auth.uid || root.child('bookings/' + $bid + '/user').val() === auth.uid",
+          "user": {
+            ".validate": "newData.val() === auth.uid"
+          },
+          "rider": {
+            ".validate": "newData.val() === auth.uid"
+          }
+        }
+      },
+      "admin": {
+        ".read": "auth.token.admin === true",
+        ".write": "auth.token.admin === true"
+      }
+    }
+  }
+  

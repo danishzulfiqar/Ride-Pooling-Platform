@@ -24,11 +24,16 @@ firebase.database().ref('users/' + UserId).on("value", snap => {
 
 function GetUserData(data) {
     var UserName = data.val().first_name;
+    const loaderContainer = document.getElementById('loader-container');
+
     console.log(UserName);
 
     var NavUserName = document.getElementById("User-Name");
     NavUserName.innerHTML = UserName;
 
+    // For Loader
+    loaderContainer.style.opacity = '0';
+    loaderContainer.style.visibility = 'hidden';
 }
 
 var map;

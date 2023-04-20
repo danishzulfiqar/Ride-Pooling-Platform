@@ -12,19 +12,50 @@
         https://firebase.google.com/docs/web/setup#available-libraries -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://kit.fontawesome.com/461ad1934b.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/461ad1934b.js" crossorigin="anonymous"></script>
     <title>RidePool App</title>
 </head>
 
 <body>
-    <div id="LOGO">
-        <a href=""><span>RidePool</span></a>
-    </div>
 
-    <div id="order">
-        <span onclick="">Console</span>
-    </div>
+    <canvas></canvas>
+
+    <nav id="navbar">
+        <section class="logo">
+            <a href="#"><i class="fa-solid fa-car"></i>RidePool</a>
+        </section>
+        <input type="checkbox" id="click">
+        <label for="click" class="menu-btn">
+            <i class="fas fa-bars"></i>
+        </label>
+        <ul>
+            <li><a href="../index.html">HOME</a></li>
+            <li><a href="#">MORE</a></li>
+            <li>
+                <span id="User-drop"> <span id="User-Name">LOGIN</span><i id="user-nav-down"
+                        class="fa-solid fa-caret-down drop-down-icons"></i>
+                    <ul id="User-dropdown">
+                        <li class="subMenu"><a href="riderlogin.html"><i class="fa-solid fa-wallet subIcon"></i> RIDER</a></li>
+                    </ul>
+                </span>
+            </li>
+        </ul>
+    </nav>
 
     <section id="Login-main-section">
+
+        <div class="Login-left">
+            <div class="Login-left-header">
+                <img src="/Assets/logo (main).png" alt="Error Laoding">
+                <span class="Salogan">Ride Together, Save Together</span>
+                <p>Introducing Pakistan's first fully self-developed ride booking app! Our app offers multiple users the
+                    opportunity to share a ride in reasonable rates. Our innovative technology connects users going in
+                    the same direction, reducing costs and offering a sustainable and eco-friendly mode of
+                    transportation. Join us now and experience the convenience, affordability, and efficiency of our app
+                </p>
+            </div>
+        </div>
 
         <div class="Login-right">
             <div id="Login-form" class="form">
@@ -38,7 +69,8 @@
             </div>
             <div id="Signup-form" class="form">
                 <input type="email" id="Signup-email" placeholder="Email">
-                <input type="text" id="Signup-username" placeholder="Username">
+                <input type="text" id="Signup-FirstName" placeholder="FirstName">
+                <input type="text" id="Signup-LastName" placeholder="LastName">
                 <input type="password" id="Signup-password" placeholder="Password">
                 <button onclick="Register()">Sign Up</button>
                 <p class="message">Already registered? <a onclick="ShowLogin()" id="Signup-show-btn" href="#"> Login</a>
@@ -48,6 +80,7 @@
 
     </section>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script src="../Js/Firebase.js"></script>
     <script src="../Js/login.js"></script>
 </body>
