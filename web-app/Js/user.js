@@ -610,9 +610,279 @@ function ConfirmRide() {
     });
 }
 
-function BookRide() {
-    console.log("Ride Booked");
+var availableRiders = [];
+
+// function SearchRide() {
+//     var pickupLocation = document.getElementById("SearchPickUp").value;
+//     var destination = document.getElementById("SearchDropOff").value;
+//     var geocoder = new google.maps.Geocoder();
+//     var pickupLat, pickupLng, destinationLat, destinationLng;
+
+//     geocoder.geocode({ 'address': pickupLocation }, function (results, status) {
+//         if (status == google.maps.GeocoderStatus.OK) {
+//             pickupLat = results[0].geometry.location.lat();
+//             pickupLng = results[0].geometry.location.lng();
+
+//             geocoder.geocode({ 'address': destination }, function (results, status) {
+//                 if (status == google.maps.GeocoderStatus.OK) {
+//                     destinationLat = results[0].geometry.location.lat();
+//                     destinationLng = results[0].geometry.location.lng();
+
+//                     var pathRef = firebase.database().ref('ridersAvailable');
+//                     pathRef.once('value').then(function (snapshot) {
+//                         snapshot.forEach(function (childSnapshot) {
+//                             var rider = childSnapshot.key;
+//                             var riderData = childSnapshot.val();
+//                             var riderPath = riderData.path;
+//                             var riderDestLat = riderData.destinationLat;
+//                             var riderDestLng = riderData.destinationLng;
+
+//                             var closestDistance = Infinity;
+//                             for (var i = 0; i < riderPath.length; i++) {
+//                                 var pathPoint = new google.maps.LatLng(riderPath[i][0], riderPath[i][1]);
+//                                 var distanceToPickup = google.maps.geometry.spherical.computeDistanceBetween(pathPoint, new google.maps.LatLng(pickupLat, pickupLng));
+//                                 if (distanceToPickup < closestDistance) {
+//                                     closestDistance = distanceToPickup;
+//                                 }
+//                             }
+//                             var maxDistance = 200;
+//                             if (closestDistance > maxDistance) {
+
+//                                 return;
+//                             }
+
+//                             var lastPointIndex = riderPath.length - 1;
+//                             var lastPoint = new google.maps.LatLng(riderPath[lastPointIndex][0], riderPath[lastPointIndex][1]);
+//                             var destPoint = new google.maps.LatLng(destinationLat, destinationLng);
+//                             var distanceToDest = google.maps.geometry.spherical.computeDistanceBetween(lastPoint, destPoint);
+//                             var maxDistanceToDest = 1000;
+//                             if (distanceToDest > maxDistanceToDest) {
+//                                 return;
+//                             }
+
+//                             availableRiders.add(rider);
+//                         });
+
+//                         console.log("Available riders:", Array.from(availableRiders));
+//                     });
+//                 } else {
+//                     console.log('Geocode was not successful for the following reason: ' + status);
+//                 }
+//             });
+//         } else {
+//             console.log('Geocode was not successful for the following reason: ' + status);
+//         }
+//     });
+// }
+
+// function SearchRide() {
+//     var destination = document.getElementById("SearchDropOff").value;
+//     var geocoder = new google.maps.Geocoder();
+//     var destinationLat, destinationLng;
+//     var pickup = document.getElementById("SearchPickUp").value;
+//     var pickupLatLng;
+//     var availableRiders = new Set();
+
+//     geocoder.geocode({ 'address': destination }, function (results, status) {
+//         if (status == google.maps.GeocoderStatus.OK) {
+//             destinationLat = results[0].geometry.location.lat();
+//             destinationLng = results[0].geometry.location.lng();
+
+//             geocoder.geocode({ 'address': pickup }, function (results, status) {
+//                 if (status == google.maps.GeocoderStatus.OK) {
+//                     pickupLatLng = results[0].geometry.location;
+
+//                     var pathRef = firebase.database().ref('ridersAvailable');
+//                     pathRef.once('value').then(function (snapshot) {
+//                         snapshot.forEach(function (childSnapshot) {
+//                             var rider = childSnapshot.key;
+//                             var riderData = childSnapshot.val();
+//                             var riderPath = riderData.path;
+
+//                             var lastPointIndex = riderPath.length - 1;
+//                             var lastPoint = new google.maps.LatLng(riderPath[lastPointIndex][0], riderPath[lastPointIndex][1]);
+//                             var destPoint = new google.maps.LatLng(destinationLat, destinationLng);
+//                             var distanceToDest = google.maps.geometry.spherical.computeDistanceBetween(lastPoint, destPoint);
+//                             var maxDistance = 1000;
+//                             if (distanceToDest > maxDistance) {
+//                                 return;
+//                             }
+
+//                             var prevPoint = new google.maps.LatLng(riderPath[lastPointIndex - 1][0], riderPath[lastPointIndex - 1][1]);
+//                             var destBearing = google.maps.geometry.spherical.computeHeading(prevPoint, destPoint);
+//                             var lastBearing = google.maps.geometry.spherical.computeHeading(prevPoint, lastPoint);
+//                             var bearingDifference = Math.abs(destBearing - lastBearing);
+//                             if (bearingDifference > 90) {
+//                                 return;
+//                             }
+
+//                             var pickupDistance = google.maps.geometry.spherical.computeDistanceBetween(pickupLatLng, lastPoint);
+//                             if (pickupDistance <= 500) {
+//                                 var destDistance = google.maps.geometry.spherical.computeDistanceBetween(destPoint, lastPoint);
+//                                 if (destDistance <= 1000) {
+//                                     availableRiders.add(rider);
+//                                 }
+//                             }
+//                         });
+
+//                         console.log("Available riders:", availableRiders);
+//                     });
+//                 } else {
+//                     console.log('Geocode was not successful for the following reason: ' + status);
+//                 }
+//             });
+//         } else {
+//             console.log('Geocode was not successful for the following reason: ' + status);
+//         }
+//     });
+// }  
+
+// function SearchRide() {
+//     var destination = document.getElementById("SearchDropOff").value;
+//     var geocoder = new google.maps.Geocoder();
+//     var destinationLat, destinationLng;
+//     var pickup = document.getElementById("SearchPickUp").value;
+//     var pickupLatLng;
+//     var availableRiders = [];
+
+//     geocoder.geocode({ 'address': destination }, function (results, status) {
+//         if (status == google.maps.GeocoderStatus.OK) {
+//             destinationLat = results[0].geometry.location.lat();
+//             destinationLng = results[0].geometry.location.lng();
+
+//             geocoder.geocode({ 'address': pickup }, function (results, status) {
+//                 if (status == google.maps.GeocoderStatus.OK) {
+//                     pickupLatLng = results[0].geometry.location;
+
+//                     var pathRef = firebase.database().ref('ridersAvailable');
+//                     pathRef.once('value').then(function (snapshot) {
+//                         snapshot.forEach(function (childSnapshot) {
+//                             var rider = childSnapshot.key;
+//                             var riderData = childSnapshot.val();
+//                             var riderPath = riderData.path;
+
+//                             var lastPointIndex = riderPath.length - 1;
+//                             var lastPoint = new google.maps.LatLng(riderPath[lastPointIndex][0], riderPath[lastPointIndex][1]);
+//                             var destPoint = new google.maps.LatLng(destinationLat, destinationLng);
+//                             var distanceToDest = google.maps.geometry.spherical.computeDistanceBetween(lastPoint, destPoint);
+//                             var maxDistance = 1000;
+//                             if (distanceToDest > maxDistance) {
+//                                 return;
+//                             }
+
+//                             var prevPoint = new google.maps.LatLng(riderPath[lastPointIndex - 1][0], riderPath[lastPointIndex - 1][1]);
+//                             var destBearing = google.maps.geometry.spherical.computeHeading(prevPoint, destPoint);
+//                             var lastBearing = google.maps.geometry.spherical.computeHeading(prevPoint, lastPoint);
+//                             var bearingDifference = Math.abs(destBearing - lastBearing);
+//                             if (bearingDifference > 90) {
+//                                 return;
+//                             }
+
+//                             var pickupDistance = google.maps.geometry.spherical.computeDistanceBetween(pickupLatLng, lastPoint);
+//                             var pickupRange = 200; // meters
+//                             if (pickupDistance <= pickupRange) {
+//                                 var destDistance = google.maps.geometry.spherical.computeDistanceBetween(destPoint, lastPoint);
+//                                 var destinationRange = 1000; // meters
+//                                 if (destDistance <= destinationRange) {
+//                                     availableRiders.push(rider);
+//                                 }
+//                             }
+//                         });
+
+//                         console.log("Available riders:", availableRiders);
+//                         // Perform further actions with the available rider keys
+//                     });
+//                 } else {
+//                     console.log('Geocode was not successful for the following reason: ' + status);
+//                 }
+//             });
+//         } else {
+//             console.log('Geocode was not successful for the following reason: ' + status);
+//         }
+//     });
+// }
+
+function SearchRide() {
+    var destination = document.getElementById("SearchDropOff").value;
+    var geocoder = new google.maps.Geocoder();
+
+    geocoder.geocode({ 'address': destination }, function (results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+            var destinationLat = results[0].geometry.location.lat();
+            var destinationLng = results[0].geometry.location.lng();
+
+            var pathRef = firebase.database().ref('ridersAvailable');
+            pathRef.once('value').then(async function (snapshot) {
+                var availableRiders = [];
+
+                snapshot.forEach(async function (childSnapshot) {
+                    var rider = childSnapshot.key;
+                    var riderData = childSnapshot.val();
+                    var riderPath = riderData.path;
+
+                    var isPickupValid = await checkPickupLocation(riderPath);
+
+                    if (isPickupValid) {
+                        var isDestinationValid = checkDestinationLocation(riderPath, destinationLat, destinationLng);
+                        if (isDestinationValid) {
+                            availableRiders.push(rider);
+                        }
+                    }
+                });
+
+                console.log("Available riders:", availableRiders);
+            });
+        } else {
+            console.log('Geocode was not successful for the following reason: ' + status);
+        }
+    });
 }
+
+async function checkPickupLocation(riderPath) {
+    var pickup = document.getElementById("SearchPickUp").value;
+    var geocoder = new google.maps.Geocoder();
+
+    return new Promise(function (resolve) {
+        geocoder.geocode({ 'address': pickup }, function (results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                var pickupLat = results[0].geometry.location.lat();
+                var pickupLng = results[0].geometry.location.lng();
+                var pickupPoint = new google.maps.LatLng(pickupLat, pickupLng);
+
+                for (var i = 0; i < riderPath.length; i++) {
+                    var point = new google.maps.LatLng(riderPath[i][0], riderPath[i][1]);
+                    var distanceToPickup = google.maps.geometry.spherical.computeDistanceBetween(pickupPoint, point);
+
+                    var pickupRadius = 300; // Radius of 300 meters for pickup location
+
+                    if (distanceToPickup <= pickupRadius) {
+                        resolve(true);
+                    }
+                }
+            }
+
+            resolve(false);
+        });
+    });
+}
+
+function checkDestinationLocation(riderPath, destinationLat, destinationLng) {
+    var destPoint = new google.maps.LatLng(destinationLat, destinationLng);
+
+    for (var i = 0; i < riderPath.length; i++) {
+        var point = new google.maps.LatLng(riderPath[i][0], riderPath[i][1]);
+        var distanceToDestination = google.maps.geometry.spherical.computeDistanceBetween(destPoint, point);
+
+        var destinationRadius = 1000; // Radius of 1 kilometer for destination
+
+        if (distanceToDestination <= destinationRadius) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 
 function getCurrentLocation() {
