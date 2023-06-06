@@ -74,7 +74,7 @@
         </div>
 
         <div class="User-Current-Location">
-            <div onclick="getCurrentLocation()" class="User-Current-Location-Div">
+            <div onclick="StartfromCurrentLocation()" class="User-Current-Location-Div">
                 <div class="User-Current-Location-Div-Logo CurrentLocation">
                     <i class="fa-solid fa-location-crosshairs"></i>
                 </div>
@@ -107,10 +107,24 @@
         </div>
 
         <div class="Confirm-Ride">
-            <button onclick="SearchRide()" id="ConfirmBtn">Confirm Ride</button>
+            <button onclick="SearchRide()" id="ConfirmBtn">Search Riders</button>
         </div>
 
     </section>
+
+    <section id="Riders-Show-Container">
+        <div class="Riders-Container-Heading">
+            <h2>Searching For Riders</h2>
+            <span onclick="Cancel()" class="Cancel">Cancel</span>
+        </div>
+
+        <div class="Riders-list">
+            <ul id="ridersList"></ul>
+        </div>
+
+    </section>
+
+    
 
     <div id="loader-container">
         <div class="loader"></div>

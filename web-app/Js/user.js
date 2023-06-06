@@ -610,199 +610,50 @@ function ConfirmRide() {
     });
 }
 
+
+function StartfromCurrentLocation() {
+    if (navigator.geolocation) {
+
+        navigator.geolocation.getCurrentPosition(function (position) {
+
+            const latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+
+            const geocoder = new google.maps.Geocoder();
+
+            geocoder.geocode({ location: latLng }, function (results, status) {
+                if (status === google.maps.GeocoderStatus.OK) {
+
+                    const streetNumber = results[0].address_components.find(component => component.types.includes("street_number"));
+
+                    const StartPoint = document.getElementById("SearchPickUp");
+                    StartPoint.value = results[0].formatted_address;
+                    ClearPickUpValue();
+
+                    map.panTo(latLng);
+                    map.setZoom(15);
+                    ConfirmRide();
+
+                } else {
+                    window.alert("Geocoder failed: " + status);
+
+                }
+            });
+        }, function (error) {
+            document.getElementById("Current-Locaton-Msg").innerHTML = "Error getting current location: " + error.message;
+        });
+    } else {
+        window.alert("Geolocation is not supported by this browser.");
+    }
+}
+
 var availableRiders = [];
 
-// function SearchRide() {
-//     var pickupLocation = document.getElementById("SearchPickUp").value;
-//     var destination = document.getElementById("SearchDropOff").value;
-//     var geocoder = new google.maps.Geocoder();
-//     var pickupLat, pickupLng, destinationLat, destinationLng;
-
-//     geocoder.geocode({ 'address': pickupLocation }, function (results, status) {
-//         if (status == google.maps.GeocoderStatus.OK) {
-//             pickupLat = results[0].geometry.location.lat();
-//             pickupLng = results[0].geometry.location.lng();
-
-//             geocoder.geocode({ 'address': destination }, function (results, status) {
-//                 if (status == google.maps.GeocoderStatus.OK) {
-//                     destinationLat = results[0].geometry.location.lat();
-//                     destinationLng = results[0].geometry.location.lng();
-
-//                     var pathRef = firebase.database().ref('ridersAvailable');
-//                     pathRef.once('value').then(function (snapshot) {
-//                         snapshot.forEach(function (childSnapshot) {
-//                             var rider = childSnapshot.key;
-//                             var riderData = childSnapshot.val();
-//                             var riderPath = riderData.path;
-//                             var riderDestLat = riderData.destinationLat;
-//                             var riderDestLng = riderData.destinationLng;
-
-//                             var closestDistance = Infinity;
-//                             for (var i = 0; i < riderPath.length; i++) {
-//                                 var pathPoint = new google.maps.LatLng(riderPath[i][0], riderPath[i][1]);
-//                                 var distanceToPickup = google.maps.geometry.spherical.computeDistanceBetween(pathPoint, new google.maps.LatLng(pickupLat, pickupLng));
-//                                 if (distanceToPickup < closestDistance) {
-//                                     closestDistance = distanceToPickup;
-//                                 }
-//                             }
-//                             var maxDistance = 200;
-//                             if (closestDistance > maxDistance) {
-
-//                                 return;
-//                             }
-
-//                             var lastPointIndex = riderPath.length - 1;
-//                             var lastPoint = new google.maps.LatLng(riderPath[lastPointIndex][0], riderPath[lastPointIndex][1]);
-//                             var destPoint = new google.maps.LatLng(destinationLat, destinationLng);
-//                             var distanceToDest = google.maps.geometry.spherical.computeDistanceBetween(lastPoint, destPoint);
-//                             var maxDistanceToDest = 1000;
-//                             if (distanceToDest > maxDistanceToDest) {
-//                                 return;
-//                             }
-
-//                             availableRiders.add(rider);
-//                         });
-
-//                         console.log("Available riders:", Array.from(availableRiders));
-//                     });
-//                 } else {
-//                     console.log('Geocode was not successful for the following reason: ' + status);
-//                 }
-//             });
-//         } else {
-//             console.log('Geocode was not successful for the following reason: ' + status);
-//         }
-//     });
-// }
-
-// function SearchRide() {
-//     var destination = document.getElementById("SearchDropOff").value;
-//     var geocoder = new google.maps.Geocoder();
-//     var destinationLat, destinationLng;
-//     var pickup = document.getElementById("SearchPickUp").value;
-//     var pickupLatLng;
-//     var availableRiders = new Set();
-
-//     geocoder.geocode({ 'address': destination }, function (results, status) {
-//         if (status == google.maps.GeocoderStatus.OK) {
-//             destinationLat = results[0].geometry.location.lat();
-//             destinationLng = results[0].geometry.location.lng();
-
-//             geocoder.geocode({ 'address': pickup }, function (results, status) {
-//                 if (status == google.maps.GeocoderStatus.OK) {
-//                     pickupLatLng = results[0].geometry.location;
-
-//                     var pathRef = firebase.database().ref('ridersAvailable');
-//                     pathRef.once('value').then(function (snapshot) {
-//                         snapshot.forEach(function (childSnapshot) {
-//                             var rider = childSnapshot.key;
-//                             var riderData = childSnapshot.val();
-//                             var riderPath = riderData.path;
-
-//                             var lastPointIndex = riderPath.length - 1;
-//                             var lastPoint = new google.maps.LatLng(riderPath[lastPointIndex][0], riderPath[lastPointIndex][1]);
-//                             var destPoint = new google.maps.LatLng(destinationLat, destinationLng);
-//                             var distanceToDest = google.maps.geometry.spherical.computeDistanceBetween(lastPoint, destPoint);
-//                             var maxDistance = 1000;
-//                             if (distanceToDest > maxDistance) {
-//                                 return;
-//                             }
-
-//                             var prevPoint = new google.maps.LatLng(riderPath[lastPointIndex - 1][0], riderPath[lastPointIndex - 1][1]);
-//                             var destBearing = google.maps.geometry.spherical.computeHeading(prevPoint, destPoint);
-//                             var lastBearing = google.maps.geometry.spherical.computeHeading(prevPoint, lastPoint);
-//                             var bearingDifference = Math.abs(destBearing - lastBearing);
-//                             if (bearingDifference > 90) {
-//                                 return;
-//                             }
-
-//                             var pickupDistance = google.maps.geometry.spherical.computeDistanceBetween(pickupLatLng, lastPoint);
-//                             if (pickupDistance <= 500) {
-//                                 var destDistance = google.maps.geometry.spherical.computeDistanceBetween(destPoint, lastPoint);
-//                                 if (destDistance <= 1000) {
-//                                     availableRiders.add(rider);
-//                                 }
-//                             }
-//                         });
-
-//                         console.log("Available riders:", availableRiders);
-//                     });
-//                 } else {
-//                     console.log('Geocode was not successful for the following reason: ' + status);
-//                 }
-//             });
-//         } else {
-//             console.log('Geocode was not successful for the following reason: ' + status);
-//         }
-//     });
-// }  
-
-// function SearchRide() {
-//     var destination = document.getElementById("SearchDropOff").value;
-//     var geocoder = new google.maps.Geocoder();
-//     var destinationLat, destinationLng;
-//     var pickup = document.getElementById("SearchPickUp").value;
-//     var pickupLatLng;
-//     var availableRiders = [];
-
-//     geocoder.geocode({ 'address': destination }, function (results, status) {
-//         if (status == google.maps.GeocoderStatus.OK) {
-//             destinationLat = results[0].geometry.location.lat();
-//             destinationLng = results[0].geometry.location.lng();
-
-//             geocoder.geocode({ 'address': pickup }, function (results, status) {
-//                 if (status == google.maps.GeocoderStatus.OK) {
-//                     pickupLatLng = results[0].geometry.location;
-
-//                     var pathRef = firebase.database().ref('ridersAvailable');
-//                     pathRef.once('value').then(function (snapshot) {
-//                         snapshot.forEach(function (childSnapshot) {
-//                             var rider = childSnapshot.key;
-//                             var riderData = childSnapshot.val();
-//                             var riderPath = riderData.path;
-
-//                             var lastPointIndex = riderPath.length - 1;
-//                             var lastPoint = new google.maps.LatLng(riderPath[lastPointIndex][0], riderPath[lastPointIndex][1]);
-//                             var destPoint = new google.maps.LatLng(destinationLat, destinationLng);
-//                             var distanceToDest = google.maps.geometry.spherical.computeDistanceBetween(lastPoint, destPoint);
-//                             var maxDistance = 1000;
-//                             if (distanceToDest > maxDistance) {
-//                                 return;
-//                             }
-
-//                             var prevPoint = new google.maps.LatLng(riderPath[lastPointIndex - 1][0], riderPath[lastPointIndex - 1][1]);
-//                             var destBearing = google.maps.geometry.spherical.computeHeading(prevPoint, destPoint);
-//                             var lastBearing = google.maps.geometry.spherical.computeHeading(prevPoint, lastPoint);
-//                             var bearingDifference = Math.abs(destBearing - lastBearing);
-//                             if (bearingDifference > 90) {
-//                                 return;
-//                             }
-
-//                             var pickupDistance = google.maps.geometry.spherical.computeDistanceBetween(pickupLatLng, lastPoint);
-//                             var pickupRange = 200; // meters
-//                             if (pickupDistance <= pickupRange) {
-//                                 var destDistance = google.maps.geometry.spherical.computeDistanceBetween(destPoint, lastPoint);
-//                                 var destinationRange = 1000; // meters
-//                                 if (destDistance <= destinationRange) {
-//                                     availableRiders.push(rider);
-//                                 }
-//                             }
-//                         });
-
-//                         console.log("Available riders:", availableRiders);
-//                         // Perform further actions with the available rider keys
-//                     });
-//                 } else {
-//                     console.log('Geocode was not successful for the following reason: ' + status);
-//                 }
-//             });
-//         } else {
-//             console.log('Geocode was not successful for the following reason: ' + status);
-//         }
-//     });
-// }
-
 function SearchRide() {
+
+    var ridersList = document.getElementById("ridersList");
+    ridersList.innerHTML = "";
+    ToggleRidersList();
+
     var destination = document.getElementById("SearchDropOff").value;
     var geocoder = new google.maps.Geocoder();
 
@@ -826,6 +677,7 @@ function SearchRide() {
                         var isDestinationValid = checkDestinationLocation(riderPath, destinationLat, destinationLng);
                         if (isDestinationValid) {
                             availableRiders.push(rider);
+                            updateRidersList(childSnapshot);
                         }
                     }
                 });
@@ -883,7 +735,213 @@ function checkDestinationLocation(riderPath, destinationLat, destinationLng) {
     return false;
 }
 
+function returnCurrentLocation() {
+    return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
 
+                    const location = {
+                        latitude,
+                        longitude
+                    };
+
+                    resolve(location);
+                },
+                error => {
+                    reject(error);
+                }
+            );
+        } else {
+            reject(new Error("Geolocation is not supported by this browser."));
+        }
+    });
+}
+
+async function getUpdatedFare(fm, rr, frr, rp, fpr, rc, fcr, rn, fr, m, dp, dop, fop, frm, fpm, dt) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        let fare = frm * fpm * fr * (1/m) * (dp + fop*dop - (3*dp/dt))*(1 + 0.2*(rr - rn)*frr) * (1 + 0.2*(rc - rn)*fcr) / (1 + 0.2*(rp - rn)*fpr);
+        resolve(fare > fm ? fare : fm);
+      }, 0);
+    });
+  }
+
+  async function calculateFare() {
+    const fm = 100;             // Minimum acceptable fare
+    const rr = 4;               // Rider rating [1 - 5]
+    const frr = 0.6;            // Rider rating factor [0 - 1]
+    const rp = 4;               // Passenger rating [1 - 5]
+    const fpr = 1;              // Passenger rating factor [0 - 1]
+    const rc = 4;               // Car rating [1 - 5]
+    const fcr = 0.6;            // Car rating factor [0 - 1]
+    const rn = 4;               // Normal rating [1 - 5]
+    const fr = 284;             // Fuel rate (per liter or per gallon)
+    const m = 15;               // Mileage (Km/l, Km/Gal, M/l, M/Gal)
+    const dp = 10;              // Passenger's distance (including off-distance)
+    const dop = 2;              // Passenger's off-distance [Total off distance the rider has to travel for the passenger P&D]
+    const fop = 1.5;            // Passenger off-distance rate factor
+    const frm = 1.1;            // Rider mode factor [Rider's Mode: 0: En-route only (0.9), 1: Can P & D off distance (Can adjust the max range) (1.1), 2: As a taxi cab (1.2)]
+    const fpm = 1.2;            // Passenger mode factor [Passenger's Mode: 0: Share with other passengers (0.8), 1: Solo Ride with the Rider (1.2), 2: As a taxi cab (Can specify exact P & D location) (1.5)]
+    const dt = 12;              // Total distance of all the passengers, including off-distance
+  
+    try {
+      const fare = await getUpdatedFare(fm, rr, frr, rp, fpr, rc, fcr, rn, fr, m, dp, dop, fop, frm, fpm, dt);
+      return fare;
+    } catch (error) {
+      console.error("Error calculating fare:", error);
+      return null;
+    }
+  }
+
+function updateRidersList(Data) {
+    var ridersList = document.getElementById("ridersList");
+    var listItem = document.createElement("li");
+    var listData = document.createElement("div");
+    var listDataRight = document.createElement("div");
+    var listDataLeft = document.createElement("div");
+    var listButtons = document.createElement("div");
+    var Name = document.createElement("span");
+    var Vehicle = document.createElement("span");
+    var Rating = document.createElement("span");
+    var Price = document.createElement("span");
+    var Passengers = document.createElement("span");
+    var Distance = document.createElement("span");
+    var progressBar = document.createElement("div");
+    progressBar.classList.add("status-bar");
+    console.log(Data.key);
+
+
+    // Adding Progress Bar to Component
+    listItem.classList.add("rider-list-component");
+    listItem.appendChild(progressBar);
+
+    // Adding Name to ListDataright
+    Name.innerHTML = Data.val().name;
+    Vehicle.innerHTML = `Corolla `;
+    Rating.innerHTML = `4.2 (50)`;
+    Passengers.innerHTML = `Passengers : 1`;
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            const latLng = new google.maps.LatLng(
+                position.coords.latitude,
+                position.coords.longitude
+            );
+
+            var destinationLatLng = new google.maps.LatLng(
+                Data.val().lat,
+                Data.val().lnt
+            );
+            var service = new google.maps.DistanceMatrixService();
+            service.getDistanceMatrix(
+                {
+                    origins: [latLng],
+                    destinations: [destinationLatLng],
+                    travelMode: google.maps.TravelMode.DRIVING,
+                },
+                function (response, status) {
+                    if (status === google.maps.DistanceMatrixStatus.OK) {
+                        var distance = response.rows[0].elements[0].distance.text;
+                        var duration = response.rows[0].elements[0].duration.text;
+
+                        Distance.innerHTML = `${distance} (${duration})`;
+                    } else {
+                        console.log(
+                            "Distance Matrix request failed: " + status
+                        );
+                    }
+                }
+            );
+        });
+    }
+
+    // Append Lisr Data right
+    listDataRight.appendChild(Name);
+    listDataRight.appendChild(Vehicle);
+    listDataRight.appendChild(Rating);
+    listDataLeft.appendChild(Price);
+    listDataLeft.appendChild(Passengers);
+    listDataLeft.appendChild(Distance);
+
+    // Add to list Data right
+    listData.appendChild(listDataRight);
+    listData.appendChild(listDataLeft);
+
+    // Adding Class List to data and its componets
+    listDataRight.classList.add("rider-list-Data-right");
+    listDataLeft.classList.add("rider-list-Data-left");
+    listData.classList.add("rider-list-Data");
+    Name.classList.add("listDataRight-Bigfont");
+    Price.classList.add("listDataRight-Bigfont");
+    Vehicle.classList.add("listDataRight-smallfont");
+    Rating.classList.add("listDataRight-smallfont");
+    Passengers.classList.add("listDataRight-smallfont");
+    Distance.classList.add("listDataRight-smallfont");
+
+    // Adding List Data To list component
+    listItem.appendChild(listData);
+
+    var Requestbutton = document.createElement("button");
+    Requestbutton.innerText = "Request";
+    Requestbutton.classList.add("requestButton");
+    Requestbutton.onclick = function () {
+        sendRequest(Data.key);
+    };
+
+
+    // Adding RequstButtons to listButton
+    listButtons.appendChild(Requestbutton);
+    listButtons.classList.add("rider-list-Buttons");
+
+    // Adding Buttons to list component
+    listItem.appendChild(listButtons);
+
+
+    ridersList.appendChild(listItem); // Adding Component to Ul
+
+    var progressBarWidth = 100;
+    var interval = setInterval(function () {
+        progressBar.style.width = progressBarWidth + "%";
+        progressBarWidth -= 1;
+
+        if (progressBarWidth < 0) {
+            clearInterval(interval);
+            listItem.remove();
+        }
+    }, 400);
+
+    calculateFare().then(function(fare) {
+        Price.innerHTML = "Rs. " + " " + Math.round(fare);; 
+    }).catch(function(error) {
+        console.error("Error calculating fare:", error);
+    });
+}
+
+function sendRequest(key) {
+    var pathRef = firebase.database().ref('ridersAvailable/' + key + "/userReq/" + UserId);
+
+    data = { id: UserId };
+
+    pathRef.update(data);
+}
+
+function ToggleRidersList() {
+    var riderslist = document.getElementById("Riders-Show-Container");
+    var userinputs = document.getElementById("Main-Controls-Area");
+    riderslist.style.display = "flex";
+    userinputs.style.display = "none";
+}
+
+function Cancel() {
+    var riderslist = document.getElementById("Riders-Show-Container");
+    var userinputs = document.getElementById("Main-Controls-Area");
+    riderslist.style.display = "none";
+    userinputs.style.display = "flex";
+    clearTimeout(SearchRide);
+}
 
 function getCurrentLocation() {
     if (navigator.geolocation) {
