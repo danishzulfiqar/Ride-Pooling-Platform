@@ -35,7 +35,8 @@
                 <span id="User-drop"> <span id="User-Name">USERS</span><i id="user-nav-down"
                         class="fa-solid fa-caret-down drop-down-icons"></i>
                     <ul id="User-dropdown">
-                        <li class="subMenu"><a href="usertrips.html"><i class="fa-solid fa-rectangle-list subIcon"></i> My Trips</a>
+                        <li class="subMenu"><a href="usertrips.html"><i class="fa-solid fa-rectangle-list subIcon"></i>
+                                My Trips</a>
                         </li>
                         <li class="subMenu"><a href="#"><i class="fa-solid fa-wallet subIcon"></i> Wallet</a></li>
                         <li class="subMenu"><a href="usersettings.html"><i class="fa-solid fa-gear subIcon"></i>
@@ -58,7 +59,7 @@
             <span>Welcome start your journey today</span>
         </div>
 
-        <div id="Input-Section"> 
+        <div id="Input-Section">
             <div class="PlaceInputs" id="PickData" onclick="RideStartEndToggle()">
                 <i class="fa-solid fa-location-dot SearchIcon"></i>
                 <input onkeyup="ClearPickUpValue()" class="PlaceSearch" id="SearchStart"
@@ -110,6 +111,12 @@
             <button onclick="confirmPath()" id="ConfirmBtn">Confirm Path</button>
         </div>
 
+    </section>
+
+    <section id="Travel-Mode-Container">
+        <div id="Travel-Time" class="Travel-Mode-divs">15:33</div>
+        <div id="DropOff" class="Travel-Mode-divs">3km</div>
+        <div id="Cancel-Travel" class="Travel-Mode-divs"><button id="CancelTravelBut" class="CancelTarvelButton"></button></div>
     </section>
 
     <div id="loader-container">

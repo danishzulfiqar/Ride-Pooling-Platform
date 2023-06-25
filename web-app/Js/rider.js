@@ -689,6 +689,28 @@ function StartfromCurrentLocation() {
     }
 }
 
+var PathintervalId;
+
+function SetTravelMode(Data, path) {
+    console.log(Data.name + " Called Function SetTravelMode");
+    var Controll = document.getElementById("Main-Controls-Area");
+    var TravelBox = document.getElementById("Travel-Mode-Container");
+    TravelBox.style.display = "flex";
+    Controll.style.display = "none";
+
+    var Cancel_Btn = document.getElementById("CancelTravelBut");
+    Cancel_Btn.innerText = "Cancel";
+
+    Cancel_Btn.onclick = function () {
+        clearTimeout(confirmPath);
+        clearInterval(PathintervalId);
+        path.remove();
+        TravelBox.style.display = "none";
+        Controll.style.display = "flex";
+    };
+
+}
+
 function confirmPath() {
     navigator.geolocation.getCurrentPosition(function (position) {
         var userLat = position.coords.latitude;
@@ -724,6 +746,8 @@ function confirmPath() {
                     path: pathArray,
                 }
 
+
+                SetTravelMode(uid, pathRef);
                 pathRef.set(uid);
                 console.log("path updated");
 
@@ -744,7 +768,7 @@ function confirmPath() {
                     markers = [];
                     map.panTo(userLocation);
 
-                    setInterval(function () {
+                    PathintervalId = setInterval(function () {
                         navigator.geolocation.getCurrentPosition(function (position) {
                             var updatedLat = position.coords.latitude + (Math.random() * 0.001 - 0.0005);
                             var updatedLng = position.coords.longitude + (Math.random() * 0.001 - 0.0005);
@@ -782,7 +806,7 @@ function confirmPath() {
                             });
                         });
 
-                     CheckReq();
+                        CheckReq();
 
                     }, 5000);
 
@@ -818,7 +842,7 @@ function CheckReq() {
 
 function addUserRequest(userId) {
     console.log(userId);
-  }
+}
 
 window.onload = function () {
     getCurrentLocation();
