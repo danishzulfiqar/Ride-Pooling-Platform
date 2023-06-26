@@ -473,7 +473,6 @@ function calculateRoute() {
     const directionsService = new google.maps.DirectionsService();
 
     if (!directionsRenderer) {
-        // directionsRenderer = new google.maps.DirectionsRenderer();
         directionsRenderer = new google.maps.DirectionsRenderer({
             suppressMarkers: true,
             polylineOptions: {
@@ -724,15 +723,47 @@ function SetTravelMode(Data, path) {
     var Cancel_Btn = document.getElementById("CancelTravelBut");
 
     Cancel_Btn.onclick = function () {
+        initMap();
         clearTimeout(confirmPath);
         clearInterval(PathintervalId);
         path.remove();
         TravelBox.style.display = "none";
         Controll.style.display = "flex";
         RideStartEndToggle();
+        calculateRoute();
         currentlocInterval = setInterval(getCurrentLocation, 20000);
     };
 
+}
+
+function SetDurationDistance(Data) {
+    var origin = new google.maps.LatLng(Data.lat, Data.lnt);
+    var destination = Data.Destination;
+
+    console.log(origin + " " + destination);
+
+    var service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+        {
+            origins: [origin],
+            destinations: [destination],
+            travelMode: google.maps.TravelMode.DRIVING
+        },
+        function (response, status) {
+            if (status === google.maps.DistanceMatrixStatus.OK) {
+                var distance = response.rows[0].elements[0].distance.text;
+                var duration = response.rows[0].elements[0].duration.text;
+
+                var distanceSpan = document.getElementById("DropOff");
+                distanceSpan.innerHTML = distance;
+
+                var durationSpan = document.getElementById("Travel-Time");
+                durationSpan.innerHTML = duration;
+            } else {
+                console.log('Error: ' + status);
+            }
+        }
+    );
 }
 
 function confirmPath() {
@@ -766,7 +797,7 @@ function confirmPath() {
             anchor: new google.maps.Point(0, 0)
         };
 
-        mark1 = new google.maps.Marker({
+        var mark1 = new google.maps.Marker({
             position: userLocation,
             map: map,
             icon: customMarker,
@@ -790,6 +821,7 @@ function confirmPath() {
                     name: UserName,
                     lat: userLat,
                     lnt: userLng,
+                    Destination: destination,
                     path: pathArray,
                 }
 
@@ -797,6 +829,9 @@ function confirmPath() {
                 SetTravelMode(uid, pathRef);
                 pathRef.set(uid);
                 console.log("path updated");
+
+                // Setting it first
+                SetDurationDistance(uid);
 
                 if (pathArray.length > 0) {
 
@@ -823,22 +858,38 @@ function confirmPath() {
                             var updatedUserLocation = new google.maps.LatLng(updatedLat, updatedLng);
                             map.panTo(updatedUserLocation);
 
+
                             var updatedRequest = {
                                 origin: updatedUserLocation,
                                 destination: destination,
                                 travelMode: google.maps.TravelMode.DRIVING
                             };
 
+                            markers.forEach(marker => marker.setMap(null));
+                            markers = []; //Remember
+
                             var currentHeading = 0;
                             if (previousPosition) {
+                                markers.forEach(marker => marker.setMap(null));
+                                markers = []; //Remember
+
                                 currentHeading = google.maps.geometry.spherical.computeHeading(previousPosition, updatedUserLocation);
+
+                                mark1 = new google.maps.Marker({
+                                    position: updatedUserLocation,
+                                    map: map,
+                                    icon: customMarker,
+                                    optimized: false,
+                                });
                             }
                             mark1.setIcon({
                                 ...customMarker,
                                 rotation: currentHeading
                             });
-                            mark1.setPosition(updatedUserLocation);
 
+                            // mark1.setPosition(updatedUserLocation);
+
+                            markers.push(mark1); //Remember
 
                             directionsService.route(updatedRequest, function (updatedResponse, updatedStatus) {
                                 if (updatedStatus == google.maps.DirectionsStatus.OK) {
@@ -853,11 +904,16 @@ function confirmPath() {
                                         name: UserName,
                                         lat: updatedLat,
                                         lnt: updatedLng,
+                                        Destination: destination,
                                         path: updatedPathArray,
                                     }
 
                                     polyline.setPath(updatedPath);
                                     pathRef.update(uid);
+
+                                    // Setting it to interval
+                                    SetDurationDistance(uid);
+
                                     console.log("Updated Path");
                                 } else {
                                     console.log('Directions request failed due to ' + updatedStatus);
@@ -890,8 +946,6 @@ function CheckReq() {
             var requestData = snapshot.val();
 
             var userId = snapshot.key;
-            // var pickupLocation = requestData.pickupLocation;
-            // var destination = requestData.destination;
 
             addUserRequest(userId);
 
