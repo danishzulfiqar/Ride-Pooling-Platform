@@ -201,7 +201,7 @@ nav .menu-btn i {
     -webkit-box-pack: center;
     height: max-content;
     position: absolute;
-    top:5rem;
+    top: 5rem;
     width: 406px;
     left: 80px;
     border-radius: 10px;
@@ -366,7 +366,7 @@ nav .menu-btn i {
     font-size: 0.85rem;
 }
 
-#Travel-Mode-Container{
+#Travel-Mode-Container {
     display: none;
     flex-direction: row;
     -webkit-box-orient: vertical;
@@ -375,7 +375,7 @@ nav .menu-btn i {
     height: max-content;
     position: absolute;
     padding: 0.5rem;
-    bottom:3rem;
+    bottom: 3rem;
     width: 300px;
     justify-content: space-around;
     left: 50%;
@@ -385,16 +385,25 @@ nav .menu-btn i {
     z-index: 2;
     background-color: white;
     font-size: 1.1rem;
+    border-bottom: 5px solid var(--black);
 }
 
-.Travel-Mode-divs{
+.Travel-Mode-divs {
     width: 50px;
     display: flex;
+    gap: 5px;
     align-items: center;
     justify-content: center;
 }
 
-.CancelTarvelButton{
+.Travel-Mode-divs i {
+    font-size: 15px;
+    background-color: var(--grey);
+    padding: 0.5rem;
+    border-radius: 50%;
+}
+
+.CancelTarvelButton {
     background-color: red;
     color: white;
     outline: none;

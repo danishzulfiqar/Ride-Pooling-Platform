@@ -379,16 +379,17 @@ function initMap() {
 
     });
 
-    var dropicon = {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 5.5,
-        fillColor: "white",
+    var caricon = {
+        path: 'M29.395,0H17.636c-3.117,0-5.643,3.467-5.643,6.584v34.804c0,3.116,2.526,5.644,5.643,5.644h11.759   c3.116,0,5.644-2.527,5.644-5.644V6.584C35.037,3.467,32.511,0,29.395,0z M34.05,14.188v11.665l-2.729,0.351v-4.806L34.05,14.188z    M32.618,10.773c-1.016,3.9-2.219,8.51-2.219,8.51H16.631l-2.222-8.51C14.41,10.773,23.293,7.755,32.618,10.773z M15.741,21.713   v4.492l-2.73-0.349V14.502L15.741,21.713z M13.011,37.938V27.579l2.73,0.343v8.196L13.011,37.938z M14.568,40.882l2.218-3.336   h13.771l2.219,3.336H14.568z M31.321,35.805v-7.872l2.729-0.355v10.048L31.321,35.805',
+        scale: 0.5,
+        fillColor: "rgba(255, 255, 0, 0.931)",
         fillOpacity: 1,
-        strokeColor: "#246EF0",
-        strokeWeight: 6,
+        strokeWeight: 1,
         anchor: new google.maps.Point(0, 0),
         rotation: 0
     };
+
+
 
     if (navigator.geolocation) {
 
@@ -401,7 +402,7 @@ function initMap() {
             UserLocationMarker = new google.maps.Marker({
                 position: latLng,
                 map: map,
-                icon: dropicon,
+                icon: caricon,
             });
 
         }, function (error) {
@@ -506,8 +507,13 @@ function calculateRoute() {
     };
 
     var pickicon = {
-        url: "http://labs.google.com/ridefinder/images/mm_20_black.png",
-        scale: 5,
+        path: 'M29.395,0H17.636c-3.117,0-5.643,3.467-5.643,6.584v34.804c0,3.116,2.526,5.644,5.643,5.644h11.759   c3.116,0,5.644-2.527,5.644-5.644V6.584C35.037,3.467,32.511,0,29.395,0z M34.05,14.188v11.665l-2.729,0.351v-4.806L34.05,14.188z    M32.618,10.773c-1.016,3.9-2.219,8.51-2.219,8.51H16.631l-2.222-8.51C14.41,10.773,23.293,7.755,32.618,10.773z M15.741,21.713   v4.492l-2.73-0.349V14.502L15.741,21.713z M13.011,37.938V27.579l2.73,0.343v8.196L13.011,37.938z M14.568,40.882l2.218-3.336   h13.771l2.219,3.336H14.568z M31.321,35.805v-7.872l2.729-0.355v10.048L31.321,35.805',
+        scale: 0.5,
+        fillColor: "rgba(255, 255, 0, 0.931)",
+        fillOpacity: 1,
+        strokeWeight: 1,
+        anchor: new google.maps.Point(0, 0),
+        rotation: 60
     }
 
 
@@ -519,7 +525,7 @@ function calculateRoute() {
             const pickupMarker = new google.maps.Marker({
                 position: result.routes[0].legs[0].start_location,
                 map: map,
-                icon: dropicon,
+                icon: pickicon,
             });
             const dropoffMarker = new google.maps.Marker({
                 position: result.routes[0].legs[0].end_location,
@@ -613,35 +619,51 @@ function ConfirmRide() {
     });
 }
 
-// function confirmPath() {
-//     console.log("Path Confirmed");
-// }
 
+var LastPosition = null;
 
 function getCurrentLocation() {
     if (navigator.geolocation) {
 
+        console.log("Called get location");
         navigator.geolocation.getCurrentPosition(function (position) {
-
             const latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
             const geocoder = new google.maps.Geocoder();
 
             geocoder.geocode({ location: latLng }, function (results, status) {
                 if (status === google.maps.GeocoderStatus.OK) {
-
                     const streetNumber = results[0].address_components.find(component => component.types.includes("street_number"));
-
                     const currentLocationSpan = document.getElementById("Current-Locaton");
                     currentLocationSpan.innerHTML = streetNumber ? streetNumber.short_name : results[0].address_components[0].short_name;
 
-                    // console.log(results[0].formatted_address);
-                    UserLocationMarker.setPosition(latLng);
+                    if (UserLocationMarker) {
+                        UserLocationMarker.setMap(null);
+                    }
+                    markers.forEach(marker => marker.setMap(null));
+                    markers = [];
 
+                    var customMarker = {
+                        path: 'M29.395,0H17.636c-3.117,0-5.643,3.467-5.643,6.584v34.804c0,3.116,2.526,5.644,5.643,5.644h11.759   c3.116,0,5.644-2.527,5.644-5.644V6.584C35.037,3.467,32.511,0,29.395,0z M34.05,14.188v11.665l-2.729,0.351v-4.806L34.05,14.188z    M32.618,10.773c-1.016,3.9-2.219,8.51-2.219,8.51H16.631l-2.222-8.51C14.41,10.773,23.293,7.755,32.618,10.773z M15.741,21.713   v4.492l-2.73-0.349V14.502L15.741,21.713z M13.011,37.938V27.579l2.73,0.343v8.196L13.011,37.938z M14.568,40.882l2.218-3.336   h13.771l2.219,3.336H14.568z M31.321,35.805v-7.872l2.729-0.355v10.048L31.321,35.805',
+                        scale: 0.5,
+                        fillColor: "rgba(255, 255, 0, 0.931)",
+                        fillOpacity: 1,
+                        strokeWeight: 1,
+                        anchor: new google.maps.Point(0, 0),
+                        rotation: 0
+                    }
+
+                    UserLocationMarker = new google.maps.Marker({
+                        position: latLng,
+                        map: map,
+                        icon: customMarker
+
+                    });
+
+                    markers.push(UserLocationMarker);
 
                 } else {
                     window.alert("Geocoder failed: " + status);
-
                 }
             });
         }, function (error) {
@@ -651,7 +673,8 @@ function getCurrentLocation() {
         window.alert("Geolocation is not supported by this browser.");
     }
 }
-setInterval(getCurrentLocation, 20000);
+var currentlocInterval = setInterval(getCurrentLocation, 20000);
+
 
 
 function StartfromCurrentLocation() {
@@ -699,7 +722,6 @@ function SetTravelMode(Data, path) {
     Controll.style.display = "none";
 
     var Cancel_Btn = document.getElementById("CancelTravelBut");
-    Cancel_Btn.innerText = "Cancel";
 
     Cancel_Btn.onclick = function () {
         clearTimeout(confirmPath);
@@ -707,11 +729,16 @@ function SetTravelMode(Data, path) {
         path.remove();
         TravelBox.style.display = "none";
         Controll.style.display = "flex";
+        RideStartEndToggle();
+        currentlocInterval = setInterval(getCurrentLocation, 20000);
     };
 
 }
 
 function confirmPath() {
+
+    var previousPosition = null;
+
     navigator.geolocation.getCurrentPosition(function (position) {
         var userLat = position.coords.latitude;
         var userLng = position.coords.longitude;
@@ -726,6 +753,26 @@ function confirmPath() {
             destination: destination,
             travelMode: google.maps.TravelMode.DRIVING
         };
+
+        markers.forEach(marker => marker.setMap(null));
+        markers = [];
+
+        var customMarker = {
+            path: "M29.395,0H17.636c-3.117,0-5.643,3.467-5.643,6.584v34.804c0,3.116,2.526,5.644,5.643,5.644h11.759   c3.116,0,5.644-2.527,5.644-5.644V6.584C35.037,3.467,32.511,0,29.395,0z M34.05,14.188v11.665l-2.729,0.351v-4.806L34.05,14.188z    M32.618,10.773c-1.016,3.9-2.219,8.51-2.219,8.51H16.631l-2.222-8.51C14.41,10.773,23.293,7.755,32.618,10.773z M15.741,21.713   v4.492l-2.73-0.349V14.502L15.741,21.713z M13.011,37.938V27.579l2.73,0.343v8.196L13.011,37.938z M14.568,40.882l2.218-3.336   h13.771l2.219,3.336H14.568z M31.321,35.805v-7.872l2.729-0.355v10.048L31.321,35.805",
+            scale: 0.5,
+            fillColor: "rgba(255, 255, 0, 0.931)",
+            fillOpacity: 1,
+            strokeWeight: 1,
+            anchor: new google.maps.Point(0, 0)
+        };
+
+        mark1 = new google.maps.Marker({
+            position: userLocation,
+            map: map,
+            icon: customMarker,
+            optimized: false
+        });
+
 
         directionsService.route(request, function (response, status) {
             if (status == google.maps.DirectionsStatus.OK) {
@@ -766,6 +813,7 @@ function confirmPath() {
                     directionsRenderer.setMap(null);
                     markers.forEach(marker => marker.setMap(null));
                     markers = [];
+                    clearInterval(currentlocInterval);
                     map.panTo(userLocation);
 
                     PathintervalId = setInterval(function () {
@@ -780,6 +828,17 @@ function confirmPath() {
                                 destination: destination,
                                 travelMode: google.maps.TravelMode.DRIVING
                             };
+
+                            var currentHeading = 0;
+                            if (previousPosition) {
+                                currentHeading = google.maps.geometry.spherical.computeHeading(previousPosition, updatedUserLocation);
+                            }
+                            mark1.setIcon({
+                                ...customMarker,
+                                rotation: currentHeading
+                            });
+                            mark1.setPosition(updatedUserLocation);
+
 
                             directionsService.route(updatedRequest, function (updatedResponse, updatedStatus) {
                                 if (updatedStatus == google.maps.DirectionsStatus.OK) {
@@ -804,6 +863,9 @@ function confirmPath() {
                                     console.log('Directions request failed due to ' + updatedStatus);
                                 }
                             });
+
+                            previousPosition = updatedUserLocation;
+
                         });
 
                         CheckReq();
