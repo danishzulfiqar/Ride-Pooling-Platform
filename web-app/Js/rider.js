@@ -803,6 +803,7 @@ function confirmPath() {
             icon: customMarker,
             optimized: false
         });
+        markers.push(mark1); //Remember
 
 
         directionsService.route(request, function (response, status) {
@@ -846,8 +847,7 @@ function confirmPath() {
                     });
 
                     directionsRenderer.setMap(null);
-                    markers.forEach(marker => marker.setMap(null));
-                    markers = [];
+                
                     clearInterval(currentlocInterval);
                     map.panTo(userLocation);
 
@@ -865,8 +865,6 @@ function confirmPath() {
                                 travelMode: google.maps.TravelMode.DRIVING
                             };
 
-                            markers.forEach(marker => marker.setMap(null));
-                            markers = []; //Remember
 
                             var currentHeading = 0;
                             if (previousPosition) {
@@ -886,8 +884,6 @@ function confirmPath() {
                                 ...customMarker,
                                 rotation: currentHeading
                             });
-
-                            // mark1.setPosition(updatedUserLocation);
 
                             markers.push(mark1); //Remember
 
