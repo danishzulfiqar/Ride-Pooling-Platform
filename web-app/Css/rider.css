@@ -415,3 +415,126 @@ nav .menu-btn i {
     width: 100px;
     font-size: 1rem;
 }
+
+
+#UserRequest-Show-Container {
+    bottom: 16px;
+    /* display: flex; */
+    display: none;
+    flex-direction: column;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-box-pack: center;
+    height: max-content;
+    position: absolute;
+    top: 5rem;
+    width: 406px;
+    height: 500px;
+    left: 100px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+    z-index: 2;
+    background-color: white;
+}
+
+.UserRequest-Container-Heading {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0.8rem;
+}
+
+.UserRequest-Container-Heading .Cancel {
+    background-color: rgba(255, 0, 0, 0.86);
+    color: white;
+    border-radius: 5px;
+    padding: 3px 5px;
+    cursor: pointer;
+}
+
+.UserRequest-list {
+    height: 420px;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+#UserRequestList {
+    list-style: none;
+}
+
+.UserRequest-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.UserRequest-list::-webkit-scrollbar-thumb {
+    background-color: #000;
+    border-radius: 6px;
+}
+
+.requestButton {
+    background-color: var(--black);
+    color: var(--white);
+    outline: none;
+    border: none;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100px;
+}
+
+.UserRequest-list-component {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    border-radius: 6px;
+    padding: 0;
+    font-size: 1.15rem;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 5px 0px, rgba(0, 0, 0, 0.24) 0px 3px 0px 0px;
+    margin-bottom: 1rem;
+}
+
+/* Remember To Edit */
+
+.status-bar {
+    height: 2px;
+    background-color: var(--black);
+    transition: width 1s ease;
+}
+
+.UserRequest-list-Data {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 0.5rem 0.5rem 0.5rem;
+}
+
+.UserRequest-list-Data-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.UserRequest-list-Data-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    align-items: end;
+}
+
+.listDataRight-smallfont {
+    font-size: 0.9rem;
+    width: max-content;
+}
+
+.listDataRight-Bigfont {
+    font-weight: 600;
+}
+
+.UserRequest-list-Buttons {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 0 0.5rem 0.5rem 0.5rem;
+}

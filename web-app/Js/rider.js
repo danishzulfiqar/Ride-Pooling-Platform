@@ -464,6 +464,7 @@ function ClearDropOffValue() {
 
 let directionsRenderer;
 let markers = [];
+var UserRequests = [];
 
 function calculateRoute() {
 
@@ -717,8 +718,12 @@ function SetTravelMode(Data, path) {
     console.log(Data.name + " Called Function SetTravelMode");
     var Controll = document.getElementById("Main-Controls-Area");
     var TravelBox = document.getElementById("Travel-Mode-Container");
+    var RequestSection = document.getElementById("UserRequest-Show-Container");
+    var RequestList = document.getElementById("UserRequestList");
     TravelBox.style.display = "flex";
+    RequestSection.style.display = "flex";
     Controll.style.display = "none";
+
 
     var Cancel_Btn = document.getElementById("CancelTravelBut");
 
@@ -726,8 +731,13 @@ function SetTravelMode(Data, path) {
         initMap();
         clearTimeout(confirmPath);
         clearInterval(PathintervalId);
+        clearInterval(RequestBarInterval);
         path.remove();
         TravelBox.style.display = "none";
+        RequestSection.style.display = "none";
+        RequestList.innerHTML= "";
+        UserRequests.forEach(li => listItem = null);
+        UserRequests = [];
         Controll.style.display = "flex";
         RideStartEndToggle();
         calculateRoute();
@@ -847,7 +857,7 @@ function confirmPath() {
                     });
 
                     directionsRenderer.setMap(null);
-                
+
                     clearInterval(currentlocInterval);
                     map.panTo(userLocation);
 
@@ -934,6 +944,7 @@ function confirmPath() {
     });
 }
 
+
 function CheckReq() {
     if (firebase.database().ref('ridersAvailable/' + UserId + "/userReq")) {
         var userReqRef = firebase.database().ref('ridersAvailable/' + UserId + "/userReq");
@@ -943,18 +954,142 @@ function CheckReq() {
 
             var userId = snapshot.key;
 
-            addUserRequest(userId);
+            if (!UserRequests[userId]) {
+                addUserRequest(userId, snapshot);
+            }
 
-            setTimeout(function () {
-                snapshot.ref.remove();
-            }, 15000);
         });
     }
 }
 
-function addUserRequest(userId) {
-    console.log(userId);
+function addUserRequest(userId, Data) {
+    console.log("Added user To list" + userId);
+    updateUserList(userId, Data);
 }
+
+var RequestBarInterval;
+
+function updateUserList(userId, Data) {
+    var UserRequestList = document.getElementById("UserRequestList");
+    var listItem = document.createElement("li");
+    var listData = document.createElement("div");
+    var listDataRight = document.createElement("div");
+    var listDataLeft = document.createElement("div");
+    var listButtons = document.createElement("div");
+    var Name = document.createElement("span");
+    var Vehicle = document.createElement("span");
+    var Rating = document.createElement("span");
+    var Price = document.createElement("span");
+    var Passengers = document.createElement("span");
+    var Distance = document.createElement("span");
+    var progressBar = document.createElement("div");
+    progressBar.classList.add("status-bar");
+    console.log(Data.val().key);
+
+
+    // Adding Progress Bar to Component
+    listItem.classList.add("UserRequest-list-component");
+    listItem.appendChild(progressBar);
+
+    // Adding Name to ListDataright
+    Name.innerHTML = Data.val().id;
+    Vehicle.innerHTML = `Corolla `;
+    Rating.innerHTML = `4.2 (50)`;
+    Passengers.innerHTML = `Passengers : 1`;
+
+    // if (navigator.geolocation) {
+    //     navigator.geolocation.getCurrentPosition(function (position) {
+    //         const latLng = new google.maps.LatLng(
+    //             position.coords.latitude,
+    //             position.coords.longitude
+    //         );
+
+    //         var destinationLatLng = new google.maps.LatLng(
+    //             Data.lat,
+    //             Data.lnt
+    //         );
+    //         var service = new google.maps.DistanceMatrixService();
+    //         service.getDistanceMatrix(
+    //             {
+    //                 origins: [latLng],
+    //                 destinations: [destinationLatLng],
+    //                 travelMode: google.maps.TravelMode.DRIVING,
+    //             },
+    //             function (response, status) {
+    //                 if (status === google.maps.DistanceMatrixStatus.OK) {
+    //                     var distance = response.rows[0].elements[0].distance.text;
+    //                     var duration = response.rows[0].elements[0].duration.text;
+
+    //                     Distance.innerHTML = `${distance} (${duration})`;
+    //                 } else {
+    //                     console.log(
+    //                         "Distance Matrix request failed: " + status
+    //                     );
+    //                 }
+    //             }
+    //         );
+    //     });
+    // }
+
+    // Append Lisr Data right
+    listDataRight.appendChild(Name);
+    listDataRight.appendChild(Vehicle);
+    listDataRight.appendChild(Rating);
+    listDataLeft.appendChild(Price);
+    listDataLeft.appendChild(Passengers);
+    // listDataLeft.appendChild(Distance);
+
+    // Add to list Data right
+    listData.appendChild(listDataRight);
+    listData.appendChild(listDataLeft);
+
+    // Adding Class List to data and its componets
+    listDataRight.classList.add("UserRequest-list-Data-right");
+    listDataLeft.classList.add("UserRequest-list-Data-left");
+    listData.classList.add("UserRequest-list-Data");
+    Name.classList.add("listDataRight-Bigfont");
+    Price.classList.add("listDataRight-Bigfont");
+    Vehicle.classList.add("listDataRight-smallfont");
+    Rating.classList.add("listDataRight-smallfont");
+    Passengers.classList.add("listDataRight-smallfont");
+    Distance.classList.add("listDataRight-smallfont");
+
+    // Adding List Data To list component
+    listItem.appendChild(listData);
+
+    var Requestbutton = document.createElement("button");
+    Requestbutton.innerText = "Request";
+    Requestbutton.classList.add("requestButton");
+    Requestbutton.onclick = function () {
+        sendRequest(Data.val().key);
+    };
+
+
+    // Adding RequstButtons to listButton
+    listButtons.appendChild(Requestbutton);
+    listButtons.classList.add("UserRequest-list-Buttons");
+
+    // Adding Buttons to list component
+    listItem.appendChild(listButtons);
+
+    UserRequests[userId] = listItem;
+
+    UserRequestList.appendChild(listItem); // Adding Component to Ul
+
+    var progressBarWidth = 100;
+    RequestBarInterval = setInterval(function () {
+        progressBar.style.width = progressBarWidth + "%";
+        progressBarWidth -= 1;
+
+        if (progressBarWidth < 0) {
+            clearInterval(RequestBarInterval);
+            Data.ref.remove();
+            UserRequests[userId].remove();
+            UserRequests[userId] = null;
+        }
+    }, 400);
+}
+
 
 window.onload = function () {
     getCurrentLocation();
