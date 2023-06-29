@@ -16,10 +16,21 @@ function signout() {
 const UserId = localStorage.getItem("UserId");
 console.log(UserId);
 
+function SaveUserData(Data){
+    var jsonData = JSON.stringify(Data.val());  
+    localStorage.setItem("UserData", jsonData);
+}
+
+function getUserDataAsObject() {
+    var UserData = localStorage.getItem("UserData");
+    return JSON.parse(UserData);
+}
+
 firebase.database().ref('users/' + UserId).on("value", snap => {
     console.log(snap.val().full_name + "(found)");
 
     GetUserData(snap);
+    SaveUserData(snap);
 })
 
 function GetUserData(data) {
@@ -922,8 +933,12 @@ function updateRidersList(Data) {
 
 function sendRequest(key) {
     var pathRef = firebase.database().ref('ridersAvailable/' + key + "/userReq/" + UserId);
+    var UserData = getUserDataAsObject();
 
-    data = { id: UserId };
+    data = { 
+        id: UserId,
+        name: UserData.full_name,
+     };
 
     pathRef.update(data);
 }

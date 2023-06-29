@@ -735,7 +735,7 @@ function SetTravelMode(Data, path) {
         path.remove();
         TravelBox.style.display = "none";
         RequestSection.style.display = "none";
-        RequestList.innerHTML= "";
+        RequestList.innerHTML = "";
         UserRequests.forEach(li => listItem = null);
         UserRequests = [];
         Controll.style.display = "flex";
@@ -967,6 +967,19 @@ function addUserRequest(userId, Data) {
     updateUserList(userId, Data);
 }
 
+function DeclineRequest(Data) {
+    if(Data.ref)
+    {
+    Data.ref.remove();
+    }
+
+    if (UserRequests[Data.val().id]) {
+        UserRequests[Data.val().id].remove();
+        UserRequests[Data.val().id] = null;
+    }
+
+}
+
 var RequestBarInterval;
 
 function updateUserList(userId, Data) {
@@ -977,14 +990,14 @@ function updateUserList(userId, Data) {
     var listDataLeft = document.createElement("div");
     var listButtons = document.createElement("div");
     var Name = document.createElement("span");
-    var Vehicle = document.createElement("span");
+    var Location = document.createElement("span");
     var Rating = document.createElement("span");
     var Price = document.createElement("span");
     var Passengers = document.createElement("span");
     var Distance = document.createElement("span");
     var progressBar = document.createElement("div");
     progressBar.classList.add("status-bar");
-    console.log(Data.val().key);
+    console.log(Data.val().id);
 
 
     // Adding Progress Bar to Component
@@ -992,8 +1005,8 @@ function updateUserList(userId, Data) {
     listItem.appendChild(progressBar);
 
     // Adding Name to ListDataright
-    Name.innerHTML = Data.val().id;
-    Vehicle.innerHTML = `Corolla `;
+    Name.innerHTML = Data.val().name;
+    Location.innerHTML = `Pickup`;
     Rating.innerHTML = `4.2 (50)`;
     Passengers.innerHTML = `Passengers : 1`;
 
@@ -1033,7 +1046,7 @@ function updateUserList(userId, Data) {
 
     // Append Lisr Data right
     listDataRight.appendChild(Name);
-    listDataRight.appendChild(Vehicle);
+    listDataRight.appendChild(Location);
     listDataRight.appendChild(Rating);
     listDataLeft.appendChild(Price);
     listDataLeft.appendChild(Passengers);
@@ -1049,7 +1062,7 @@ function updateUserList(userId, Data) {
     listData.classList.add("UserRequest-list-Data");
     Name.classList.add("listDataRight-Bigfont");
     Price.classList.add("listDataRight-Bigfont");
-    Vehicle.classList.add("listDataRight-smallfont");
+    Location.classList.add("listDataRight-smallfont");
     Rating.classList.add("listDataRight-smallfont");
     Passengers.classList.add("listDataRight-smallfont");
     Distance.classList.add("listDataRight-smallfont");
@@ -1058,15 +1071,24 @@ function updateUserList(userId, Data) {
     listItem.appendChild(listData);
 
     var Requestbutton = document.createElement("button");
-    Requestbutton.innerText = "Request";
+    var Declinebutton = document.createElement("button");
+    Requestbutton.innerText = "Accept";
+    Declinebutton.innerText = "Decline";
     Requestbutton.classList.add("requestButton");
+    Declinebutton.classList.add("CancelRequestButton");
+
     Requestbutton.onclick = function () {
-        sendRequest(Data.val().key);
+        sendRequest(Data);
+    };
+
+    Declinebutton.onclick = function () {
+        DeclineRequest(Data);
     };
 
 
     // Adding RequstButtons to listButton
     listButtons.appendChild(Requestbutton);
+    listButtons.appendChild(Declinebutton);
     listButtons.classList.add("UserRequest-list-Buttons");
 
     // Adding Buttons to list component
@@ -1087,7 +1109,7 @@ function updateUserList(userId, Data) {
             UserRequests[userId].remove();
             UserRequests[userId] = null;
         }
-    }, 400);
+    }, 300);
 }
 
 

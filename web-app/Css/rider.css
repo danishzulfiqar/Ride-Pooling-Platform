@@ -445,12 +445,13 @@ nav .menu-btn i {
     padding: 0.8rem 0.8rem;
 }
 
-.UserRequest-Container-Heading .Cancel {
+ .Cancel {
     background-color: rgba(255, 0, 0, 0.86);
     color: white;
     border-radius: 5px;
     padding: 3px 5px;
     cursor: pointer;
+    border: none;
 }
 
 .UserRequest-list {
@@ -494,7 +495,6 @@ nav .menu-btn i {
     margin-bottom: 1rem;
 }
 
-/* Remember To Edit */
 
 .status-bar {
     height: 2px;
@@ -537,4 +537,15 @@ nav .menu-btn i {
     flex-direction: row;
     width: 100%;
     padding: 0 0.5rem 0.5rem 0.5rem;
+    gap: 0.5rem;
+}
+
+.CancelRequestButton{
+    background-color: rgba(255, 0, 0, 0.86);
+    color: white;
+    border-radius: 5px;
+    padding: 3px 5px;
+    cursor: pointer;
+    border: none;
+    width: 100px;
 }
