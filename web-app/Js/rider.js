@@ -962,15 +962,24 @@ function CheckReq() {
     }
 }
 
+var RequestBarInterval = [];
+
+
 function addUserRequest(userId, Data) {
     console.log("Added user To list" + userId);
     updateUserList(userId, Data);
 }
 
+function AcceptRequest(Data) {
+    console.log("Request Accepted");
+}
+
 function DeclineRequest(Data) {
-    if(Data.ref)
-    {
-    Data.ref.remove();
+
+    clearInterval(RequestBarInterval[Data.val().id]);
+
+    if (Data.ref) {
+        Data.ref.remove();
     }
 
     if (UserRequests[Data.val().id]) {
@@ -980,25 +989,37 @@ function DeclineRequest(Data) {
 
 }
 
-var RequestBarInterval;
+function extractSmallerLocation(address) {
+    var addressComponents = address.split(", ");
+
+    var smallerLocation = "";
+    if (addressComponents.length > 0) {
+        smallerLocation = addressComponents[0];
+    }
+
+    return smallerLocation;
+}
+
 
 function updateUserList(userId, Data) {
     var UserRequestList = document.getElementById("UserRequestList");
     var listItem = document.createElement("li");
     var listData = document.createElement("div");
-    var listDataRight = document.createElement("div");
-    var listDataLeft = document.createElement("div");
+    var listDataleft = document.createElement("div");
+    var listDataright = document.createElement("div");
     var listButtons = document.createElement("div");
     var Name = document.createElement("span");
     var Location = document.createElement("span");
     var Rating = document.createElement("span");
     var Price = document.createElement("span");
-    var Passengers = document.createElement("span");
+    var DropOff = document.createElement("span");
     var Distance = document.createElement("span");
     var progressBar = document.createElement("div");
     progressBar.classList.add("status-bar");
     console.log(Data.val().id);
 
+    Pick = extractSmallerLocation(Data.val().pickup);
+    Drop = extractSmallerLocation(Data.val().dropoff);
 
     // Adding Progress Bar to Component
     listItem.classList.add("UserRequest-list-component");
@@ -1006,79 +1027,47 @@ function updateUserList(userId, Data) {
 
     // Adding Name to ListDataright
     Name.innerHTML = Data.val().name;
-    Location.innerHTML = `Pickup`;
+    Location.innerHTML = Pick;
     Rating.innerHTML = `4.2 (50)`;
-    Passengers.innerHTML = `Passengers : 1`;
+    DropOff.innerHTML = Drop;
+    Distance.innerHTML = `${Data.val().distance} (${Data.val().duration})`;
+    Price.innerHTML = "Rs. " + Data.val().fare;
 
-    // if (navigator.geolocation) {
-    //     navigator.geolocation.getCurrentPosition(function (position) {
-    //         const latLng = new google.maps.LatLng(
-    //             position.coords.latitude,
-    //             position.coords.longitude
-    //         );
+    // Append LisL Data right and Left
+    listDataleft.appendChild(Name);
+    listDataleft.appendChild(Distance);
+    listDataleft.appendChild(Rating);
+    listDataright.appendChild(Price);
+    listDataright.appendChild(Location);
+    listDataright.appendChild(DropOff);
 
-    //         var destinationLatLng = new google.maps.LatLng(
-    //             Data.lat,
-    //             Data.lnt
-    //         );
-    //         var service = new google.maps.DistanceMatrixService();
-    //         service.getDistanceMatrix(
-    //             {
-    //                 origins: [latLng],
-    //                 destinations: [destinationLatLng],
-    //                 travelMode: google.maps.TravelMode.DRIVING,
-    //             },
-    //             function (response, status) {
-    //                 if (status === google.maps.DistanceMatrixStatus.OK) {
-    //                     var distance = response.rows[0].elements[0].distance.text;
-    //                     var duration = response.rows[0].elements[0].duration.text;
-
-    //                     Distance.innerHTML = `${distance} (${duration})`;
-    //                 } else {
-    //                     console.log(
-    //                         "Distance Matrix request failed: " + status
-    //                     );
-    //                 }
-    //             }
-    //         );
-    //     });
-    // }
-
-    // Append Lisr Data right
-    listDataRight.appendChild(Name);
-    listDataRight.appendChild(Location);
-    listDataRight.appendChild(Rating);
-    listDataLeft.appendChild(Price);
-    listDataLeft.appendChild(Passengers);
-    // listDataLeft.appendChild(Distance);
-
-    // Add to list Data right
-    listData.appendChild(listDataRight);
-    listData.appendChild(listDataLeft);
+    // Add to list Data 
+    listData.appendChild(listDataleft);
+    listData.appendChild(listDataright);
 
     // Adding Class List to data and its componets
-    listDataRight.classList.add("UserRequest-list-Data-right");
-    listDataLeft.classList.add("UserRequest-list-Data-left");
+    listDataleft.classList.add("UserRequest-list-Data-right");
+    listDataright.classList.add("UserRequest-list-Data-left");
     listData.classList.add("UserRequest-list-Data");
     Name.classList.add("listDataRight-Bigfont");
     Price.classList.add("listDataRight-Bigfont");
     Location.classList.add("listDataRight-smallfont");
     Rating.classList.add("listDataRight-smallfont");
-    Passengers.classList.add("listDataRight-smallfont");
+    DropOff.classList.add("listDataRight-smallfont");
     Distance.classList.add("listDataRight-smallfont");
 
     // Adding List Data To list component
     listItem.appendChild(listData);
 
-    var Requestbutton = document.createElement("button");
+    var Acceptbutton = document.createElement("button");
     var Declinebutton = document.createElement("button");
-    Requestbutton.innerText = "Accept";
+    Acceptbutton.innerText = "Accept";
     Declinebutton.innerText = "Decline";
-    Requestbutton.classList.add("requestButton");
+    Acceptbutton.classList.add("requestButton");
     Declinebutton.classList.add("CancelRequestButton");
 
-    Requestbutton.onclick = function () {
-        sendRequest(Data);
+    Acceptbutton.onclick = function () {
+        AcceptRequest(Data);
     };
 
     Declinebutton.onclick = function () {
@@ -1087,7 +1076,7 @@ function updateUserList(userId, Data) {
 
 
     // Adding RequstButtons to listButton
-    listButtons.appendChild(Requestbutton);
+    listButtons.appendChild(Acceptbutton);
     listButtons.appendChild(Declinebutton);
     listButtons.classList.add("UserRequest-list-Buttons");
 
@@ -1099,19 +1088,48 @@ function updateUserList(userId, Data) {
     UserRequestList.appendChild(listItem); // Adding Component to Ul
 
     var progressBarWidth = 100;
-    RequestBarInterval = setInterval(function () {
+    RequestBarInterval[Data.val().id] = setInterval(function () {
         progressBar.style.width = progressBarWidth + "%";
         progressBarWidth -= 1;
 
         if (progressBarWidth < 0) {
-            clearInterval(RequestBarInterval);
-            Data.ref.remove();
-            UserRequests[userId].remove();
-            UserRequests[userId] = null;
+            clearInterval(RequestBarInterval[Data.val().id]);
+            console.log("Removed Due to interval");
+            if (Data.ref) {
+                Data.ref.remove();
+            }
+            if (UserRequests[userId]) {
+                UserRequests[userId].remove();
+                UserRequests[userId] = null;
+            }
         }
     }, 300);
 }
 
+function ToggleRequestList() {
+    var list = document.getElementById("RequestListForToggle");
+    var Arrow = document.getElementById("DownArrow");
+
+    console.log("Called It");
+
+    if (list.style.display === "block") {
+        list.style.display = "none"
+
+        Arrow.classList.remove("over");
+        Arrow.style.transition = "all 150ms ease"
+
+        console.log("Second");
+    }
+
+    else {
+        list.style.display = "block"
+
+        Arrow.classList.add("over");
+
+        console.log("First");
+    }
+
+}
 
 window.onload = function () {
     getCurrentLocation();

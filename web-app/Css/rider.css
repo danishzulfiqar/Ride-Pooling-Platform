@@ -429,7 +429,7 @@ nav .menu-btn i {
     position: absolute;
     top: 5rem;
     width: 406px;
-    height: 500px;
+    height: max-content;
     left: 100px;
     border-radius: 10px;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
@@ -462,6 +462,11 @@ nav .menu-btn i {
 
 #UserRequestList {
     list-style: none;
+}
+
+#RequestListForToggle{
+    display: none;
+    height: 480px;
 }
 
 .UserRequest-list::-webkit-scrollbar {
@@ -548,4 +553,26 @@ nav .menu-btn i {
     cursor: pointer;
     border: none;
     width: 100px;
+}
+
+.downArrow{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.over {
+    transform: rotate( 180deg );            
+    transition: all 150ms ease;
+}
+
+.fa-sort-down{
+    padding-bottom: 0.55rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

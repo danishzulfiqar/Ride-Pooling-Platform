@@ -822,6 +822,8 @@ function updateRidersList(Data) {
     var Distance = document.createElement("span");
     var progressBar = document.createElement("div");
     progressBar.classList.add("status-bar");
+    var distance,duration;
+    var Fare = calculateFare();
     console.log(Data.key);
 
 
@@ -855,8 +857,8 @@ function updateRidersList(Data) {
                 },
                 function (response, status) {
                     if (status === google.maps.DistanceMatrixStatus.OK) {
-                        var distance = response.rows[0].elements[0].distance.text;
-                        var duration = response.rows[0].elements[0].duration.text;
+                        distance = response.rows[0].elements[0].distance.text;
+                        duration = response.rows[0].elements[0].duration.text;
 
                         Distance.innerHTML = `${distance} (${duration})`;
                     } else {
@@ -895,11 +897,18 @@ function updateRidersList(Data) {
     // Adding List Data To list component
     listItem.appendChild(listData);
 
+    calculateFare().then(function(fare) {
+        Fare = Math.round(fare);
+        Price.innerHTML = "Rs. " + " " + Fare;
+    }).catch(function(error) {
+        console.error("Error calculating fare:", error);
+    });
+
     var Requestbutton = document.createElement("button");
     Requestbutton.innerText = "Request";
     Requestbutton.classList.add("requestButton");
     Requestbutton.onclick = function () {
-        sendRequest(Data.key);
+        sendRequest(Data.key,distance,duration,document.getElementById("SearchPickUp").value,document.getElementById("SearchDropOff").value,Fare);
     };
 
 
@@ -924,20 +933,20 @@ function updateRidersList(Data) {
         }
     }, 400);
 
-    calculateFare().then(function(fare) {
-        Price.innerHTML = "Rs. " + " " + Math.round(fare);; 
-    }).catch(function(error) {
-        console.error("Error calculating fare:", error);
-    });
 }
 
-function sendRequest(key) {
+function sendRequest(key,Distance,Duration,Pickup,Dropoff,Fare) {
     var pathRef = firebase.database().ref('ridersAvailable/' + key + "/userReq/" + UserId);
     var UserData = getUserDataAsObject();
 
     data = { 
         id: UserId,
         name: UserData.full_name,
+        distance: Distance,
+        duration: Duration,
+        pickup: Pickup,
+        dropoff: Dropoff,
+        fare: Fare,
      };
 
     pathRef.update(data);

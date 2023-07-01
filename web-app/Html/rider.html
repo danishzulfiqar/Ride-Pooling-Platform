@@ -123,10 +123,10 @@
     <section id="UserRequest-Show-Container">
         <div class="UserRequest-Container-Heading">
             <h2>User Requests</h2>
-            <span onclick="CancelRequest()" class="Cancel">Cancel</span>
+            <span onclick="ToggleRequestList()" id="DownArrow" class="downArrow"><i class="fa-solid fa-sort-down"></i></span>
         </div>
 
-        <div class="UserRequest-list">
+        <div id="RequestListForToggle" class="UserRequest-list">
             <ul id="UserRequestList"></ul>
         </div>
 
