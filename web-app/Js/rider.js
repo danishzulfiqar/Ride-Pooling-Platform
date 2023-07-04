@@ -465,6 +465,7 @@ function ClearDropOffValue() {
 let directionsRenderer;
 let markers = [];
 var UserRequests = [];
+var RequestListCount = 0;
 
 function calculateRoute() {
 
@@ -980,11 +981,15 @@ function DeclineRequest(Data) {
 
     if (Data.ref) {
         Data.ref.remove();
+
+        UpdateRequestCount();
     }
 
     if (UserRequests[Data.val().id]) {
         UserRequests[Data.val().id].remove();
         UserRequests[Data.val().id] = null;
+
+        UpdateRequestCount();
     }
 
 }
@@ -1087,6 +1092,8 @@ function updateUserList(userId, Data) {
 
     UserRequestList.appendChild(listItem); // Adding Component to Ul
 
+    UpdateRequestCount(); //For List Count
+
     var progressBarWidth = 100;
     RequestBarInterval[Data.val().id] = setInterval(function () {
         progressBar.style.width = progressBarWidth + "%";
@@ -1097,10 +1104,12 @@ function updateUserList(userId, Data) {
             console.log("Removed Due to interval");
             if (Data.ref) {
                 Data.ref.remove();
+                UpdateRequestCount();
             }
             if (UserRequests[userId]) {
                 UserRequests[userId].remove();
                 UserRequests[userId] = null;
+                UpdateRequestCount();
             }
         }
     }, 300);
@@ -1128,6 +1137,24 @@ function ToggleRequestList() {
 
         console.log("First");
     }
+
+}
+
+function UpdateRequestCount() {
+    var list = document.getElementById("UserRequestList");
+    var request = document.getElementById("NumberOfRequests")
+    var numberOfItems = list.childElementCount;
+
+    request.innerHTML = numberOfItems;
+
+    if (RequestListCount < numberOfItems) {
+        console.log("PlayMusic");
+        var audio = new Audio('../Assets/Phone Notification Sounds.mp3');
+
+        audio.play();
+    }
+
+    RequestListCount = numberOfItems;
 
 }
 

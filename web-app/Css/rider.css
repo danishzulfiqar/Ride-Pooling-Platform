@@ -445,7 +445,7 @@ nav .menu-btn i {
     padding: 0.8rem 0.8rem;
 }
 
- .Cancel {
+.Cancel {
     background-color: rgba(255, 0, 0, 0.86);
     color: white;
     border-radius: 5px;
@@ -464,7 +464,7 @@ nav .menu-btn i {
     list-style: none;
 }
 
-#RequestListForToggle{
+#RequestListForToggle {
     display: none;
     height: 480px;
 }
@@ -545,7 +545,7 @@ nav .menu-btn i {
     gap: 0.5rem;
 }
 
-.CancelRequestButton{
+.CancelRequestButton {
     background-color: rgba(255, 0, 0, 0.86);
     color: white;
     border-radius: 5px;
@@ -555,7 +555,7 @@ nav .menu-btn i {
     width: 100px;
 }
 
-.downArrow{
+.downArrow {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -566,13 +566,21 @@ nav .menu-btn i {
 }
 
 .over {
-    transform: rotate( 180deg );            
+    transform: rotate(180deg);
     transition: all 150ms ease;
 }
 
-.fa-sort-down{
+.fa-sort-down {
     padding-bottom: 0.55rem;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+#NumberOfRequests {
+    background-color: red;
+    color: white;
+    font-size: 1rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 15px;
 }
