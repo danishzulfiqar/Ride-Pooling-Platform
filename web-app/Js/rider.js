@@ -16,7 +16,7 @@ function signout() {
 const UserId = localStorage.getItem("UserId");
 console.log(UserId);
 
-firebase.database().ref('riders/' + UserId).on("value", snap => {
+firebase.database().ref('riders/' + UserId).once("value", snap => {
     console.log(snap.val().full_name + "(found)");
 
     localStorage.setItem("UserName", snap.val().full_name);
@@ -780,6 +780,11 @@ function SetDurationDistance(Data) {
 function confirmPath() {
 
     var previousPosition = null;
+    var Data;
+
+    firebase.database().ref('riders/' + UserId).once("value", snap => {
+        Data = snap;
+    })
 
     navigator.geolocation.getCurrentPosition(function (position) {
         var userLat = position.coords.latitude;
@@ -830,11 +835,12 @@ function confirmPath() {
                 var pathRef = firebase.database().ref('ridersAvailable/' + uid);
 
                 uid = {
-                    name: UserName,
+                    name: Data.val().full_name,
                     lat: userLat,
                     lnt: userLng,
                     Destination: destination,
                     path: pathArray,
+                    Crest:Data.val().Crest,
                 }
 
 
@@ -908,7 +914,6 @@ function confirmPath() {
                                     }
 
                                     uid = {
-                                        name: UserName,
                                         lat: updatedLat,
                                         lnt: updatedLng,
                                         Destination: destination,
@@ -1033,7 +1038,7 @@ function updateUserList(userId, Data) {
     // Adding Name to ListDataright
     Name.innerHTML = Data.val().name;
     Location.innerHTML = Pick;
-    Rating.innerHTML = `4.2 (50)`;
+    Rating.innerHTML = Data.val().Crest.rating.rating_value + " (" + Data.val().Crest.Rides.num_of_rides + ")";
     DropOff.innerHTML = Drop;
     Distance.innerHTML = `${Data.val().distance} (${Data.val().duration})`;
     Price.innerHTML = "Rs. " + Data.val().fare;

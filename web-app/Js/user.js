@@ -834,7 +834,7 @@ function updateRidersList(Data) {
     // Adding Name to ListDataright
     Name.innerHTML = Data.val().name;
     Vehicle.innerHTML = `Corolla `;
-    Rating.innerHTML = `4.2 (50)`;
+    Rating.innerHTML = Data.val().Crest.rating.rating_value + " (" + Data.val().Crest.Rides.num_of_rides + ")";
     Passengers.innerHTML = `Passengers : 1`;
 
     if (navigator.geolocation) {
@@ -908,7 +908,7 @@ function updateRidersList(Data) {
     Requestbutton.innerText = "Request";
     Requestbutton.classList.add("requestButton");
     Requestbutton.onclick = function () {
-        sendRequest(Data.key,distance,duration,document.getElementById("SearchPickUp").value,document.getElementById("SearchDropOff").value,Fare);
+        sendRequest(Data.key,distance,duration,document.getElementById("SearchPickUp").value,document.getElementById("SearchDropOff").value,Fare,Data.val().Crest);
     };
 
 
@@ -935,7 +935,7 @@ function updateRidersList(Data) {
 
 }
 
-function sendRequest(key,Distance,Duration,Pickup,Dropoff,Fare) {
+function sendRequest(key,Distance,Duration,Pickup,Dropoff,Fare,crest) {
     var pathRef = firebase.database().ref('ridersAvailable/' + key + "/userReq/" + UserId);
     var UserData = getUserDataAsObject();
 
@@ -947,6 +947,7 @@ function sendRequest(key,Distance,Duration,Pickup,Dropoff,Fare) {
         pickup: Pickup,
         dropoff: Dropoff,
         fare: Fare,
+        Crest:crest,
      };
 
     pathRef.update(data);
