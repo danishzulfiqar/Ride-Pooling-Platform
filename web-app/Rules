@@ -79,3 +79,56 @@
     }
   }
   
+3. 
+
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+          "availability": {
+          ".write": "auth.uid === $uid",
+          ".read": "auth.uid === $uid || root.child('riders').child(auth.uid).child('availability').val() === true"
+        }
+      }
+    },
+    "riders": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('bookings/' + $uid + '/rider').val() === auth.uid",
+        ".write": "$uid === auth.uid",
+          "availability": {
+          ".write": "auth.uid === $uid",
+          ".read": "auth.uid === $uid || root.child('users').child(auth.uid).child('availability').val() === true"
+        }
+      }
+    },
+    "ridersAvailable": {
+       ".read": "auth != null",
+        "$uid": {
+        ".read": "auth != null",
+        ".write": "auth.uid === $uid || auth != null",
+        "userReq": {
+          ".read": "auth.uid === $uid",
+          ".write": "auth.uid === $uid || root.child('users').child(auth.uid).child('full_name').val() != null"
+        }
+      }
+    },
+    "bookings": {
+      "$bid": {
+        ".read": "root.child('riders/' + auth.uid).exists() || root.child('users/' + auth.uid).exists() || root.child('bookings/' + $bid + '/rider').val() === auth.uid",
+        ".write": "root.child('bookings/' + $bid + '/rider').val() === auth.uid || root.child('bookings/' + $bid + '/user').val() === auth.uid",
+        "user": {
+          ".validate": "newData.val() === auth.uid"
+        },
+        "rider": {
+          ".validate": "newData.val() === auth.uid"
+        }
+      }
+    },
+    "admin": {
+      ".read": "auth.token.admin === true",
+      ".write": "auth.token.admin === true"
+    }
+  }
+}

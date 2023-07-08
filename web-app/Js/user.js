@@ -661,6 +661,8 @@ var availableRiders = [];
 
 function SearchRide() {
 
+    firebase.database().ref('users/' + UserId).update({availability:true});
+
     var ridersList = document.getElementById("ridersList");
     ridersList.innerHTML = "";
     ToggleRidersList();
@@ -907,8 +909,19 @@ function updateRidersList(Data) {
     var Requestbutton = document.createElement("button");
     Requestbutton.innerText = "Request";
     Requestbutton.classList.add("requestButton");
+
     Requestbutton.onclick = function () {
-        sendRequest(Data.key,distance,duration,document.getElementById("SearchPickUp").value,document.getElementById("SearchDropOff").value,Fare,Data.val().Crest);
+        firebase.database().ref('riders/' + Data.key).child('availability').once('value').then(function (snapshot) {
+            if (snapshot.val()) {
+                sendRequest(Data.key,distance,duration,document.getElementById("SearchPickUp").value,document.getElementById("SearchDropOff").value,Fare,Data.val().Crest);
+                console.log("Request Sent");
+            }
+    
+            else {
+                console.log("Rider Not Available");
+            }
+        });
+       
     };
 
 
@@ -961,6 +974,7 @@ function ToggleRidersList() {
 }
 
 function Cancel() {
+    firebase.database().ref('users/' + UserId).update({availability:false});
     var riderslist = document.getElementById("Riders-Show-Container");
     var userinputs = document.getElementById("Main-Controls-Area");
     riderslist.style.display = "none";

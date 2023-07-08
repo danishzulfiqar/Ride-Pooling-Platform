@@ -16,11 +16,22 @@ function signout() {
 const UserId = localStorage.getItem("UserId");
 console.log(UserId);
 
+function SaveUserData(Data){
+    var jsonData = JSON.stringify(Data.val());  
+    localStorage.setItem("UserData", jsonData);
+}
+
+function getUserDataAsObject() {
+    var UserData = localStorage.getItem("UserData");
+    return JSON.parse(UserData);
+}
+
 firebase.database().ref('riders/' + UserId).once("value", snap => {
     console.log(snap.val().full_name + "(found)");
 
     localStorage.setItem("UserName", snap.val().full_name);
     GetUserData(snap);
+    SaveUserData(snap);
 })
 
 const UserName = localStorage.getItem("UserName");
@@ -724,12 +735,14 @@ function SetTravelMode(Data, path) {
     TravelBox.style.display = "flex";
     RequestSection.style.display = "flex";
     Controll.style.display = "none";
+    firebase.database().ref('riders/' + UserId).update({ availability: true });
 
 
     var Cancel_Btn = document.getElementById("CancelTravelBut");
 
     Cancel_Btn.onclick = function () {
         initMap();
+        firebase.database().ref('riders/' + UserId).update({ availability: false });
         clearTimeout(confirmPath);
         clearInterval(PathintervalId);
         clearInterval(RequestBarInterval);
@@ -780,11 +793,11 @@ function SetDurationDistance(Data) {
 function confirmPath() {
 
     var previousPosition = null;
-    var Data;
+    var Data = getUserDataAsObject();
 
-    firebase.database().ref('riders/' + UserId).once("value", snap => {
-        Data = snap;
-    })
+    // firebase.database().ref('riders/' + UserId).once("value", snap => {
+    //     Data = snap.val();
+    // })
 
     navigator.geolocation.getCurrentPosition(function (position) {
         var userLat = position.coords.latitude;
@@ -835,12 +848,12 @@ function confirmPath() {
                 var pathRef = firebase.database().ref('ridersAvailable/' + uid);
 
                 uid = {
-                    name: Data.val().full_name,
+                    name: Data.full_name,
                     lat: userLat,
                     lnt: userLng,
                     Destination: destination,
                     path: pathArray,
-                    Crest:Data.val().Crest,
+                    Crest: Data.Crest,
                 }
 
 
@@ -977,7 +990,15 @@ function addUserRequest(userId, Data) {
 }
 
 function AcceptRequest(Data) {
-    console.log("Request Accepted");
+    firebase.database().ref('users/' + Data.val().id).child('availability').once('value').then(function (snapshot) {
+        if (snapshot.val()) {
+            console.log("Request Accepted");
+        }
+
+        else {
+            console.log("User Not Available");
+        }
+    });
 }
 
 function DeclineRequest(Data) {
@@ -1142,7 +1163,6 @@ function ToggleRequestList() {
 
         console.log("First");
     }
-
 }
 
 function UpdateRequestCount() {
