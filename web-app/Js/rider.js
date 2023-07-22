@@ -13,11 +13,13 @@ function signout() {
     auth.signOut();
 }
 
+
 const UserId = localStorage.getItem("UserId");
 console.log(UserId);
 
-function SaveUserData(Data){
-    var jsonData = JSON.stringify(Data.val());  
+
+function SaveUserData(Data) {
+    var jsonData = JSON.stringify(Data.val());
     localStorage.setItem("UserData", jsonData);
 }
 
@@ -1182,6 +1184,7 @@ function UpdateRequestCount() {
     RequestListCount = numberOfItems;
 
 }
+
 
 window.onload = function () {
     getCurrentLocation();

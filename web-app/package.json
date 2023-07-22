@@ -1,0 +1,25 @@
+{
+  "name": "web-project",
+  "version": "1.0.0",
+  "description": "RidePool.pk",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/danishzulfiqar/RidePool"
+  },
+  "keywords": [
+    "RidePool.Pk"
+  ],
+  "author": "Danish Zulfiqar",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "nodejs": "^0.0.0",
+    "nodemon": "^3.0.1",
+    "require": "^2.4.20",
+    "twilio": "^4.14.0"
+  }
+}
