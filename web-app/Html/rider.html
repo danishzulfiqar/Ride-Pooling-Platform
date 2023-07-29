@@ -1,0 +1,145 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../Css/rider.css">
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="../Js/Firebase.js"></script>
+    <script src="../Js/rider.js"></script>
+    <script src="https://kit.fontawesome.com/461ad1934b.js" crossorigin="anonymous"></script>
+    <title>RidePool App</title>
+</head>
+
+<body>
+
+    <nav id="navbar">
+        <section class="logo">
+            <a href="#"><i class="fa-solid fa-car"></i>RidePool</a>
+        </section>
+        <input type="checkbox" id="click">
+        <label for="click" class="menu-btn">
+            <i class="fas fa-bars"></i>
+        </label>
+        <ul>
+            <li><a class="active-page" href="Admin.html">HOME</a></li>
+            <li><a href="#">MORE</a></li>
+            <li>
+                <span id="User-drop"> <span id="User-Name">USERS</span><i id="user-nav-down"
+                        class="fa-solid fa-caret-down drop-down-icons"></i>
+                    <ul id="User-dropdown">
+                        <li class="subMenu"><a href="usertrips.html"><i class="fa-solid fa-rectangle-list subIcon"></i>
+                                My Trips</a>
+                        </li>
+                        <li class="subMenu"><a href="#"><i class="fa-solid fa-wallet subIcon"></i> Wallet</a></li>
+                        <li class="subMenu"><a href="usersettings.html"><i class="fa-solid fa-gear subIcon"></i>
+                                Settings</a></li>
+                        <li class="subMenu"><a onclick="signout()"><i
+                                    class="fa-solid fa-right-from-bracket subIcon"></i> Logout</a></li>
+                    </ul>
+                </span>
+            </li>
+        </ul>
+    </nav>
+
+    <section id="Map-Section">
+        <div id="map"></div>
+    </section>
+
+    <section id="Main-Controls-Area">
+
+        <div class="control-header">
+            <span>Welcome start your journey today</span>
+        </div>
+
+        <div id="Input-Section">
+            <div class="PlaceInputs" id="PickData" onclick="RideStartEndToggle()">
+                <i class="fa-solid fa-location-dot SearchIcon"></i>
+                <input onkeyup="ClearPickUpValue()" class="PlaceSearch" id="SearchStart"
+                    placeholder="Enter your starting point" type="text">
+                <i id="clearPick" class="fa-solid fa-circle-xmark"></i>
+            </div>
+            <div class="PlaceInputs" id="DropData" onclick="RideStartEndToggle()">
+                <i class="fa-solid fa-circle-dot SearchIcon"></i>
+                <input onkeyup="ClearDropOffValue()" class="PlaceSearch" id="SearchEnd"
+                    placeholder="Enter your ending point" type="text">
+                <i id="clearDrop" class="fa-solid fa-circle-xmark"></i>
+            </div>
+        </div>
+
+        <div class="User-Current-Location">
+            <div onclick="StartfromCurrentLocation()" class="User-Current-Location-Div">
+                <div class="User-Current-Location-Div-Logo CurrentLocation">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                </div>
+                <div class="User-Current-Location-Div-SubDiv">
+                    <div><span id="Current-Locaton">Fetching Details...</span></div>
+                    <div class="User-Current-Location-Div-SubDiv-div" id="Current-Locaton-Msg">Your Current Location
+                    </div>
+                </div>
+            </div>
+
+            <div class="User-Current-Location-Div">
+                <div class="User-Current-Location-Div-Logo">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div class="User-Current-Location-Div-SubDiv">
+                    <div class="User-Current-Location-Div-SubDiv">Choose from Map</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="Rout-Data" id="Rout-Data-Div">
+            <div class="User-Current-Location-Div-Logo">
+                <i class="fa-solid fa-route"></i>
+            </div>
+            <div class="Distance-Duration">
+                <span class="route-specs" id="Distance"></span>
+                <span class="route-specs" id="Duration"></span>
+            </div>
+        </div>
+
+        <div class="Confirm-Ride">
+            <button onclick="confirmPath()" id="ConfirmBtn">Confirm Path</button>
+        </div>
+
+    </section>
+
+    <section id="Travel-Mode-Container">
+        <div class="Travel-Mode-divs"><i class="fa-solid fa-clock"></i> <span id="Travel-Time">...</span></div>
+        <div class="Travel-Mode-divs"><i class="fa-solid fa-route"></i> <span id="DropOff">...</span></div>
+        <div id="Cancel-Travel" class="Travel-Mode-divs"><button id="CancelTravelBut" class="CancelTarvelButton"> Cancel
+            </button></div>
+    </section>
+
+    <section id="UserRequest-Show-Container">
+        <div class="UserRequest-Container-Heading">
+            <h2>User Requests <span id="NumberOfRequests">0</span></h2>
+            <span onclick="ToggleRequestList()" id="DownArrow" class="downArrow"><i
+                    class="fa-solid fa-sort-down"></i></span>
+        </div>
+
+        <div id="RequestListForToggle" class="UserRequest-list">
+            <ul id="UserRequestList"></ul>
+        </div>
+
+    </section>
+
+    <div id="loader-container">
+        <div class="loader"></div>
+    </div>
+
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places&callback=initMap"
+        async defer></script>
+</body>
+
+</html>

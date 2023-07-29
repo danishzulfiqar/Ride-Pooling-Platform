@@ -1,0 +1,87 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../Css/user.css">
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="../Js/Firebase.js"></script>
+    <script src="../Js/usertrips.js"></script>
+    <script src="https://kit.fontawesome.com/461ad1934b.js" crossorigin="anonymous"></script>
+    <title>RidePool App</title>
+</head>
+
+<body>
+
+    <nav id="navbar">
+        <section class="logo">
+            <a href="#"><i class="fa-solid fa-car"></i>RidePool</a>
+        </section>
+        <input type="checkbox" id="click">
+        <label for="click" class="menu-btn">
+            <i class="fas fa-bars"></i>
+        </label>
+        <ul>
+            <li><a href="user.html">HOME</a></li>
+            <li><a href="#">MORE</a></li>
+            <li>
+                <span id="User-drop"> <span id="User-Name">USERS</span><i id="user-nav-down"
+                        class="fa-solid fa-caret-down drop-down-icons"></i>
+                    <ul id="User-dropdown">
+                        <li class="subMenu"><a href="#"><i class="fa-solid fa-rectangle-list subIcon"></i> My Trips</a>
+                        </li>
+                        <li class="subMenu"><a href="#"><i class="fa-solid fa-wallet subIcon"></i> Wallet</a></li>
+                        <li class="subMenu"><a href="usersettings.html"><i class="fa-solid fa-gear subIcon"></i>
+                                Settings</a></li>
+                        <li class="subMenu"><a onclick="signout()"><i
+                                    class="fa-solid fa-right-from-bracket subIcon"></i> Logout</a></li>
+                    </ul>
+                </span>
+            </li>
+        </ul>
+    </nav>
+
+    <section class="settings-main-container">
+        <div class="left-nav">
+            <ul>
+                <li> <a href="user.html"> Book Now </a></li>
+                <li class="active-left-nav-page"> <a href="#"> My Trips </a></li>
+                <li> <a href="#"> Wallet </a></li>
+                <li> <a href="usersettings.html"> Settings </a></li>
+            </ul>
+        </div>
+        
+        <div class="Trips-Container">
+            <div class="Trips-Header">
+                <h2>My Trips</h2>
+                <span class="trips-messege">Your trips history displayed here</span>
+            </div>
+
+            <div class="Trips-List-Container">
+                <span id="List-Warning"></span>
+                <ul class="trips-list"></ul>
+            </div>
+        </div>
+
+        <div class="Settings-Logo">
+            <img src="../Assets/logo (main).png" alt="Error Loading">
+            <span class="Salogan">Ride together, Save together</span>
+            <button class="Settings-Ride-Now"><a href="../Html/user.html">Ride Now</a></button>
+        </div>
+
+    </section>
+
+    <div id="loader-container">
+        <div class="loader"></div>
+    </div>
+
+</body>
+
+</html>
