@@ -992,7 +992,7 @@ function addUserRequest(userId, Data) {
 function AcceptRequest(Data) {
     firebase.database().ref('users/' + Data.val().id).child('availability').once('value').then(function (snapshot) {
         if (snapshot.val()) {
-            console.log("Request Accepted for specific user");
+            console.log("Request Accepted!!");
         }
 
         else {
