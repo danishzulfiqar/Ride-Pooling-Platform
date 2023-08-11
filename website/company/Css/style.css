@@ -30,6 +30,13 @@ body {
     background-color: #221f2f;
 }
 
+#Globe {
+    animation: toLeft 0.8s;
+    width: 500px;
+    height: 500px;
+    cursor: pointer;
+}
+
 .container {
     max-width: 2000px;
     margin: auto;
@@ -50,7 +57,7 @@ body {
     height: 120px;
     left: 55%;
     top: 20%;
-    background-color: #ed2ff0;
+    /* background-color: #ed2ff0; */
     filter: blur(90px);
 }
 
@@ -150,7 +157,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 10rem;
+    margin-top: 5rem;
 }
 
 .top-container .info-box {
@@ -476,9 +483,6 @@ body {
 @media screen and (max-width: 1040px) {
     .top-container {
         flex-direction: column;
-    }
-
-    .top-container {
         text-align: center;
     }
 
@@ -491,8 +495,9 @@ body {
         margin: 60px 0;
     }
 
-    .top-container .nft-box {
-        display: none;
+    #Globe {
+        height: 400px;
+        width: 400px;
     }
 
     .main .footer {
@@ -548,8 +553,10 @@ body {
         padding: 0 0%;
     }
 
-    .top-container .nft-box {
-        border-radius: 50%;
+    #Globe {
+        position: relative;
+        width:100%;
+        height: 300px;
     }
 
     .top-container {

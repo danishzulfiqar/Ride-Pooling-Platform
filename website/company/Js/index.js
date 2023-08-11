@@ -1,6 +1,29 @@
 const toggler = document.querySelector(".toggler");
 const navMenu = document.querySelector("#navMenu");
 
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    const viewportWidth = window.innerWidth;
+    const vantaOptions = {
+        el: "#Globe",
+        gyroControls: false,
+        minHeight: 300.00,
+        minWidth: 350.00,
+        backgroundColor: 0x221f2f,
+        size: 0.70
+    };
+
+    if (viewportWidth >= 600) {
+        vantaOptions.mouseControls = true;
+        vantaOptions.touchControls = true;
+        vantaOptions.size = 0.9;
+        vantaOptions.minHeight = 200.00;
+        vantaOptions.minWidth = 200.00;
+    }
+
+    VANTA.HALO(vantaOptions);
+});
+
 toggler.addEventListener('click', function () {
     navMenu.classList.toggle("active")
 });
@@ -11,7 +34,7 @@ scroll.addEventListener('click', () => {
     document.querySelector(".about").scrollIntoView({ behavior: 'smooth' });
 })
 
-window.addEventListener('scroll', function() {
+window.addEventListener('scroll', function () {
     const navbar = document.getElementById('NavBar');
     const scrollValue = window.scrollY;
 
