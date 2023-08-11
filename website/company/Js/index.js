@@ -16,7 +16,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     if (viewportWidth >= 600) {
         vantaOptions.mouseControls = true;
         vantaOptions.touchControls = true;
-        vantaOptions.size = 0.9;
+        vantaOptions.size = 0.45;
         vantaOptions.minHeight = 200.00;
         vantaOptions.minWidth = 200.00;
     }
