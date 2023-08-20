@@ -16,8 +16,8 @@ function signout() {
 const UserId = localStorage.getItem("UserId");
 console.log(UserId);
 
-function SaveUserData(Data){
-    var jsonData = JSON.stringify(Data.val());  
+function SaveUserData(Data) {
+    var jsonData = JSON.stringify(Data.val());
     localStorage.setItem("UserData", jsonData);
 }
 
@@ -478,6 +478,8 @@ let markers = [];
 var UserRequests = [];
 var RequestListCount = 0;
 
+var bid = generateBid();
+
 function calculateRoute() {
 
     const pickup = document.getElementById('SearchStart').value;
@@ -856,6 +858,21 @@ function confirmPath() {
                     Crest: Data.Crest,
                 }
 
+                RiderOwnRideData = {
+                    name: Data.full_name,
+                    lat: userLat,
+                    lnt: userLng,
+                    Destination: destination,
+                    Crest: Data.Crest,
+                }
+
+
+                // Generate the bid only once
+                bid = generateBid();
+
+                var jsonData = JSON.stringify(RiderOwnRideData);
+                localStorage.setItem("RiderOwnRideData", jsonData);
+
 
                 SetTravelMode(uid, pathRef);
                 pathRef.set(uid);
@@ -989,17 +1006,93 @@ function addUserRequest(userId, Data) {
     updateUserList(userId, Data);
 }
 
-function AcceptRequest(Data) {
-    firebase.database().ref('users/' + Data.val().id).child('availability').once('value').then(function (snapshot) {
-        if (snapshot.val()) {
-            console.log("Request Accepted!!");
-        }
+// Function to generate bid
 
-        else {
-            console.log("User Not Available");
-        }
-    });
+function generateBid() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let bid = '';
+    const length = 10;
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        bid += characters.charAt(randomIndex);
+    }
+    return bid;
 }
+
+
+// function to accenpt request which will make rides bid true and send data to active
+function AcceptRequest(ReqId, Data) {
+    var UserData = Data.val();
+    var userId = localStorage.getItem("UserId");
+    const riderBidRef = firebase.database().ref('riders/' + userId + '/rides');
+    const availableRides = firebase.database().ref('ridersAvailable/' + userId);
+    const RidesRef = firebase.database().ref('Rides/');
+
+    firebase.database().ref('users/' + Data.val().id).child('availability').once('value')
+        .then(function (snapshot) {
+            // Checking if user is available at the time of acceptance on two sides (it's a bool)
+            if (snapshot.val()) {
+                console.log("Request Accepted!!");
+
+                // Check if the bid already exists in the rider's rides node as true
+                riderBidRef.child(bid).once('value')
+                    .then(function (bidSnapshot) {
+                        if (bidSnapshot.exists() && bidSnapshot.val() === true) {
+                            // If bid exists, only update the bookings with the new ReqID and UserData
+                            RidesRef.child("Active/" + bid + "/Bookings/" + ReqId).set(UserData)
+                                .then(function () {
+                                    console.log("Updated bookings in Rides active node");
+                                })
+                                .catch(function (error) {
+                                    console.log("Error updating bookings in Rides active node: " + error);
+                                });
+                        } else {
+                            // If bid does not exist, set the bid node in the rider's rides with the boolean value true
+                            riderBidRef.child(bid).set(true)
+                                .then(function () {
+                                    console.log("bid set to true in rider's rides: " + bid);
+
+                                    var RiderData = localStorage.getItem("RiderOwnRideData");
+                                    var riderData = JSON.parse(RiderData);
+
+                                    RidesRef.child("Active/" + bid).set({
+                                        Rider: {
+                                            RiderId: userId,
+                                            riderData: riderData
+                                        },
+                                        Bookings: {
+                                            [ReqId]: UserData
+                                        },
+                                        Passengers: {
+
+                                        }
+                                    })
+                                        .then(function () {
+                                            console.log("added bid to Rides active node");
+                                        })
+                                        .catch(function (error) {
+                                            console.log("Error updating bid in Rides active node: " + error);
+                                        });
+                                })
+                                .catch(function (error) {
+                                    console.log("Error setting bid to true in rider's rides: " + error);
+                                });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log("Error checking if bid exists in rider's rides: " + error);
+                    });
+                    
+            } else {
+                console.log("User Not Available");
+            }
+        })
+        .catch(function (error) {
+            console.log("Error checking user availability: " + error);
+        });
+}
+
+
 
 function DeclineRequest(Data) {
 
@@ -1098,7 +1191,7 @@ function updateUserList(userId, Data) {
     Declinebutton.classList.add("CancelRequestButton");
 
     Acceptbutton.onclick = function () {
-        AcceptRequest(Data);
+        AcceptRequest(userId, Data);
     };
 
     Declinebutton.onclick = function () {
