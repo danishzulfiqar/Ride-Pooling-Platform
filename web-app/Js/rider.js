@@ -1182,6 +1182,8 @@ function AcceptRequest(ReqId, Data) {
                             // If bid exists, only update the bookings with the new ReqID and UserData
                             RidesRef.child("Active/" + bid + "/Bookings/" + ReqId).set(UserData)
                                 .then(function () {
+                                    // sending path updates
+                                    updateCheckPoints(bid);
                                     console.log("Updated bookings in Rides active node");
                                 })
                                 .catch(function (error) {
@@ -1209,6 +1211,8 @@ function AcceptRequest(ReqId, Data) {
                                         }
                                     })
                                         .then(function () {
+                                            // sending path updates
+                                            updateCheckPoints(bid);
                                             console.log("added bid to Rides active node");
                                         })
                                         .catch(function (error) {
@@ -1231,6 +1235,40 @@ function AcceptRequest(ReqId, Data) {
         .catch(function (error) {
             console.log("Error checking user availability: " + error);
         });
+}
+
+// function to update path of current user
+function updateCheckPoints(bid) {
+    console.log("path update for: " + bid);
+    // initialize new map
+    initMap();
+    // remove previous update interval
+    clearTimeout(confirmPath);
+    clearInterval(PathintervalId);
+
+}
+
+
+// Calculate heuristic value for a location (distance-based, with pick-up priority)
+function calculateHeuristic(location, isPickup) {
+    const distance = calculateDistance(driverLocation, location);
+    const pickupPriority = isPickup ? 2 : 1; // Higher value for pick-ups
+    return distance * pickupPriority;
+}
+
+
+// Function to convert place name string to LatLng object
+function convertPlaceNameToLatLng(placeName) {
+    const geocoder = new google.maps.Geocoder();
+    return new Promise((resolve, reject) => {
+        geocoder.geocode({ address: placeName }, (results, status) => {
+            if (status === google.maps.GeocoderStatus.OK) {
+                resolve(results[0].geometry.location);
+            } else {
+                reject(new Error(`Geocode failed for place: ${placeName}`));
+            }
+        });
+    });
 }
 
 

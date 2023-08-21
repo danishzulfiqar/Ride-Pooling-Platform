@@ -1,0 +1,34 @@
+priorityPoints{
+    constains only picks for booking
+    contains drops for passenger
+
+    example:
+    id_of_user{
+        name: user,
+        lat: 24.353,
+        lng: 54.354,
+        loc_name: Islamabad...
+    }
+}
+
+sortedPoints{
+    [0]:{
+        id:safdsgdgdshdhh
+        name: user,
+        lat: 24.353,
+        lng: 54.354,
+        loc_name: Islamabad...
+    },
+    [1]:{
+        id:safdsgddggdshdhh
+        name: user2,
+        lat: 24.353,
+        lng: 54.354,
+        loc_name: Islamabad...
+    }
+}
+
+1. sort priority points with minimum distance to maximum (constains only picks for booking and contains drops for passenger)
+2. update sorted points everytime new booking and passenger.
+3. give rider first point of sorted point or complete path of points.
+4. update path on map and db continously
