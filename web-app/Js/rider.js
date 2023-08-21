@@ -990,7 +990,7 @@ function CheckReq() {
 
             var userId = snapshot.key;
 
-            if (!UserRequests[userId]) {
+            if (!UserRequests[userId] && !snapshot.val().accepted) {
                 addUserRequest(userId, snapshot);
             }
 
@@ -998,7 +998,7 @@ function CheckReq() {
     }
 }
 
-var RequestBarInterval = [];
+const RequestBarInterval = [];
 
 
 function addUserRequest(userId, Data) {
@@ -1019,99 +1019,6 @@ function generateBid() {
     return bid;
 }
 
-
-// function to accenpt request which will make rides bid true and send data to active
-function AcceptRequest(ReqId, Data) {
-    var UserData = Data.val();
-    var userId = localStorage.getItem("UserId");
-    const riderBidRef = firebase.database().ref('riders/' + userId + '/rides');
-    const availableRides = firebase.database().ref('ridersAvailable/' + userId);
-    const RidesRef = firebase.database().ref('Rides/');
-
-    firebase.database().ref('users/' + Data.val().id).child('availability').once('value')
-        .then(function (snapshot) {
-            // Checking if user is available at the time of acceptance on two sides (it's a bool)
-            if (snapshot.val()) {
-                console.log("Request Accepted!!");
-
-                // Check if the bid already exists in the rider's rides node as true
-                riderBidRef.child(bid).once('value')
-                    .then(function (bidSnapshot) {
-                        if (bidSnapshot.exists() && bidSnapshot.val() === true) {
-                            // If bid exists, only update the bookings with the new ReqID and UserData
-                            RidesRef.child("Active/" + bid + "/Bookings/" + ReqId).set(UserData)
-                                .then(function () {
-                                    console.log("Updated bookings in Rides active node");
-                                })
-                                .catch(function (error) {
-                                    console.log("Error updating bookings in Rides active node: " + error);
-                                });
-                        } else {
-                            // If bid does not exist, set the bid node in the rider's rides with the boolean value true
-                            riderBidRef.child(bid).set(true)
-                                .then(function () {
-                                    console.log("bid set to true in rider's rides: " + bid);
-
-                                    var RiderData = localStorage.getItem("RiderOwnRideData");
-                                    var riderData = JSON.parse(RiderData);
-
-                                    RidesRef.child("Active/" + bid).set({
-                                        Rider: {
-                                            RiderId: userId,
-                                            riderData: riderData
-                                        },
-                                        Bookings: {
-                                            [ReqId]: UserData
-                                        },
-                                        Passengers: {
-
-                                        }
-                                    })
-                                        .then(function () {
-                                            console.log("added bid to Rides active node");
-                                        })
-                                        .catch(function (error) {
-                                            console.log("Error updating bid in Rides active node: " + error);
-                                        });
-                                })
-                                .catch(function (error) {
-                                    console.log("Error setting bid to true in rider's rides: " + error);
-                                });
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log("Error checking if bid exists in rider's rides: " + error);
-                    });
-                    
-            } else {
-                console.log("User Not Available");
-            }
-        })
-        .catch(function (error) {
-            console.log("Error checking user availability: " + error);
-        });
-}
-
-
-
-function DeclineRequest(Data) {
-
-    clearInterval(RequestBarInterval[Data.val().id]);
-
-    if (Data.ref) {
-        Data.ref.remove();
-
-        UpdateRequestCount();
-    }
-
-    if (UserRequests[Data.val().id]) {
-        UserRequests[Data.val().id].remove();
-        UserRequests[Data.val().id] = null;
-
-        UpdateRequestCount();
-    }
-
-}
 
 function extractSmallerLocation(address) {
     var addressComponents = address.split(", ");
@@ -1233,6 +1140,119 @@ function updateUserList(userId, Data) {
         }
     }, 300);
 }
+
+// Function to accept request and update rider's path
+function AcceptRequest(ReqId, Data) {
+    var UserData = Data.val();
+    var userId = localStorage.getItem("UserId");
+    const riderBidRef = firebase.database().ref('riders/' + userId + '/rides');
+    const availableRides = firebase.database().ref('ridersAvailable/' + userId);
+    const requestedUserRequest = firebase.database().ref('ridersAvailable/' + userId + "/userReq/" + Data.val().id);
+    const RidesRef = firebase.database().ref('Rides/');
+
+    firebase.database().ref('users/' + Data.val().id).child('availability').once('value')
+        .then(function (snapshot) {
+            // Checking if user is available at the time of acceptance on two sides (it's a bool)
+            if (snapshot.val()) {
+
+                // removing request interval for this user
+                clearInterval(RequestBarInterval[Data.val().id]);
+
+                if (Data.ref) {
+                    UpdateRequestCount();
+                }
+
+                if (UserRequests[Data.val().id]) {
+                    UserRequests[Data.val().id].remove();
+                    UserRequests[Data.val().id] = null;
+
+                    UpdateRequestCount();
+                }
+
+                console.log("Request Accepted!!");
+
+                // Check if the bid already exists in the rider's rides node as true
+                riderBidRef.child(bid).once('value')
+                    .then(function (bidSnapshot) {
+                        // setting accepted status to true in users request
+                        requestedUserRequest.child("accepted").set({
+                            bid: bid,
+                        });
+                        if (bidSnapshot.exists() && bidSnapshot.val() === true) {
+                            // If bid exists, only update the bookings with the new ReqID and UserData
+                            RidesRef.child("Active/" + bid + "/Bookings/" + ReqId).set(UserData)
+                                .then(function () {
+                                    console.log("Updated bookings in Rides active node");
+                                })
+                                .catch(function (error) {
+                                    console.log("Error updating bookings in Rides active node: " + error);
+                                });
+                        } else {
+                            // If bid does not exist, set the bid node in the rider's rides with the boolean value true
+                            riderBidRef.child(bid).set(true)
+                                .then(function () {
+                                    console.log("bid set to true in rider's rides: " + bid);
+
+                                    var RiderData = localStorage.getItem("RiderOwnRideData");
+                                    var riderData = JSON.parse(RiderData);
+
+                                    RidesRef.child("Active/" + bid).set({
+                                        Rider: {
+                                            RiderId: userId,
+                                            riderData: riderData
+                                        },
+                                        Bookings: {
+                                            [ReqId]: UserData
+                                        },
+                                        Passengers: {
+
+                                        }
+                                    })
+                                        .then(function () {
+                                            console.log("added bid to Rides active node");
+                                        })
+                                        .catch(function (error) {
+                                            console.log("Error updating bid in Rides active node: " + error);
+                                        });
+                                })
+                                .catch(function (error) {
+                                    console.log("Error setting bid to true in rider's rides: " + error);
+                                });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log("Error checking if bid exists in rider's rides: " + error);
+                    });
+
+            } else {
+                console.log("User Not Available");
+            }
+        })
+        .catch(function (error) {
+            console.log("Error checking user availability: " + error);
+        });
+}
+
+
+function DeclineRequest(Data) {
+
+    clearInterval(RequestBarInterval[Data.val().id]);
+
+    if (Data.ref) {
+        Data.ref.remove();
+
+        UpdateRequestCount();
+    }
+
+    if (UserRequests[Data.val().id]) {
+        UserRequests[Data.val().id].remove();
+        UserRequests[Data.val().id] = null;
+
+        UpdateRequestCount();
+    }
+
+}
+
 
 function ToggleRequestList() {
     var list = document.getElementById("RequestListForToggle");
