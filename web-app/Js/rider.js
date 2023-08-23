@@ -727,6 +727,7 @@ function StartfromCurrentLocation() {
 }
 
 var PathintervalId;
+var Polyline;
 
 function SetTravelMode(Data, path) {
     console.log(Data.name + " Called Function SetTravelMode");
@@ -883,7 +884,7 @@ function confirmPath() {
 
                 if (pathArray.length > 0) {
 
-                    var polyline = new google.maps.Polyline({
+                    Polyline = new google.maps.Polyline({
                         path: path,
                         polylineOptions: {
                             strokeColor: '#000000',
@@ -950,7 +951,7 @@ function confirmPath() {
                                         path: updatedPathArray,
                                     }
 
-                                    polyline.setPath(updatedPath);
+                                    Polyline.setPath(updatedPath);
                                     pathRef.update(uid);
 
                                     // Setting it to interval
@@ -1237,30 +1238,153 @@ function AcceptRequest(ReqId, Data) {
         });
 }
 
+// string converter
+function parseDistance(inputString) {
+    const parts = inputString.split(' ');
+
+    // Extract the numeric value from the first part
+    const numericValue = parseFloat(parts[0]);
+
+    return numericValue;
+}
+
+
 // function to update path of current user
 function updateCheckPoints(bid) {
-    // initialize new map
-    // initMap();
+    // removing polyline rendering
+    Polyline.setMap(null);
+
     // remove previous update interval
     clearTimeout(confirmPath);
     clearInterval(PathintervalId);
 
+    // collecting priority points
+    collectPriorityPoints(bid);
 }
+
 
 // function to collect priority check points
-function collectPriorityPoints(){
+function collectPriorityPoints(bid) {
+    const UserId = localStorage.getItem("UserId");
+    const ridePath = firebase.database().ref(`Rides/Active/${bid}`);
+    let priorityPoints = [];
 
+    ridePath.child(`Bookings`).once("value").then(function (data) {
+        if (data.exists()) {
+
+            const BookedUsers = data;
+
+            BookedUsers.forEach(function (user) {
+                const userData = user.val();
+
+                const point = {
+                    name: userData.name,
+                    loc: userData.pickup,
+                    point: "pickup"
+                }
+
+                console.log(userData.pickup);
+                priorityPoints.push(point);
+            })
+
+        }
+    }).then(function () {
+        ridePath.child(`Passengers`).once("value").then(function (data) {
+            if (data.exists()) {
+                const Passengers = data;
+
+                Passengers.forEach(function (user) {
+                    const userData = user.val();
+
+                    const point = {
+                        name: userData.name,
+                        loc: userData.dropoff,
+                        point: "dropoff"
+                    }
+
+                    console.log(userData.dropoff);
+                    priorityPoints.push(point);
+                })
+            }
+        })
+    }).finally(function () {
+        collectSortedPoints(bid, priorityPoints);
+        // ridePath.child(`PriorityPoints`).set(priorityPoints);
+    })
 }
 
-// function to make collect sorted points
-function collectSortedPoints(){
 
+// function to make & collect sorted points according to distance
+function collectSortedPoints(bid, array) {
+    let priorityPoints = array;
+
+    return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            var userLat = position.coords.latitude;
+            var userLng = position.coords.longitude;
+            var userLocation = new google.maps.LatLng(userLat, userLng);
+
+            const point = {
+                name: "Khan G",
+                loc: "National Cricket Academy, National Stadium Colony, Karachi, Karachi City, Sindh, Pakistan",
+                point: "dropoff"
+            }
+            priorityPoints.push(point);
+
+            var service = new google.maps.DistanceMatrixService();
+            var promises = [];
+
+            priorityPoints.forEach(function (user) {
+                const destination = user.loc;
+
+                promises.push(new Promise((resolve, reject) => {
+                    service.getDistanceMatrix(
+                        {
+                            origins: [`${userLat},${userLng}`],
+                            destinations: [destination],
+                            travelMode: google.maps.TravelMode.DRIVING
+                        },
+                        function (response, status) {
+                            if (status === google.maps.DistanceMatrixStatus.OK) {
+                                var distance = response.rows[0].elements[0].distance.text;
+                                var duration = response.rows[0].elements[0].duration.text;
+                                var numericDistance = response.rows[0].elements[0].distance.value;
+
+                                user.distance = distance;
+                                user.duration = duration;
+                                user.numDist = numericDistance;
+
+                                resolve();
+                            } else {
+                                reject('Error: ' + status);
+                            }
+                        }
+                    );
+                }));
+            });
+
+            Promise.all(promises)
+                .then(() => {
+                    priorityPoints.sort((a, b) => a.numDist - b.numDist);
+                    console.log(priorityPoints);
+                    const ridePath = firebase.database().ref(`Rides/Active/${bid}`);
+                    ridePath.child("Destinations").set(priorityPoints);
+                    resolve(priorityPoints);
+                })
+                .catch(error => {
+                    console.error(error);
+                    reject(error);
+                });
+        });
+    });
 }
+
 
 // function to continously update path and destination on map and db
-function updatePath(){
+function updatePath() {
 
 }
+
 
 // Function to convert place name string to LatLng object
 function convertPlaceNameToLatLng(placeName) {

@@ -56,5 +56,6 @@ We would like to express our gratitude to the following resources and libraries 
 - Twilio: Integration for WhatsApp communication.
 - Google Maps API: Provides mapping and location-related functionalities.
 - Font Awsome: Front-end Icons.
+- Articles [Algo 1](https://eng.lyft.com/matchmaking-in-lyft-line-9c2635fe62c4), [Algo 2](https://eng.lyft.com/matchmaking-in-lyft-line-691a1a32a008), [Algo 3](https://eng.lyft.com/matchmaking-in-lyft-line-part-3-d8f9497c0e51)
 
 ## Ride Together! Save Together!

@@ -165,7 +165,8 @@
       }
     },
     "Rides": {
-      ".write": "auth != null",
+      ".read": "auth != null",
+    	".write": "auth != null",
       "active": {
         "$bid": {
           ".read": "root.child('riders').child(auth.uid).child('rides').child($bid).val() === true || root.child('users').child(auth.uid).child('rides').child($bid).val() === true || root.child('admin').child(auth.uid).child('admin').val() === true",
