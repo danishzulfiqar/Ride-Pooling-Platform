@@ -1239,23 +1239,28 @@ function AcceptRequest(ReqId, Data) {
 
 // function to update path of current user
 function updateCheckPoints(bid) {
-    console.log("path update for: " + bid);
     // initialize new map
-    initMap();
+    // initMap();
     // remove previous update interval
     clearTimeout(confirmPath);
     clearInterval(PathintervalId);
 
 }
 
+// function to collect priority check points
+function collectPriorityPoints(){
 
-// Calculate heuristic value for a location (distance-based, with pick-up priority)
-function calculateHeuristic(location, isPickup) {
-    const distance = calculateDistance(driverLocation, location);
-    const pickupPriority = isPickup ? 2 : 1; // Higher value for pick-ups
-    return distance * pickupPriority;
 }
 
+// function to make collect sorted points
+function collectSortedPoints(){
+
+}
+
+// function to continously update path and destination on map and db
+function updatePath(){
+
+}
 
 // Function to convert place name string to LatLng object
 function convertPlaceNameToLatLng(placeName) {
