@@ -1462,6 +1462,27 @@ function updatePath(bid, destinations) {
                     clearInterval(currentlocInterval);
                     map.panTo(userLocation);
 
+                    // updating destinations markers
+                    destinations.forEach(destination => {
+                        const geocoder = new google.maps.Geocoder();
+
+                        geocoder.geocode({ address: destination.loc }, function (results, status) {
+                            if (status === google.maps.GeocoderStatus.OK) {
+                                const location = results[0].geometry.location;
+
+                                const marker = new google.maps.Marker({
+                                    position: location,
+                                    map: map,
+                                    title: destination.name
+                                });
+                                markers.push(marker);
+
+                            } else {
+                                console.error('Geocode was not successful for the following reason: ' + status);
+                            }
+                        });
+                    });
+
                     PathintervalId = setInterval(function () {
                         navigator.geolocation.getCurrentPosition(function (position) {
                             var updatedLat = position.coords.latitude + (Math.random() * 0.001 - 0.0005);
