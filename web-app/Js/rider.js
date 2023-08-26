@@ -1278,6 +1278,7 @@ function collectPriorityPoints(bid) {
                 const userData = user.val();
 
                 const point = {
+                    id: userData.id,
                     name: userData.name,
                     loc: userData.pickup,
                     point: "pickup"
@@ -1297,6 +1298,7 @@ function collectPriorityPoints(bid) {
                     const userData = user.val();
 
                     const point = {
+                        id: userData.id,
                         name: userData.name,
                         loc: userData.dropoff,
                         point: "dropoff"
@@ -1323,13 +1325,6 @@ function collectSortedPoints(bid, array) {
             var userLat = position.coords.latitude;
             var userLng = position.coords.longitude;
             var userLocation = new google.maps.LatLng(userLat, userLng);
-
-            const point = {
-                name: "Khan G",
-                loc: "National Cricket Academy, National Stadium Colony, Karachi, Karachi City, Sindh, Pakistan",
-                point: "dropoff"
-            }
-            priorityPoints.push(point);
 
             var service = new google.maps.DistanceMatrixService();
             var promises = [];
@@ -1369,6 +1364,7 @@ function collectSortedPoints(bid, array) {
                     console.log(priorityPoints);
                     const ridePath = firebase.database().ref(`Rides/Active/${bid}`);
                     ridePath.child("Destinations").set(priorityPoints);
+                    updatePath(bid, priorityPoints);
                     resolve(priorityPoints);
                 })
                 .catch(error => {
@@ -1381,8 +1377,166 @@ function collectSortedPoints(bid, array) {
 
 
 // function to continously update path and destination on map and db
-function updatePath() {
+function updatePath(bid, destinations) {
+    var previousPosition = null;
+    var Data = getUserDataAsObject();
 
+    navigator.geolocation.getCurrentPosition(function (position) {
+        var userLat = position.coords.latitude;
+        var userLng = position.coords.longitude;
+        var userLocation = new google.maps.LatLng(userLat, userLng);
+
+        var destination = destinations[0].loc;
+
+        const directionsService = new google.maps.DirectionsService();
+
+        const request = {
+            origin: userLocation,
+            destination: destination,
+            travelMode: google.maps.TravelMode.DRIVING
+        };
+
+        markers.forEach(marker => marker.setMap(null));
+        markers = [];
+
+        var customMarker = {
+            path: "M29.395,0H17.636c-3.117,0-5.643,3.467-5.643,6.584v34.804c0,3.116,2.526,5.644,5.643,5.644h11.759   c3.116,0,5.644-2.527,5.644-5.644V6.584C35.037,3.467,32.511,0,29.395,0z M34.05,14.188v11.665l-2.729,0.351v-4.806L34.05,14.188z    M32.618,10.773c-1.016,3.9-2.219,8.51-2.219,8.51H16.631l-2.222-8.51C14.41,10.773,23.293,7.755,32.618,10.773z M15.741,21.713   v4.492l-2.73-0.349V14.502L15.741,21.713z M13.011,37.938V27.579l2.73,0.343v8.196L13.011,37.938z M14.568,40.882l2.218-3.336   h13.771l2.219,3.336H14.568z M31.321,35.805v-7.872l2.729-0.355v10.048L31.321,35.805",
+            scale: 0.5,
+            fillColor: "rgba(255, 255, 0, 0.931)",
+            fillOpacity: 1,
+            strokeWeight: 1,
+            anchor: new google.maps.Point(0, 0)
+        };
+
+        var mark1 = new google.maps.Marker({
+            position: userLocation,
+            map: map,
+            icon: customMarker,
+            optimized: false
+        });
+        markers.push(mark1); //Remember
+
+
+        directionsService.route(request, function (response, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+                var path = google.maps.geometry.encoding.decodePath(response.routes[0].overview_polyline);
+
+                var pathArray = [];
+                for (var i = 0; i < path.length; i++) {
+                    pathArray.push([path[i].lat(), path[i].lng()]);
+                }
+
+                var uid = firebase.auth().currentUser.uid;
+                var pathRef = firebase.database().ref('ridersAvailable/' + uid);
+                var pathUpdate = firebase.database().ref('ridersAvailable/' + uid + "/path");
+
+
+                // Generate the bid only once
+                bid = generateBid();
+
+                var jsonData = JSON.stringify(RiderOwnRideData);
+                localStorage.setItem("RiderOwnRideData", jsonData);
+
+
+                SetTravelMode(uid, pathRef);
+                pathUpdate.set(pathArray);
+                console.log("path updated");
+
+                // Setting it first
+                SetDurationDistance(uid);
+
+                if (pathArray.length > 0) {
+
+                    Polyline = new google.maps.Polyline({
+                        path: path,
+                        polylineOptions: {
+                            strokeColor: '#000000',
+                            strokeOpacity: 0.8,
+                            strokeWeight: 5
+                        },
+                        map: map
+                    });
+
+                    directionsRenderer.setMap(null);
+
+                    clearInterval(currentlocInterval);
+                    map.panTo(userLocation);
+
+                    PathintervalId = setInterval(function () {
+                        navigator.geolocation.getCurrentPosition(function (position) {
+                            var updatedLat = position.coords.latitude + (Math.random() * 0.001 - 0.0005);
+                            var updatedLng = position.coords.longitude + (Math.random() * 0.001 - 0.0005);
+                            var updatedUserLocation = new google.maps.LatLng(updatedLat, updatedLng);
+                            map.panTo(updatedUserLocation);
+
+
+                            var updatedRequest = {
+                                origin: updatedUserLocation,
+                                destination: destinations[0].loc,
+                                travelMode: google.maps.TravelMode.DRIVING
+                            };
+
+
+                            var currentHeading = 0;
+
+                            if (previousPosition) {
+                                markers.forEach(marker => marker.setMap(null));
+                                markers = []; //Remember
+
+                                currentHeading = google.maps.geometry.spherical.computeHeading(previousPosition, updatedUserLocation);
+
+                                mark1 = new google.maps.Marker({
+                                    position: updatedUserLocation,
+                                    map: map,
+                                    icon: customMarker,
+                                    optimized: false,
+                                });
+                            }
+                            mark1.setIcon({
+                                ...customMarker,
+                                rotation: currentHeading
+                            });
+
+                            markers.push(mark1); //Remember
+
+                            directionsService.route(updatedRequest, function (updatedResponse, updatedStatus) {
+                                if (updatedStatus == google.maps.DirectionsStatus.OK) {
+                                    var updatedPath = google.maps.geometry.encoding.decodePath(updatedResponse.routes[0].overview_polyline);
+
+                                    var updatedPathArray = [];
+                                    for (var i = 0; i < updatedPath.length; i++) {
+                                        updatedPathArray.push([updatedPath[i].lat(), updatedPath[i].lng()]);
+                                    }
+
+
+                                    Polyline.setPath(updatedPath);
+                                    pathUpdate.update(updatedPathArray);
+
+                                    // Setting it to interval
+                                    SetDurationDistance(uid);
+
+                                    console.log("Updated Path");
+                                } else {
+                                    console.log('Directions request failed due to ' + updatedStatus);
+                                }
+                            });
+
+                            previousPosition = updatedUserLocation;
+
+                        });
+
+                        CheckReq();
+
+                    }, 5000);
+
+                }
+            } else {
+                console.log('Directions request failed due to ' + status);
+            }
+        });
+    }, function (error) {
+        console.log(error);
+    });
 }
 
 
