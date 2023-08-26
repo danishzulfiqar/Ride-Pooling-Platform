@@ -1361,6 +1361,12 @@ function collectSortedPoints(bid, array) {
             Promise.all(promises)
                 .then(() => {
                     priorityPoints.sort((a, b) => a.numDist - b.numDist);
+                    priorityPoints.push({
+                        id: "userId",
+                        name: "Your Destination",
+                        loc: document.getElementById("SearchEnd").value,
+                        point: "dropoff"
+                    })
                     console.log(priorityPoints);
                     const ridePath = firebase.database().ref(`Rides/Active/${bid}`);
                     ridePath.child("Destinations").set(priorityPoints);
@@ -1399,7 +1405,17 @@ function updatePath(bid, destinations) {
         markers.forEach(marker => marker.setMap(null));
         markers = [];
 
-        var customMarker = {
+        const dropicon = {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 5,
+            fillColor: "yellow",
+            fillOpacity: 1,
+            strokeWeight: 5,
+            anchor: new google.maps.Point(0, 0),
+            rotation: 0
+        };
+
+        const customMarker = {
             path: "M29.395,0H17.636c-3.117,0-5.643,3.467-5.643,6.584v34.804c0,3.116,2.526,5.644,5.643,5.644h11.759   c3.116,0,5.644-2.527,5.644-5.644V6.584C35.037,3.467,32.511,0,29.395,0z M34.05,14.188v11.665l-2.729,0.351v-4.806L34.05,14.188z    M32.618,10.773c-1.016,3.9-2.219,8.51-2.219,8.51H16.631l-2.222-8.51C14.41,10.773,23.293,7.755,32.618,10.773z M15.741,21.713   v4.492l-2.73-0.349V14.502L15.741,21.713z M13.011,37.938V27.579l2.73,0.343v8.196L13.011,37.938z M14.568,40.882l2.218-3.336   h13.771l2.219,3.336H14.568z M31.321,35.805v-7.872l2.729-0.355v10.048L31.321,35.805",
             scale: 0.5,
             fillColor: "rgba(255, 255, 0, 0.931)",
@@ -1408,13 +1424,13 @@ function updatePath(bid, destinations) {
             anchor: new google.maps.Point(0, 0)
         };
 
-        var mark1 = new google.maps.Marker({
+        let mark1 = new google.maps.Marker({
             position: userLocation,
             map: map,
             icon: customMarker,
             optimized: false
         });
-        markers.push(mark1); //Remember
+        // markers.push(mark1); 
 
 
         directionsService.route(request, function (response, status) {
@@ -1443,7 +1459,15 @@ function updatePath(bid, destinations) {
                 console.log("path updated");
 
                 // Setting it first
-                SetDurationDistance(uid);
+                var initialRide = {
+                    name: Data.full_name,
+                    lat: userLat,
+                    lnt: userLng,
+                    Destination: destination,
+                    path: pathArray,
+                    Crest: Data.Crest,
+                }
+                SetDurationDistance(initialRide);
 
                 if (pathArray.length > 0) {
 
@@ -1465,6 +1489,7 @@ function updatePath(bid, destinations) {
                     // updating destinations markers
                     destinations.forEach(destination => {
                         const geocoder = new google.maps.Geocoder();
+                        var html = "<div class='marker-info'><b></b> <span class='markerName'>" + destination.name + "</span><br><span class ='updateTime'>" + destination.point + "</span></div>";
 
                         geocoder.geocode({ address: destination.loc }, function (results, status) {
                             if (status === google.maps.GeocoderStatus.OK) {
@@ -1473,8 +1498,15 @@ function updatePath(bid, destinations) {
                                 const marker = new google.maps.Marker({
                                     position: location,
                                     map: map,
-                                    title: destination.name
+                                    icon: dropicon, //marker set
                                 });
+                                marker.infowindow = new google.maps.InfoWindow({
+                                    content: html
+                                });
+                                marker.addListener('click', function () {
+                                    this.infowindow.open(map, this);
+                                });
+
                                 markers.push(marker);
 
                             } else {
@@ -1501,8 +1533,7 @@ function updatePath(bid, destinations) {
                             var currentHeading = 0;
 
                             if (previousPosition) {
-                                markers.forEach(marker => marker.setMap(null));
-                                markers = []; //Remember
+                                mark1.setMap(null);
 
                                 currentHeading = google.maps.geometry.spherical.computeHeading(previousPosition, updatedUserLocation);
 
@@ -1533,8 +1564,14 @@ function updatePath(bid, destinations) {
                                     Polyline.setPath(updatedPath);
                                     pathUpdate.update(updatedPathArray);
 
-                                    // Setting it to interval
-                                    SetDurationDistance(uid);
+                                    initialRide = {
+                                        lat: updatedLat,
+                                        lnt: updatedLng,
+                                        Destination: destination,
+                                        path: updatedPathArray,
+                                    }
+
+                                    SetDurationDistance(initialRide);
 
                                     console.log("Updated Path");
                                 } else {
