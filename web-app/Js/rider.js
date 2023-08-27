@@ -1392,13 +1392,20 @@ function updatePath(bid, destinations) {
         var userLng = position.coords.longitude;
         var userLocation = new google.maps.LatLng(userLat, userLng);
 
-        var destination = destinations[0].loc;
+        // var destination = destinations[0].loc;
 
         const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+
+        const waypointDestinations = destinations.slice(1, -1).map(destination => ({
+            location: destination.loc,
+            stopover: true
+        }));
 
         const request = {
             origin: userLocation,
-            destination: destination,
+            waypoints: waypointDestinations,
+            destination: destinations[destinations.length - 1].loc,
             travelMode: google.maps.TravelMode.DRIVING
         };
 
@@ -1438,9 +1445,14 @@ function updatePath(bid, destinations) {
                 var path = google.maps.geometry.encoding.decodePath(response.routes[0].overview_polyline);
 
                 var pathArray = [];
-                for (var i = 0; i < path.length; i++) {
-                    pathArray.push([path[i].lat(), path[i].lng()]);
-                }
+                var steps = response.routes[0].legs[0].steps;
+
+                steps.forEach(step => {
+                    var path = step.path;
+                    path.forEach(point => {
+                        pathArray.push([point.lat(), point.lng()]);
+                    });
+                });
 
                 var uid = firebase.auth().currentUser.uid;
                 var pathRef = firebase.database().ref('ridersAvailable/' + uid);
@@ -1463,7 +1475,7 @@ function updatePath(bid, destinations) {
                     name: Data.full_name,
                     lat: userLat,
                     lnt: userLng,
-                    Destination: destination,
+                    Destination: destinations[0].loc,
                     path: pathArray,
                     Crest: Data.Crest,
                 }
@@ -1522,10 +1534,15 @@ function updatePath(bid, destinations) {
                             var updatedUserLocation = new google.maps.LatLng(updatedLat, updatedLng);
                             map.panTo(updatedUserLocation);
 
+                            const wayPointDestinations = destinations.slice(1).map(destination => ({
+                                location: destination.loc,
+                                stopover: true
+                            }));
 
-                            var updatedRequest = {
+                            const updatedRequest = {
                                 origin: updatedUserLocation,
-                                destination: destinations[0].loc,
+                                waypoints: wayPointDestinations,
+                                destination: destinations[destinations.length - 1].loc,
                                 travelMode: google.maps.TravelMode.DRIVING
                             };
 
@@ -1562,12 +1579,12 @@ function updatePath(bid, destinations) {
 
 
                                     Polyline.setPath(updatedPath);
-                                    pathUpdate.update(updatedPathArray);
+                                    pathUpdate.set(updatedPathArray);
 
                                     initialRide = {
                                         lat: updatedLat,
                                         lnt: updatedLng,
-                                        Destination: destination,
+                                        Destination: destinations[0].loc,
                                         path: updatedPathArray,
                                     }
 
