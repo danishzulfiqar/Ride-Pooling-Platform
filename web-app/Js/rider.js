@@ -1396,16 +1396,23 @@ function updatePath(bid, destinations) {
 
         const directionsService = new google.maps.DirectionsService();
         const directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+        const waypts = [];
 
-        const waypointDestinations = destinations.slice(1, -1).map(destination => ({
-            location: destination.loc,
-            stopover: true
-        }));
+        destinations.forEach(function (destination) {
+            waypts.push({
+                location: destination.loc,
+                stopover: true,
+            });
+        });
+
+        // poping last value of user itself
+        waypts.pop();
 
         const request = {
             origin: userLocation,
-            waypoints: waypointDestinations,
             destination: destinations[destinations.length - 1].loc,
+            waypoints: waypts,
+            optimizeWaypoints: true,
             travelMode: google.maps.TravelMode.DRIVING
         };
 
@@ -1534,15 +1541,12 @@ function updatePath(bid, destinations) {
                             var updatedUserLocation = new google.maps.LatLng(updatedLat, updatedLng);
                             map.panTo(updatedUserLocation);
 
-                            const wayPointDestinations = destinations.slice(1).map(destination => ({
-                                location: destination.loc,
-                                stopover: true
-                            }));
 
                             const updatedRequest = {
                                 origin: updatedUserLocation,
-                                waypoints: wayPointDestinations,
                                 destination: destinations[destinations.length - 1].loc,
+                                waypoints: waypts,
+                                optimizeWaypoints: true,
                                 travelMode: google.maps.TravelMode.DRIVING
                             };
 
