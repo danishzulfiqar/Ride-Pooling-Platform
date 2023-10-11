@@ -271,15 +271,15 @@ footer{
 
 @media(max-width:1028px) {
     .home-top-right h2{
-        font-size: 40px;
+        font-size: 35px;
         font-weight: bolder;
     }
     .home-second-left h2{
-        font-size: 40px;
+        font-size: 35px;
         font-weight: bolder;
     }
     .home-third-right h2{
-        font-size: 40px;
+        font-size: 35px;
         font-weight: bolder;
     }
     h2{
@@ -406,3 +406,6 @@ footer{
     fill: #FFFFFF;
 }
 
+.dropdown-custom:hover{
+    outline: none;
+}
