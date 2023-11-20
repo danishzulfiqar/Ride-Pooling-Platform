@@ -1,71 +1,93 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, Keyboard, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { auth  } from '../firebase';
+import React, { useState, useRef } from 'react';
+import {
+  StyleSheet, View, Text, TextInput, TouchableOpacity,
+  TouchableWithoutFeedback, Alert, Keyboard
+} from 'react-native';
+import { auth } from '../firebase';
+import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
+import { signInWithPhoneNumber, PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
 
-function SignIn({user, setUser}) {
+function SignIn({ user, setUser }) {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [code, setCode] = useState("");
+  const [verificationId, setVerificationId] = useState(null);
+  const recaptchaVerifier = useRef(null);
+  const [showCodeInput, setShowCodeInput] = useState(false);
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-
-  const userSignIn = async () => {
+  const sendVerification = async () => {
     try {
-      await signInWithEmailAndPassword(auth, username, password);
-    } catch(error) {
-      console.log(error.message);
+      const phoneProvider = new PhoneAuthProvider(auth);
+      const verificationId = await phoneProvider.verifyPhoneNumber(phoneNumber, recaptchaVerifier.current);
+      setVerificationId(verificationId);
+      setShowCodeInput(true);
+      Alert.alert("Verification code sent", "Please check your phone for the verification code.");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", error.message);
     }
-  }
+  };
 
-  const userSignOut = async () => {
+  const confirmCode = async () => {
     try {
-      await signOut(auth);
-      setUser(null);
-    } catch(error) {
-      console.log(error.message);
+      const credential = PhoneAuthProvider.credential(verificationId, code);
+      const userCredential = await signInWithCredential(auth, credential);
+      setUser(userCredential.user);
+      Alert.alert("Phone authentication successful", "You are now signed in!");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", error.message);
     }
-  }
+  };
 
-  return(
+  return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.page}>
-        { user && 
-        <View style={styles.formContainer}>
-          <Text style={styles.userMsg}>Hi, {user.email}</Text> 
-          <TouchableOpacity onPress={userSignOut} style={styles.submitButton}>
-            <Text style={styles.submitButtonText}>Sign Out</Text>
-          </TouchableOpacity>
-        </View>
-        }
-        { !user && 
-        <>
-          <Text style={styles.heading}>Sign In</Text>
-          <View style={styles.formContainer}>
-            <Text style={styles.label}>Username</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={(val) => setUsername(val)}
-              value={username}
-              autoCapitalize="none"              
-            />
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              onChangeText={(val) => setPassword(val)}
-              value={password}
-              secureTextEntry
-            />
-            <TouchableOpacity onPress={userSignIn} style={styles.submitButton}>
-              <Text style={styles.submitButtonText}>Sign In</Text>
-            </TouchableOpacity>
-            <Text style={styles.label}>Create an account</Text>
-            <Text style={styles.alternativeButton}>Sign Up</Text>
-          </View>
-        </>
-        }
+        <FirebaseRecaptchaVerifierModal
+          ref={recaptchaVerifier}
+          firebaseConfig={auth.app.options}
+        />
+        {!user ? (
+          <>
+            <Text style={styles.heading}>Phone Sign In</Text>
+            <View style={styles.formContainer}>
+              {!showCodeInput ? (
+                <>
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={setPhoneNumber}
+                    value={phoneNumber}
+                    placeholder="Enter phone number"
+                    keyboardType="phone-pad"
+                  />
+                  <TouchableOpacity onPress={sendVerification} style={styles.submitButton}>
+                    <Text style={styles.submitButtonText}>Send Code</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={setCode}
+                    value={code}
+                    placeholder="Enter Verification Code"
+                    keyboardType="number-pad"
+                  />
+                  <TouchableOpacity onPress={confirmCode} style={styles.submitButton}>
+                    <Text style={styles.submitButtonText}>Confirm Code</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          </>
+        ) : (
+          <Text style={styles.userMsg}>Hi, {user.phoneNumber}</Text>
+        )}
       </View>
     </TouchableWithoutFeedback>
-  )
+  );
 }
+
+// Styles remain unchanged
 
 const styles = StyleSheet.create({
   page: {
