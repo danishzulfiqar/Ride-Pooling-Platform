@@ -27,12 +27,7 @@ How to use
 
 ```
 const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "appname.firebaseapp.com",
-  projectId: "appname",
-  storageBucket: "appname.appspot.com",
-  messagingSenderId: "9124367852",
-  appId: "1:111283728:web:8f77777986"
+  
 };
 ```
 4. Update the `firebase.js` with your settings  
@@ -57,6 +52,4 @@ If you want to see the sign in screen just comment the signUp component and comm
 
 Everything is working properly right after you update the firebase.js with your credentials.
 
-#### Enjoy
 
-*Author [Maor Tzabari](https://oritzio.com/)*
