@@ -1,16 +1,31 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
+import { GestureHandlerRootView } from 'react-native-gesture-handler'; 
 import { auth } from './firebase';
-import SignUp from './components/SignUp';
-import SignIn from './components/SignIn';
-import SignOut from './components/SignOut';
+import SignUp from './signinauth/SignUp';
+import SignIn from './signinauth/SignIn';
+import SignOut from './signinauth/SignOut';
+import Intropage from './screens/intropage';
+import Pickrole from './screens/role';
+import Homescreen from './screens/homescreen';
+import Form from './screens/form';
+import RiderCard from './components/ridercard';
+import BottomSheet from './components/BottomSheet';
+import DrawerNav from './screens/drawer-nav';
+import Homescreen1 from './screens/homescreen1';
+import GoogleMaps from './googlemaps';
+
 
 export default function App() {
+  const [isAuthenticated, setisAuthenticated] = useState(false);
+  const [getstarted, setgetstarted] = useState(false);
+  const [role, setrole] = useState(0);
+  const [haveaccount, sethaveaccount] = useState(false);
 
   const [currentUser, setCurrentUser] = useState(null);
 
-  console.log('currentUser', currentUser?.email)
+  console.log('currentUser', currentUser?.uid)
 
   useEffect(() => {
 
@@ -25,11 +40,18 @@ export default function App() {
   }, [currentUser])
 
   return (
+    <GestureHandlerRootView style={{flex:1}}>
     <View style={styles.container}>
-      {/* <SignUp user={currentUser} setUser={setCurrentUser} /> */}
-      <SignIn user={currentUser} setUser={setCurrentUser} />
-      {/* <SignOut user={currentUser} /> */}
+      {getstarted ? (
+        role === 0 ? (<Pickrole getvalue={setrole} backbutton={setgetstarted} />) 
+        : role === 1 ? ( haveaccount ? (<Form backbutton={sethaveaccount} />) 
+        : (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} />))) 
+        : role === 2 ? (haveaccount ? (<Form backbutton={sethaveaccount} />) 
+        : (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} />))) 
+        : null) 
+        : (<Intropage begin={setgetstarted} />)}
     </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -37,7 +59,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
