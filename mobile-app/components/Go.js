@@ -1,4 +1,5 @@
 import { React, useState } from 'react';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'; 
 import { View, TouchableOpacity, Text, StyleSheet, TextInput, TouchableWithoutFeedback, Keyboard, Image } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
@@ -12,8 +13,23 @@ export default function Go() {
   return (
 
     <View style={styles.container}>
+    <View style={styles.mapsContainer}>
+     <MapView
+       provider={PROVIDER_GOOGLE} 
+       style={styles.map}
+       region={{
+         latitude: 33.6844,
+         longitude: 73.0479,
+         latitudeDelta: 0.015,
+         longitudeDelta: 0.0121,
+       }}
+     >
+     </MapView>
+   </View>
+
     <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
-    <View>
+    
+    <View style={styles.topCon}>
           <View style={{ flexDirection: 'row', marginLeft: 10, marginRight: 10 }}>
           <TouchableOpacity style={[styles.btn3, Change === 1 ? styles.buttonPressed : null]} onPress={() => { setChange(1) }}>
             <Image
@@ -76,7 +92,8 @@ export default function Go() {
       onPress={(data, details = null) => {
         // 'details' is provided when fetchDetails = true
         const location1 = data.description;
-        console.log(details);
+        console.log(location1);
+        
       }}
       query={{
         key: API_KEY,
@@ -131,6 +148,8 @@ export default function Go() {
 const styles = StyleSheet.create({
   container: {
     flex:1,
+  },
+  topCon:{
     marginTop:290,
   },
 
@@ -213,5 +232,15 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 2,
     borderRadius: 10,
+  },
+  mapsContainer: {
+    ...StyleSheet.absoluteFillObject,
+    height: "100%",
+    width: "100%",
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
 });

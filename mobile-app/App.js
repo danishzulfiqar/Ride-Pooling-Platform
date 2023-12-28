@@ -15,6 +15,8 @@ import BottomSheet from './components/BottomSheet';
 import DrawerNav from './screens/drawer-nav';
 import Homescreen1 from './screens/homescreen1';
 import GoogleMaps from './googlemaps';
+import MapsG  from './maps';
+import Go from './components/Go';
 
 
 export default function App() {
@@ -42,14 +44,15 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{flex:1}}>
     <View style={styles.container}>
-      {getstarted ? (
+      {/* {getstarted ? (
         role === 0 ? (<Pickrole getvalue={setrole} backbutton={setgetstarted} />) 
         : role === 1 ? ( haveaccount ? (<Form backbutton={sethaveaccount} />) 
         : (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} />))) 
         : role === 2 ? (haveaccount ? (<Form backbutton={sethaveaccount} />) 
         : (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} />))) 
         : null) 
-        : (<Intropage begin={setgetstarted} />)}
+        : (<Intropage begin={setgetstarted} />)} */}
+        <Go />
     </View>
     </GestureHandlerRootView>
   );
