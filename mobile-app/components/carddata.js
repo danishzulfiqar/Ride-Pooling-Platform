@@ -8,15 +8,15 @@ const cardData = [
       passengers: 2,
       distance: '5 miles',
      },
-    // {
-    //     id: 2,
-    //     name: 'Card 2',
-    //     bike: 'Bike 2',
-    //     rating: 4,
-    //     price: '$10',
-    //     passengers: 1,
-    //     distance: '2 miles',
-    //   },
+    {
+        id: 2,
+        name: 'Card 2',
+        bike: 'Bike 2',
+        rating: 4,
+        price: '$10',
+        passengers: 1,
+        distance: '2 miles',
+      },
 
 ]
 

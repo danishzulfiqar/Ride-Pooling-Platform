@@ -1,6 +1,9 @@
-import { React, useState } from 'react';
+import { React, useState, useMemo } from 'react';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'; 
 import { View, TouchableOpacity, Text, StyleSheet, TextInput, TouchableWithoutFeedback, Keyboard, Image } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import BottomSheet from '@gorhom/bottom-sheet';
+import Slider from './BottomSheetCards';
 
 const API_KEY = 'YOUR_GOOGLE_API_KEY';
 
@@ -8,12 +11,37 @@ const API_KEY = 'YOUR_GOOGLE_API_KEY';
 
 export default function Go() {
   const [Change, setChange] = useState(0);
+  const [loc1, setLocation1] = useState('');
+  const [loc2, setLocation2] = useState('');
+  const [showSlider, setShowSlider] = useState(0);
+  const snapPoints = useMemo(() => ['15%', '30%', '60%'], []);
+
+  function showingSlider(){
+    setShowSlider(1);
+  }
 
   return (
 
     <View style={styles.container}>
+    <View style={styles.mapsContainer}>
+     <MapView
+       provider={PROVIDER_GOOGLE} 
+       style={styles.map}
+       region={{
+         latitude: 33.6844,
+         longitude: 73.0479,
+         latitudeDelta: 0.015,
+         longitudeDelta: 0.0121,
+       }}
+     >
+     </MapView>
+   </View>
+
     <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
-    <View>
+    {showSlider === 1 ? (<Slider l1={loc1} l2={loc2} set={setShowSlider}/>) : 
+    (
+      <BottomSheet index={1} snapPoints={snapPoints} >
+    <View style={styles.topCon}>
           <View style={{ flexDirection: 'row', marginLeft: 10, marginRight: 10 }}>
           <TouchableOpacity style={[styles.btn3, Change === 1 ? styles.buttonPressed : null]} onPress={() => { setChange(1) }}>
             <Image
@@ -76,7 +104,9 @@ export default function Go() {
       onPress={(data, details = null) => {
         // 'details' is provided when fetchDetails = true
         const location1 = data.description;
-        console.log(details);
+        setLocation1(location1);
+        console.log(location1);
+        
       }}
       query={{
         key: API_KEY,
@@ -111,6 +141,7 @@ export default function Go() {
       onPress={(data, details = null) => {
         // 'details' is provided when fetchDetails = true
         const location2 = data.description;
+        setLocation2(location2);
         console.log(details);
       }}
       query={{
@@ -120,10 +151,12 @@ export default function Go() {
     />
 
         <TouchableOpacity style={styles.btn}><Text style={{alignSelf:"center"}}>Choose from Map</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.btn2}><Text style={{alignSelf:"center"}}>Find Rider</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.btn2} onPress={showingSlider}><Text style={{alignSelf:"center"}}>Find Rider</Text></TouchableOpacity>
       </View>
       </View>
-      </TouchableWithoutFeedback>
+      </BottomSheet>
+    ) }
+    </TouchableWithoutFeedback>
     </View>
   );
 }
@@ -131,7 +164,9 @@ export default function Go() {
 const styles = StyleSheet.create({
   container: {
     flex:1,
-    marginTop:290,
+  },
+  topCon:{
+    height:'100%'
   },
 
   inputcontainer: {
@@ -213,5 +248,15 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 2,
     borderRadius: 10,
+  },
+  mapsContainer: {
+    ...StyleSheet.absoluteFillObject,
+    height: "100%",
+    width: "100%",
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
 });

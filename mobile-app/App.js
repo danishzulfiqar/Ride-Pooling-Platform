@@ -8,13 +8,15 @@ import SignIn from './signinauth/SignIn';
 import SignOut from './signinauth/SignOut';
 import Intropage from './screens/intropage';
 import Pickrole from './screens/role';
-import Homescreen from './screens/homescreen';
 import Form from './screens/form';
 import RiderCard from './components/ridercard';
-import BottomSheet from './components/BottomSheet';
+import BottomSheet from './components/BottomSheetCards';
 import DrawerNav from './screens/drawer-nav';
 import Homescreen1 from './screens/homescreen1';
 import GoogleMaps from './googlemaps';
+import MapsG  from './maps';
+import Go from './components/Go';
+import Slider from './components/BottomSheetCards';
 
 
 export default function App() {
