@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     alignItems:'center'
   },
   btn3:{
-    backgroundColor:"black",
+    backgroundColor:"#141E46",
     height:30,
     width:90,
     marginLeft:35,
