@@ -6,6 +6,8 @@ import {
 import { auth } from '../firebase';
 import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { signInWithPhoneNumber, PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+
 
 const ScreenStates = {
   NUMBER_SCREEN: 'NUMBER_SCREEN',
@@ -20,6 +22,7 @@ function SignIn({ user, setUser }) {
   const [currentScreen, setCurrentScreen] = useState(ScreenStates.NUMBER_SCREEN);
   const recaptchaVerifier = useRef(null);
   const otpInputRefs = useRef(code.map(() => React.createRef()));
+  const functions = getFunctions(auth.app);
 
   const sendVerification = async () => {
     try {
@@ -34,11 +37,23 @@ function SignIn({ user, setUser }) {
     }
   };
 
+  const callCheckDataFunction = async (uid, role) => {
+    const checkData = httpsCallable(functions, 'checkData');
+    try {
+      const result = await checkData({ uid, role });
+      console.log(result.data); // Process result data
+      // Additional logic based on the result
+    } catch (error) {
+      console.error("Error calling checkData Function:", error);
+    }
+  };
+
   const confirmCode = async () => {
     try {
       const credential = PhoneAuthProvider.credential(verificationId, code.join(''));
       const userCredential = await signInWithCredential(auth, credential);
       setUser(userCredential.user);
+      await callCheckDataFunction(userCredential.user.uid, "user");
       setCurrentScreen(ScreenStates.LOGGED_IN_SCREEN);
     } catch (error) {
       console.error(error);

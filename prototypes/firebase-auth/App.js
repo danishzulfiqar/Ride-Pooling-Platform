@@ -10,7 +10,7 @@ export default function App() {
 
   const [currentUser, setCurrentUser] = useState(null);
 
-  console.log('currentUser', currentUser?.email)
+  console.log('currentUser', currentUser?.uid)
 
   useEffect(() => {
 
