@@ -2,7 +2,6 @@ import React from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { DrawerItemList, createDrawerNavigator } from '@react-navigation/drawer';
-import Homescreen from './homescreen';
 import Homescreen1 from './homescreen1';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -34,7 +33,7 @@ export default function drawerNav() {
                 fontWeight:'bold',
                 fontFamily:'monospace'
             },
-            drawerActiveTintColor:'orange',
+            drawerActiveTintColor:'#FF6969',
             drawerLabelStyle:{
                 color:'#111',
                 fontFamily:'monospace',

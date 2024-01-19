@@ -8,15 +8,15 @@ import SignIn from './signinauth/SignIn';
 import SignOut from './signinauth/SignOut';
 import Intropage from './screens/intropage';
 import Pickrole from './screens/role';
-import Homescreen from './screens/homescreen';
 import Form from './screens/form';
 import RiderCard from './components/ridercard';
-import BottomSheet from './components/BottomSheet';
+import BottomSheet from './components/BottomSheetCards';
 import DrawerNav from './screens/drawer-nav';
 import Homescreen1 from './screens/homescreen1';
 import GoogleMaps from './googlemaps';
 import MapsG  from './maps';
 import Go from './components/Go';
+import Slider from './components/BottomSheetCards';
 
 
 export default function App() {
@@ -44,15 +44,14 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{flex:1}}>
     <View style={styles.container}>
-      {/* {getstarted ? (
+      {getstarted ? (
         role === 0 ? (<Pickrole getvalue={setrole} backbutton={setgetstarted} />) 
         : role === 1 ? ( haveaccount ? (<Form backbutton={sethaveaccount} />) 
         : (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} />))) 
         : role === 2 ? (haveaccount ? (<Form backbutton={sethaveaccount} />) 
         : (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} />))) 
         : null) 
-        : (<Intropage begin={setgetstarted} />)} */}
-        <Go />
+        : (<Intropage begin={setgetstarted} />)}
     </View>
     </GestureHandlerRootView>
   );

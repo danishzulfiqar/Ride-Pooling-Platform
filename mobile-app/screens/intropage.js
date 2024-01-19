@@ -8,16 +8,14 @@ export default function Intropage({ begin }) {
 
   return (
     <View style={styles.container}>
-      <Image
+    <View style={styles.ddcontainer}>
+    <Image
         style={styles.imgstyle}
         resizeMode="contain"
-        source={require('../assets/logo.png')}
+        source={require('../assets/Hlogo.png')}
       />
-      <Text style={styles.heading}>Ride Together | Save Together</Text>
-      <View
-        style={{
-          /**backgroundColor:'lightgrey',padding:12,borderRadius:15,**/ marginTop: 60,
-        }}>
+    </View>
+      <View>
         <Text style={styles.text}>
           Introducing Pakistan's first fully self-developed ride booking app!
           Our app offers multiple users the opportunity to share a ride in
@@ -40,20 +38,22 @@ export default function Intropage({ begin }) {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 100,
     flex: 1,
     margin: 20,
     alignItems: 'center',
+    justifyContent:'center',
   },
 
-  heading: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginTop: 10,
+  ddcontainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    marginBottom: 20,
   },
 
   imgstyle: {
-    width: 300,
+    width: 450,
+    height:200,
   },
 
   text: {
@@ -72,6 +72,6 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderRadius: 10,
     alignItems: 'center',
-    backgroundColor: 'orange',
+    backgroundColor: '#FF6969',
   },
 });

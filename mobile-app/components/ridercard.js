@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Image } from 'react-native';
 import cardData from './carddata'
 
 export default function RiderCard() {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} >
       {cardData.map((card, index) => (
         <View style={styles.cardContainer} key={index}>
           <View style={styles.card}>
@@ -31,6 +31,7 @@ export default function RiderCard() {
 const styles = StyleSheet.create({
   container: {
     flex:1,
+    pointerEvents: 'none',
     backgroundColor:"white"
   },
   cardContainer: {
@@ -40,6 +41,7 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     height: 130,
     marginTop: 20,
+    marginBottom:10,
     alignSelf: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -73,7 +75,7 @@ const styles = StyleSheet.create({
     fontSize:14,
   },
   btn3:{
-    backgroundColor:"orange",
+    backgroundColor:"#FF6969",
     height:40,
     width:110,
     marginLeft:5,

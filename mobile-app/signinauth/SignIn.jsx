@@ -14,6 +14,7 @@ const ScreenStates = {
   LOGGED_IN_SCREEN: 'LOGGED_IN_SCREEN'
 };
 
+
 function SignIn({ user, setUser, backbutton }) {
   const [phoneNumber, setPhoneNumber] = useState("+92");
   const [code, setCode] = useState(new Array(6).fill(""));
@@ -68,11 +69,9 @@ function SignIn({ user, setUser, backbutton }) {
     <View>
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
-
       <TouchableOpacity style={styles.backbtn} onPress={setback}> 
         <Icon name="arrow-left" size={30} color="grey" />
       </TouchableOpacity>
-
         <FirebaseRecaptchaVerifierModal
           ref={recaptchaVerifier}
           firebaseConfig={auth.app.options}/>
@@ -84,7 +83,7 @@ function SignIn({ user, setUser, backbutton }) {
             <Image
               style={styles.imgstyle}
               resizeMode="contain"
-              source={require('../assets/logo.png')}/>
+              source={require('../assets/Hlogo.png')}/>
           </View>
 
           <Text style={styles.below_img}>PASSENGER LOGIN</Text>
@@ -151,12 +150,14 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignSelf: 'center',
     marginBottom: 20,
+    alignItems:'center'
   },
   countryCode: {
     fontSize: 18,
-    marginRight: 0
+    marginRight: 0,
+    justifyContent:'center'
   },
   input: {
     fontSize: 20,
@@ -183,15 +184,15 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   container: {
-    marginTop:40,
-    marginLeft: 40,
-    marginRight: 40,
+    margin:40,
+    justifyContent:'center'
   },
 
   phn_text: {
     fontSize:16,
     fontWeight:'bold',
     marginTop:30,
+    alignSelf:'center'
   },
 
   below_img: {
@@ -204,15 +205,12 @@ const styles = StyleSheet.create({
   ddcontainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'black',
+    backgroundColor: 'white',
     marginBottom: 60,
-    borderRadius: 50,
-    elevation: 20,
-    marginTop: 40,
   },
   
   backbtn: {
-    marginBottom:20,
+    marginBottom:60,
   },
 
   inputStyles: {
@@ -226,8 +224,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
   },
   imgstyle: {
-    margin: 50,
-    width: 250,
+    width: 450,
+    height:200,
   },
   buttonstyle: {
     justifyContent: 'center',
@@ -239,7 +237,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 10,
     alignItems: 'center',
-    backgroundColor: 'orange',
+    backgroundColor: '#FF6969',
   },
 });
 

@@ -36,7 +36,7 @@ export default function Homescreen1() {
                                        style={styles.navLogo}
                                         resizeMode="contain"
                                         source={require('../assets/go.png')} />
-                                       <Text style={[styles.navText, { color: focused ? 'orange' : 'black' }]}>GO</Text>
+                                       <Text style={[styles.navText, { color: focused ? '#FF6969' : 'black' }]}>GO</Text>
                                     </View>);
                         }}} />
                     <Tab.Screen name="Pooling" component={Pooling} options={{
@@ -46,7 +46,7 @@ export default function Homescreen1() {
                                         style={styles.navLogo}
                                         resizeMode="contain"
                                         source={require('../assets/network.png')} />
-                                       <Text style={[styles.navText, { color: focused ? 'orange' : 'black' }]}>Pooling</Text>
+                                       <Text style={[styles.navText, { color: focused ? '#FF6969' : 'black' }]}>Pooling</Text>
                                     </View>);
                         }}}/>
                     <Tab.Screen name="Sharing" component={Sharing} options={{
@@ -56,7 +56,7 @@ export default function Homescreen1() {
                                         style={styles.navLogo}
                                         resizeMode="contain"
                                         source={require('../assets/output-onlinegiftools.gif')} />
-                                       <Text style={[styles.navText, {color: focused ? 'orange' : 'black' }]}>Sharing</Text>
+                                       <Text style={[styles.navText, {color: focused ? '#FF6969' : 'black' }]}>Sharing</Text>
                                     </View>);
                         }}}/>
                 </Tab.Navigator>
