@@ -3,11 +3,13 @@ import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "YOUR_GOOGLE_API_KEY",
-  authDomain: "todoapp-672a1.firebaseapp.com",
-  projectId: "todoapp-672a1",
-  storageBucket: "todoapp-672a1.appspot.com",
-  messagingSenderId: "561686728350",
-  appId: "1:561686728350:web:f15ed867404aa8796db58f"
+  authDomain: "your-firebase-project.firebaseapp.com",
+  databaseURL: "https://your-firebase-project-default-rtdb.firebaseio.com",
+  projectId: "your-firebase-project",
+  storageBucket: "your-firebase-project.appspot.com",
+  messagingSenderId: "947991865853",
+  appId: "1:947991865853:web:c45847b66466a431191194",
+  measurementId: "G-1G0W7QGJRP"
 };
 
 // Initialize Firebase

@@ -10,11 +10,12 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import React, { useState } from 'react';
 
 export default function Pickrole({ getvalue, backbutton }) {
+
   const setrider = () => {
-    getvalue(1);
+    getvalue('rider');
   };
   const setpassenger = () => {
-    getvalue(2);
+    getvalue('user');
   };
 
   const setback = () => {

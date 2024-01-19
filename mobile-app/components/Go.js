@@ -23,9 +23,7 @@ export default function Go() {
   function showingSlider(){
     setShowSlider(1);
   }
-  function getloc(){
-    setLocSlider(0)
-  }
+  
   let x = 'hello';
 
   return (

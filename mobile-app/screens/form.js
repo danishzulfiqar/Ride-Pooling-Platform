@@ -38,15 +38,12 @@ export default function form({backbutton}) {
 
 const styles = StyleSheet.create({
   container: {
-    margin:20
+    margin:40
   },
 
   ddcontainer: {
     alignItems: 'center',
-    backgroundColor: 'white',
-    marginBottom: 100,
-    borderRadius: 50,
-    elevation: 20,
+    marginBottom: 50,
     marginTop: 20,
   },
 
@@ -57,9 +54,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
   },
   imgstyle: {
-    margin: 50,
-    width: 500,
-    height:100,
+    width: 450,
+    height:200,
   },
   buttonstyle: {
     justifyContent: 'center',
