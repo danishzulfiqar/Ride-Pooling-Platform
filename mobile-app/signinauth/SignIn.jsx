@@ -4,6 +4,7 @@ import {
   TouchableWithoutFeedback, Alert,Image, Keyboard
 } from 'react-native';
 import { auth } from '../firebase';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { signInWithPhoneNumber, PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -15,16 +16,29 @@ const ScreenStates = {
 };
 
 
-function SignIn({ user, setUser, backbutton }) {
+function SignIn({ user, setUser, backbutton, role, sethaveaccount}) {
   const [phoneNumber, setPhoneNumber] = useState("+92");
   const [code, setCode] = useState(new Array(6).fill(""));
   const [verificationId, setVerificationId] = useState(null);
   const [currentScreen, setCurrentScreen] = useState(ScreenStates.NUMBER_SCREEN);
   const recaptchaVerifier = useRef(null);
   const otpInputRefs = useRef(code.map(() => React.createRef()));
+  const functions = getFunctions(auth.app);
 
   const setback = () => {
     backbutton(0);
+  };
+
+  const callCheckDataFunction = async (uid, role) => {
+    const checkData = httpsCallable(functions, 'checkData');
+    try {
+      const result = await checkData({ uid, role });
+      console.log(result.data); // Process result data
+      sethaveaccount(result.data);
+      // Additional logic based on the result
+    } catch (error) {
+      console.error("Error calling checkData Function:", error);
+    }
   };
 
   const sendVerification = async () => {
@@ -44,6 +58,8 @@ function SignIn({ user, setUser, backbutton }) {
     try {
       const credential = PhoneAuthProvider.credential(verificationId, code.join(''));
       const userCredential = await signInWithCredential(auth, credential);
+      await callCheckDataFunction(userCredential.user.uid, role);
+      console.log(role);
       setUser(userCredential.user);
       setCurrentScreen(ScreenStates.LOGGED_IN_SCREEN);
     } catch (error) {

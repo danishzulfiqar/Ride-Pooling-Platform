@@ -23,9 +23,9 @@ export default function App() {
   const [isAuthenticated, setisAuthenticated] = useState(false);
   const [getstarted, setgetstarted] = useState(false);
   const [role, setrole] = useState(0);
-  const [haveaccount, sethaveaccount] = useState(false);
-
+  const [haveaccount, sethaveaccount] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
+ 
 
   console.log('currentUser', currentUser?.uid)
 
@@ -46,10 +46,10 @@ export default function App() {
     <View style={styles.container}>
       {getstarted ? (
         role === 0 ? (<Pickrole getvalue={setrole} backbutton={setgetstarted} />) 
-        : role === 1 ? ( haveaccount ? (<Form backbutton={sethaveaccount} />) 
-        : (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} />))) 
-        : role === 2 ? (haveaccount ? (<Form backbutton={sethaveaccount} />) 
-        : (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} />))) 
+        : role === 'rider' ? ( haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount= {sethaveaccount}/>)) 
+        : (<Form backbutton={sethaveaccount} />)) 
+        : role === 'user' ? ( haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount= {sethaveaccount}/>)) 
+        : (<Form backbutton={sethaveaccount} />)) 
         : null) 
         : (<Intropage begin={setgetstarted} />)}
     </View>
