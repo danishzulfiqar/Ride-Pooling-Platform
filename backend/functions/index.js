@@ -5,8 +5,11 @@ const admin = require("firebase-admin");
 const logger = require("firebase-functions/logger");
 
 // Importing Functions by catigoury 
-const saveData = require('./src/ridepoolFuncs/saveData');
+
+// validate data functions
 const validateData = require('./src/ridepoolFuncs/validateData');
+// save data function 
+const saveData = require('./src/ridepoolFuncs/saveData');
 
 admin.initializeApp();
 

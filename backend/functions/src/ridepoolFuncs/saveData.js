@@ -39,7 +39,7 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
 
 
     // checks if data already exists for specific node
-    if (snapshot) {
+    if (snapshot.exists()) {
         throw new functions.https.HttpsError('unknown', "User already exists for the given role");
     }
 
@@ -104,7 +104,7 @@ exports.sendNewRiderData = functions.https.onCall(async (data, context) => {
     const snapshot = await ref.once('value');
 
     // checks if data already exists for specific node
-    if (snapshot) {
+    if (snapshot.exists()) {
         throw new functions.https.HttpsError('unknown', "User already exists for the given role");
     }
 
