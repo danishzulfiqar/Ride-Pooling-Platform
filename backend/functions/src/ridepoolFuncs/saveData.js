@@ -43,6 +43,8 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('unknown', "User already exists for the given role");
     }
 
+    let result;
+
     await ref.set({
         crest: {
             UserData,
@@ -60,11 +62,12 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
         availability: false
 
     }).then(() => {
-        return { status: "success", message: "new user made" };
-    }).catch(() => {
+        result = { status: true, msg: "User made successfully!" };
+    }).catch((error) => {
         throw new functions.https.HttpsError('unknown', error.message, error);
     })
 
+    return result;
 })
 
 
@@ -108,6 +111,8 @@ exports.sendNewRiderData = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('unknown', "User already exists for the given role");
     }
 
+    let result;
+
     await ref.set({
         crest: {
             UserData,
@@ -125,9 +130,10 @@ exports.sendNewRiderData = functions.https.onCall(async (data, context) => {
         availability: false
 
     }).then(() => {
-        return { status: "success", message: "approval request sent" };
-    }).catch(() => {
+        result = { status: true, message: "approval request sent" };
+    }).catch((error) => {
         throw new functions.https.HttpsError('unknown', error.message, error);
     })
 
+    return result;
 })
