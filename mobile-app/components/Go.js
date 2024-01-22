@@ -1,9 +1,11 @@
-import { React, useState, useMemo } from 'react';
+import { React, useState, useMemo, useEffect } from 'react';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'; 
 import { View, TouchableOpacity, Text, StyleSheet, TextInput, TouchableWithoutFeedback, Keyboard, Image } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import * as Location from 'expo-location';
 import BottomSheet from '@gorhom/bottom-sheet';
 import Slider from './BottomSheetCards';
+
 
 const API_KEY = 'YOUR_GOOGLE_API_KEY';
 
@@ -25,6 +27,36 @@ export default function Go() {
   }
   
   let x = 'hello';
+
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
+
+  let text = 'Waiting..';
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (location) {
+    text = JSON.stringify(location);
+    const latitude = location.coords.latitude;
+    const longitude = location.coords.longitude;
+
+    // Log latitude and longitude
+    console.log('Latitude:', latitude);
+    console.log('Longitude:', longitude);
+    console.log(location);
+  }
 
   return (
 
