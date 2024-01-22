@@ -5,7 +5,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { auth } from '../firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function form({backbutton,currentUser}) {
+export default function form({backbutton,currentUser,sethaveaccount}) {
 
   const [fname,setfname] = useState('');
   const [lname,setlname] = useState('');
@@ -37,8 +37,9 @@ export default function form({backbutton,currentUser}) {
     const savePassengerData = httpsCallable(functions, 'savePassengerData');
     try {
       const result = await savePassengerData(data);
-      console.log('hello' + result.data); // Process result data
+      console.log(result.data.status); // Process result data
       // Additional logic based on the result
+      sethaveaccount(result.data.status)
     } catch (error) {
       console.error("Error calling Savepassenger Function:", error);
     }
@@ -95,8 +96,9 @@ export default function form({backbutton,currentUser}) {
          selectedValue={gender}
          onValueChange={(itemValue) => setgender(itemValue)}>
          <Picker.Item label="Select Gender" value="" />
-         <Picker.Item label="Male" value="male" />
-         <Picker.Item label="Female" value="female" />
+         <Picker.Item label="Male" value="m" />
+         <Picker.Item label="Female" value="f" />
+         <Picker.Item label="Other" value="o" />
         </Picker>
         <TouchableOpacity style={styles.buttonstyle} onPress={senddata}>
           <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>

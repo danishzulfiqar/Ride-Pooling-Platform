@@ -48,9 +48,9 @@ export default function App() {
       {getstarted ? (
         role === 0 ? (<Pickrole getvalue={setrole} backbutton={setgetstarted} />) 
         : role === 'rider' ? ( haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount= {sethaveaccount}/>)) 
-        : (<Form backbutton={sethaveaccount} currentUser={currentUser}/>)) 
+        : (<Form backbutton={sethaveaccount} currentUser={currentUser} sethaveaccount= {sethaveaccount}/>)) 
         : role === 'user' ? ( haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount= {sethaveaccount}/>)) 
-        : (<Form backbutton={sethaveaccount} currentUser={currentUser}/>)) 
+        : (<Form backbutton={sethaveaccount} currentUser={currentUser} sethaveaccount= {sethaveaccount}/>)) 
         : null) 
         : (<Intropage begin={setgetstarted} />)}
     </View>
