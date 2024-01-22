@@ -1,8 +1,48 @@
-import React from 'react';
-import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput} from 'react-native';
+import {Picker} from '@react-native-picker/picker';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { auth } from '../firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function form({backbutton}) {
+export default function form({backbutton,currentUser}) {
+
+  const [fname,setfname] = useState('');
+  const [lname,setlname] = useState('');
+  const [email,setemail] = useState('');
+  const [dob,setdob] = useState('');
+  const [gender,setgender] = useState('');
+  const [phone,setphone] = useState('');
+  const functions = getFunctions(auth.app);
+
+  const UID = currentUser.uid;
+
+  const data = {
+    uid:UID,
+    fname:fname,
+    lname:lname,
+    dob:dob,
+    email:email,
+    gender:gender,
+    phone:phone} 
+
+    console.log(data);
+
+  function senddata(){
+    callSavePassengerDataFunction(data);
+  }
+
+
+  const callSavePassengerDataFunction = async (data) => {
+    const savePassengerData = httpsCallable(functions, 'savePassengerData');
+    try {
+      const result = await savePassengerData(data);
+      console.log('hello' + result.data); // Process result data
+      // Additional logic based on the result
+    } catch (error) {
+      console.error("Error calling Savepassenger Function:", error);
+    }
+  };
 
   const setback = () => {
     backbutton(false);
@@ -22,11 +62,43 @@ export default function form({backbutton}) {
         />
       </View>
       <View>
-        <TextInput style={styles.inputStyles} placeholder="FIRST NAME..." />
-        <TextInput style={styles.inputStyles} placeholder="LAST NAME..." />
-        <TextInput style={styles.inputStyles} placeholder="USERNAME..." />
-        <TextInput style={styles.inputStyles} placeholder="EMAIL..." />
-        <TouchableOpacity style={styles.buttonstyle}>
+      <View style={styles.name}>
+        <TextInput style={styles.inputStyles1} 
+        placeholder="FIRST NAME..." 
+        onChangeText={(text) => setfname(text)}
+        value={fname}
+        />
+        <TextInput style={styles.inputStyles1} 
+        placeholder="LAST NAME..." 
+        onChangeText={(text) => setlname(text)}
+        value={lname}
+        />
+      </View>
+        <TextInput style={styles.inputStyles} 
+        inputMode='email'
+        placeholder="EMAIL..." 
+        onChangeText={(text) => setemail(text)}
+        value={email}
+        />
+        <TextInput style={styles.inputStyles} 
+        placeholder="DOB..." 
+        onChangeText={(text) => setdob(text)}
+        value={dob}
+        />
+        <TextInput style={styles.inputStyles} keyboardType="phone-pad" 
+        placeholder="PHONE NO..." 
+        onChangeText={(text) => setphone(text)}
+        value={phone}
+        />
+        <Picker
+         style={styles.inputStyles2}
+         selectedValue={gender}
+         onValueChange={(itemValue) => setgender(itemValue)}>
+         <Picker.Item label="Select Gender" value="" />
+         <Picker.Item label="Male" value="male" />
+         <Picker.Item label="Female" value="female" />
+        </Picker>
+        <TouchableOpacity style={styles.buttonstyle} onPress={senddata}>
           <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
             Continue
           </Text>
@@ -47,19 +119,43 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 
-  inputStyles: {
+  name:{
+    flexDirection:'row',
+    width:'100%'
+  },
+
+  inputStyles1: {
+    width:'49%',
+    fontSize:16,
+    marginRight:4,
     marginBottom: 24,
     backgroundColor: 'white',
     borderBottomColor: 'black',
     borderBottomWidth: 2,
   },
+
+  inputStyles2: {
+    height: 20,
+    borderColor: 'black',
+    borderWidth: 2,
+    marginBottom: 16,
+  },
+
+  inputStyles: {
+    fontSize:16,
+    marginBottom: 24,
+    backgroundColor: 'white',
+    borderBottomColor: 'black',
+    borderBottomWidth: 2,
+  },
+
   imgstyle: {
     width: 450,
     height:200,
   },
   buttonstyle: {
     justifyContent: 'center',
-    marginTop: 80,
+    marginTop: 40,
     alignSelf: 'center',
     height: 40,
     width: 320,

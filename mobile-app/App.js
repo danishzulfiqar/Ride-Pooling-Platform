@@ -17,6 +17,7 @@ import GoogleMaps from './googlemaps';
 import MapsG  from './maps';
 import Go from './components/Go';
 import Slider from './components/BottomSheetCards';
+import Location from './locatonaccess';
 
 
 export default function App() {
@@ -47,9 +48,9 @@ export default function App() {
       {getstarted ? (
         role === 0 ? (<Pickrole getvalue={setrole} backbutton={setgetstarted} />) 
         : role === 'rider' ? ( haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount= {sethaveaccount}/>)) 
-        : (<Form backbutton={sethaveaccount} />)) 
+        : (<Form backbutton={sethaveaccount} currentUser={currentUser}/>)) 
         : role === 'user' ? ( haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount= {sethaveaccount}/>)) 
-        : (<Form backbutton={sethaveaccount} />)) 
+        : (<Form backbutton={sethaveaccount} currentUser={currentUser}/>)) 
         : null) 
         : (<Intropage begin={setgetstarted} />)}
     </View>
