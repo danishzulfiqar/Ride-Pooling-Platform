@@ -30,7 +30,7 @@ export default function Slider({l1,l2, set}) {
         <View style={styles.headingContainer}>
           <Text style={styles.sliderHeading}>Searching For Rider</Text>
           <TouchableOpacity style={styles.btn3}>
-            <Text style={{fontFamily:'monospace', color:'white'}} onPress={back}>Cancel</Text>
+            <Text style={{    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace', color:'white'}} onPress={back}>Cancel</Text>
           </TouchableOpacity>
         </View>
         <BottomSheetScrollView>
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     marginRight:6
   },
   sliderHeading: {
-    fontFamily:'monospace',
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
     fontSize:18,
     fontWeight:'bold',
     marginLeft:25,

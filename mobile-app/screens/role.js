@@ -61,14 +61,14 @@ const styles = StyleSheet.create({
   },
 
   imgstyle: {
-    width: 180,
-    height: 180,
+    width: 170,
+    height: 170,
     margin:20,
   },
 
   heading: {
-    fontFamily: 'monospace',
-    marginTop: 25,
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+    marginTop: 20,
     alignSelf: 'center',
     fontSize: 22,
     fontWeight: 'bold',
@@ -81,14 +81,14 @@ const styles = StyleSheet.create({
   },
 
   role: {
-    marginTop: 40,
+    marginTop: Platform.OS === 'ios' ? 18 : 40,
     alignItems: 'center',
   },
 
   text: {
     fontSize: 16,
     alignSelf: 'center',
-    fontFamily: 'monospace',
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
     fontWeight: '900',
     marginTop: 5,
   },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput } from 'react-native';
+import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput,Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { DrawerItemList, createDrawerNavigator } from '@react-navigation/drawer';
 import Homescreen1 from './homescreen1';
@@ -31,12 +31,13 @@ export default function drawerNav() {
             headerTintColor:'black',
             headerTitleStyle:{
                 fontWeight:'bold',
-                fontFamily:'monospace'
+                fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+
             },
             drawerActiveTintColor:'#FF6969',
             drawerLabelStyle:{
                 color:'#111',
-                fontFamily:'monospace',
+                fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
                 fontWeight:'bold',
                 fontSize:16
             }

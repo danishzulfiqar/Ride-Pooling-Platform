@@ -3,9 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
 import { GestureHandlerRootView } from 'react-native-gesture-handler'; 
 import { auth } from './firebase';
-import SignUp from './signinauth/SignUp';
-import SignIn from './signinauth/SignIn';
-import SignOut from './signinauth/SignOut';
+import SignIn from './screens/SignIn';
 import Intropage from './screens/intropage';
 import Pickrole from './screens/role';
 import Form from './screens/form';
@@ -17,7 +15,6 @@ import GoogleMaps from './googlemaps';
 import MapsG  from './maps';
 import Go from './components/Go';
 import Slider from './components/BottomSheetCards';
-import Location from './locatonaccess';
 
 
 export default function App() {
