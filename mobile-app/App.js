@@ -11,7 +11,6 @@ import RiderCard from './components/ridercard';
 import BottomSheet from './components/BottomSheetCards';
 import DrawerNav from './screens/drawer-nav';
 import Homescreen1 from './screens/homescreen1';
-import GoogleMaps from './googlemaps';
 import MapsG  from './maps';
 import Go from './components/Go';
 import Slider from './components/BottomSheetCards';

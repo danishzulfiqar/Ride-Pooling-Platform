@@ -28,7 +28,7 @@ export default function Slider({l1,l2, set}) {
         <Text style={styles.locationText}>{l2}</Text>
       </View>
         <View style={styles.headingContainer}>
-          <Text style={styles.sliderHeading}>Searching For Rider</Text>
+          <Text style={styles.sliderHeading}>Searching For Rider...</Text>
           <TouchableOpacity style={styles.btn3}>
             <Text style={{    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace', color:'white'}} onPress={back}>Cancel</Text>
           </TouchableOpacity>
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     backgroundColor:"#141E46",
     height:30,
     width:90,
-    marginLeft:35,
+    marginLeft:2,
     marginRight:5,
     borderRadius:10,
     borderColor:'black',
