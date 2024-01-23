@@ -117,7 +117,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount}) {
             />
           </View>
             <TouchableOpacity style={styles.buttonstyle} onPress={sendVerification}>
-            <Text style={{ color: 'black',fontFamily:'monospace', fontWeight: 'bold', fontSize: 16 }}>
+            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
               CONTINUE
             </Text>
             </TouchableOpacity>
@@ -154,7 +154,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount}) {
 
 const styles = StyleSheet.create({
   heading: {
-    fontFamily:'monospace',
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
     fontSize: 20,
   },
   formContainer: {
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
-    marginBottom: 60,
+    marginBottom: Platform.OS === 'ios' ? 30 : 30,
   },
   
   backbtn: {
