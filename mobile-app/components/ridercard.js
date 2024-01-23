@@ -20,7 +20,7 @@ export default function RiderCard() {
             </View>
           </View>
           <TouchableOpacity style={styles.btn3}>
-            <Text style={{ fontFamily: 'monospace' }}>Request</Text>
+            <Text style={{     fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace', }}>Request</Text>
           </TouchableOpacity>
         </View>
       ))}
@@ -66,12 +66,14 @@ const styles = StyleSheet.create({
     padding:5
   },
   cardHeadText: {
-    fontFamily:'monospace',
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+
     fontWeight:'bold',
     fontSize:18,
   },
   cardText: {
-    fontFamily:'monospace',
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+
     fontSize:14,
   },
   btn3:{

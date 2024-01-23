@@ -57,14 +57,16 @@ const styles = StyleSheet.create({
   },
 
   text: {
-    fontSize: 15,
-    fontFamily: 'monospace',
+    fontSize: Platform.OS === 'ios' ? 16 : 15,
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+    lineHeight: Platform.OS === 'ios' ? 22 : 18,
+    fontWeight:'700',
     textAlign: 'center',
   },
 
   buttonstyle: {
     justifyContent: 'center',
-    marginTop: 40,
+    marginTop: Platform.OS === 'ios' ? 25 : 40,
     alignSelf: 'center',
     height: 40,
     width: 260,

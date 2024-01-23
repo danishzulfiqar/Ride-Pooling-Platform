@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput} from 'react-native';
+import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput,TouchableWithoutFeedback,Keyboard} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { auth } from '../firebase';
@@ -50,7 +50,9 @@ export default function form({backbutton,currentUser,sethaveaccount}) {
   };
 
   return (
-    <View style={styles.container}>
+    <View>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View style={styles.container}>
       <TouchableOpacity style={styles.backbtn} onPress={setback}>
         <Icon name="arrow-left" size={30} color="grey" />
       </TouchableOpacity>
@@ -65,47 +67,51 @@ export default function form({backbutton,currentUser,sethaveaccount}) {
       <View>
       <View style={styles.name}>
         <TextInput style={styles.inputStyles1} 
-        placeholder="FIRST NAME..." 
+        placeholder=" FIRST NAME..." 
         onChangeText={(text) => setfname(text)}
         value={fname}
         />
         <TextInput style={styles.inputStyles1} 
-        placeholder="LAST NAME..." 
+        placeholder=" LAST NAME..." 
         onChangeText={(text) => setlname(text)}
         value={lname}
         />
       </View>
         <TextInput style={styles.inputStyles} 
         inputMode='email'
-        placeholder="EMAIL..." 
+        placeholder=" EMAIL..." 
         onChangeText={(text) => setemail(text)}
         value={email}
         />
         <TextInput style={styles.inputStyles} 
-        placeholder="DOB..." 
+        placeholder=" DOB..." 
         onChangeText={(text) => setdob(text)}
         value={dob}
         />
         <TextInput style={styles.inputStyles} keyboardType="phone-pad" 
-        placeholder="PHONE NO..." 
+        placeholder=" PHONE NO..." 
         onChangeText={(text) => setphone(text)}
         value={phone}
         />
         <Picker
-         style={styles.inputStyles2}
-         selectedValue={gender}
-         onValueChange={(itemValue) => setgender(itemValue)}>
-         <Picker.Item label="Select Gender" value="" />
-         <Picker.Item label="Male" value="m" />
-         <Picker.Item label="Female" value="f" />
-         <Picker.Item label="Other" value="o" />
-        </Picker>
+        style={styles.inputStyles2}
+        itemStyle={styles.pickerItem}
+        selectedValue={gender}
+        onValueChange={(itemValue) => setgender(itemValue)}
+      >
+        <Picker.Item label="Select Gender" value="" />
+        <Picker.Item label="Male" value="m" />
+        <Picker.Item label="Female" value="f" />
+        <Picker.Item label="Other" value="o" />
+      </Picker>
         <TouchableOpacity style={styles.buttonstyle} onPress={senddata}>
           <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
             Continue
           </Text>
         </TouchableOpacity>
       </View>
+    </View>
+    </TouchableWithoutFeedback>
     </View>
   );
 }
@@ -117,38 +123,45 @@ const styles = StyleSheet.create({
 
   ddcontainer: {
     alignItems: 'center',
-    marginBottom: 50,
-    marginTop: 20,
+    marginBottom: Platform.OS === 'ios' ? 10 : 30,
   },
 
   name:{
     flexDirection:'row',
     width:'100%'
+    
   },
 
   inputStyles1: {
     width:'49%',
+    height:35,
     fontSize:16,
     marginRight:4,
-    marginBottom: 24,
+    marginBottom: Platform.OS === 'ios' ? 18 : 24,
     backgroundColor: 'white',
     borderBottomColor: 'black',
-    borderBottomWidth: 2,
+    borderRadius:10,
+    borderWidth: 2,
   },
 
   inputStyles2: {
-    height: 20,
-    borderColor: 'black',
+    height:10,
+    marginBottom: Platform.OS === 'ios' ? 18 : 24,
+    backgroundColor: 'white',
+    borderBottomColor: 'black',
+    borderRadius:10,
     borderWidth: 2,
-    marginBottom: 16,
   },
 
   inputStyles: {
+    height:35,
     fontSize:16,
-    marginBottom: 24,
+    marginBottom: Platform.OS === 'ios' ? 18 : 24,
     backgroundColor: 'white',
     borderBottomColor: 'black',
-    borderBottomWidth: 2,
+    borderRadius:10,
+    borderWidth: 2,
+    padding: 5,
   },
 
   imgstyle: {
