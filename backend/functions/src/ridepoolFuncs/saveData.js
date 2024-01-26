@@ -68,6 +68,7 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
         availability: false
 
     }).then(async () => {
+        await sendEmailVarificationLink({ email: data.email, uid: data.uid });
         result = { status: true, msg: "User made successfully!" };
     }).catch((error) => {
         throw new functions.https.HttpsError('unknown', error.message, error);

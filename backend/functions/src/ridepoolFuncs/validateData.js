@@ -3,6 +3,22 @@ const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+const senderEmail = functions.config().myapp.sender_email;
+const senderEmailPassword = functions.config().myapp.sender_email_password;
+
+const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+        user: senderEmail, // Corrected Gmail address
+        pass: senderEmailPassword, // Use the app-specific password here
+    },
+    tls: {
+        rejectUnauthorized: false,
+    },
+});
+
 
 // Checks Data for a specific Role i.e. Rider, Users and send response as true or false
 exports.checkData = functions.https.onCall(async (data, context) => {
@@ -41,27 +57,46 @@ exports.checkData = functions.https.onCall(async (data, context) => {
 })
 
 
-// Generate Email Varification Link
+// Generate Email Verification Link after linking email
 async function generateEmailVerificationLink(data) {
-    console.log("generateVerification called", data);
+    console.log("generateEmailVerificationLink called", data);
 
     const userId = data.uid;
     const email = data.email;
 
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+<>?';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        password += characters[randomIndex];
+    }
+
     try {
+        // Fetch the user record
         const userRecord = await admin.auth().getUser(userId);
         console.log("Record found", userRecord);
 
-        if (!email) {
-            throw new Error("Invalid Arguments. User email is required for verification.");
+        // Validate email
+        if (!email || !password) {
+            throw new Error("Invalid Arguments. User email and password are required.");
         }
 
+        // Link the email to the user account
+        await admin.auth().updateUser(userId, {
+            email: email,
+            emailVerified: false, // Initially set as false
+            password: password
+        });
+        console.log("Email linked successfully to user:", userId);
+
+        // Check if email is already verified
         if (userRecord.emailVerified) {
             return "Email is already verified.";
         }
 
+        // Generate the verification link
         const verificationLink = await admin.auth().generateEmailVerificationLink(email);
-        console.log("Link made", verificationLink);
+        console.log("Verification link generated:", verificationLink);
         return verificationLink;
     } catch (error) {
         console.error("Error in generateEmailVerificationLink:", error);
@@ -80,7 +115,7 @@ async function sendEmailVarificationLink(data) {
         from: process.env.senderEmail,
         to: data.email,
         subject: 'Email Verification',
-        html: `<p>Click the following link to verify your email: <a href="${verificationLink}">${verificationLink}</a></p>`,
+        html: `<p>Click the following link to verify your email: <a href="${varifyLink}">${varifyLink}</a></p>`,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
