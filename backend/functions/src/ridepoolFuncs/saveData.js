@@ -1,10 +1,15 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+const {
+    generateEmailVerificationLink,
+    sendEmailVarificationLink,
+} = require('./validateData');
 
 
 // function for saving passenger(user) data
 exports.savePassengerData = functions.https.onCall(async (data, context) => {
-
 
     // checking valid arguments
     if (!data.uid || !data.fname || !data.lname || !data.dob || !data.email || !data.gender || !data.phone) {
@@ -28,6 +33,7 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
         last_name: data.lname,
         DOB: data.dob,
         email: data.email,
+        email_varification: false,
         gender: data.gender,
         phone_number: data.phone,
         registration_date: new Date().toISOString()
@@ -61,12 +67,11 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
         },
         availability: false
 
-    }).then(() => {
+    }).then(async () => {
         result = { status: true, msg: "User made successfully!" };
     }).catch((error) => {
         throw new functions.https.HttpsError('unknown', error.message, error);
     })
-
     return result;
 })
 
