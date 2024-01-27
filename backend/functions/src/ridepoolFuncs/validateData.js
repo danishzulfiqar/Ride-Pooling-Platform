@@ -6,13 +6,14 @@ require('dotenv').config();
 const senderEmail = functions.config().myapp.sender_email;
 const senderEmailPassword = functions.config().myapp.sender_email_password;
 
+// email configuration for sending email
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-        user: senderEmail, // Corrected Gmail address
-        pass: senderEmailPassword, // Use the app-specific password here
+        user: senderEmail,
+        pass: senderEmailPassword,
     },
     tls: {
         rejectUnauthorized: false,
@@ -56,8 +57,37 @@ exports.checkData = functions.https.onCall(async (data, context) => {
     }
 })
 
+// Link and validate email address
+exports.validateEmail = functions.https.onCall(async (data, context) => {
 
-// Generate Email Verification Link after linking email
+    const email = data.email;
+    const UID = data.uid;
+
+    // checking arguments
+    if (!UID || !email) {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with arguments "uid" and "email" .');
+    }
+
+    // checking auth state and if user sent request himself
+    if (!context.auth || (context.auth.uid != data.uid)) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Authentication required."
+        );
+    }
+
+    try {
+        const response = await sendEmailVarificationLink({ email: email, uid: UID });
+        return response;
+    } catch (error) {
+        console.log(error);
+        return { status: false, message: 'Error sending email.', error: error };
+    }
+
+})
+
+
+// Generate Email Verification Link & linking email
 async function generateEmailVerificationLink(data) {
     console.log("generateEmailVerificationLink called", data);
 
@@ -81,10 +111,10 @@ async function generateEmailVerificationLink(data) {
             throw new Error("Invalid Arguments. User email and password are required.");
         }
 
-        // Link the email to the user account
+        // Linking the email to the user account
         await admin.auth().updateUser(userId, {
             email: email,
-            emailVerified: false, // Initially set as false
+            emailVerified: false,
             password: password
         });
         console.log("Email linked successfully to user:", userId);
@@ -97,17 +127,20 @@ async function generateEmailVerificationLink(data) {
         // Generate the verification link
         const verificationLink = await admin.auth().generateEmailVerificationLink(email);
         console.log("Verification link generated:", verificationLink);
+
         return verificationLink;
     } catch (error) {
         console.error("Error in generateEmailVerificationLink:", error);
         throw error;
     }
 }
+// Exporting generateEmailVerificationLink
+exports.generateEmailVerificationLink = generateEmailVerificationLink;
 
 
 // Sending email with link to user
 async function sendEmailVarificationLink(data) {
-    console.log("sendEmail called",data);
+    console.log("sendEmail called", data);
 
     const varifyLink = await generateEmailVerificationLink(data);
 
@@ -118,17 +151,20 @@ async function sendEmailVarificationLink(data) {
         html: `<p>Click the following link to verify your email: <a href="${varifyLink}">${varifyLink}</a></p>`,
     };
 
+    let returnValue;
+
     transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
             console.error('Error sending email:', error);
+            returnValue = { status: false, message: error };
             throw new Error('Error sending verification email.');
         } else {
+            returnValue = { status: true, message: "Email Sent" };
             console.log('Email sent: ' + info.response);
         }
     });
-}
 
-module.exports = {
-    generateEmailVerificationLink,
-    sendEmailVarificationLink,
-};
+    return returnValue;
+}
+// Exporting sendEmailVarificationLink
+exports.sendEmailVarificationLink = sendEmailVarificationLink;
