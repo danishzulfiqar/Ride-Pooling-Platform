@@ -145,10 +145,25 @@ async function sendEmailVarificationLink(data) {
     const varifyLink = await generateEmailVerificationLink(data);
 
     const mailOptions = {
-        from: process.env.senderEmail,
+        from: senderEmail,
         to: data.email,
-        subject: 'Email Verification',
-        html: `<p>Click the following link to verify your email: <a href="${varifyLink}">${varifyLink}</a></p>`,
+        subject: 'RidePool Email Verification',
+        html: `<!DOCTYPE html>
+        <html>
+        <head>
+          <title>Email Confirmation</title>
+        </head>
+        
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; padding: 20px;">
+          <div style="max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+            <h2 style="color: #1A237E;">Verify Your Email Address</h2>
+            <p>Thank you for registering with us. Please click the button below to verify your email address:</p>
+            <a href="${varifyLink}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; margin-top: 15px; border-radius: 4px;">Verify Email</a>
+            <p style="margin-top: 20px;">If you did not request this, please ignore this email.</p>
+          </div>
+        </body>
+        
+        </html>`,
     };
 
     let returnValue;

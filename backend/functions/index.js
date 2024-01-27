@@ -17,6 +17,8 @@ const validateData = require('./src/ridepoolFuncs/validateData');
 // save data function 
 const saveData = require('./src/ridepoolFuncs/saveData');
 
+admin.initializeApp();
+
 // Checks Data for a specific Role i.e. Rider, Users and send response as true or false
 exports.checkData = validateData.checkData;
 
@@ -28,5 +30,3 @@ exports.savePassengerData = saveData.savePassengerData;
 
 // function to send new rider approval request
 exports.sendNewRiderData = saveData.sendNewRiderData;
-
-admin.initializeApp();
