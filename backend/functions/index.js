@@ -10,14 +10,16 @@ const {
     sendEmailVarificationLink,
 } = require('./src/ridepoolFuncs/validateData');
 
-// Importing Functions by catigoury 
+// ---------- Importing Functions by catigoury -----------------
 
-// validate data functions
 const validateData = require('./src/ridepoolFuncs/validateData');
-// save data function 
 const saveData = require('./src/ridepoolFuncs/saveData');
+const getData = require('./src/ridepoolFuncs/getData');
 
 admin.initializeApp();
+
+
+// --------------- validateData funcs ----------------------
 
 // Checks Data for a specific Role i.e. Rider, Users and send response as true or false
 exports.checkData = validateData.checkData;
@@ -25,8 +27,14 @@ exports.checkData = validateData.checkData;
 // function to send email Validation request
 exports.validateEmail = validateData.validateEmail;
 
+
+// --------------- saveData funcs --------------------------
+
 // function for saving passenger(user) data
 exports.savePassengerData = saveData.savePassengerData;
 
 // function to send new rider approval request
 exports.sendNewRiderData = saveData.sendNewRiderData;
+
+
+// --------------- getData funcs ---------------------------
