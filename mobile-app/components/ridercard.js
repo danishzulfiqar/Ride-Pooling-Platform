@@ -66,14 +66,11 @@ const styles = StyleSheet.create({
     padding:5
   },
   cardHeadText: {
-    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
-
-    fontWeight:'bold',
+    fontFamily:'CustomB',
     fontSize:18,
   },
   cardText: {
-    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
-
+    fontFamily:'Custom',
     fontSize:14,
   },
   btn3:{

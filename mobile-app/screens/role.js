@@ -67,11 +67,10 @@ const styles = StyleSheet.create({
   },
 
   heading: {
-    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+    fontFamily: 'CustomB',
     marginTop: 20,
     alignSelf: 'center',
     fontSize: 22,
-    fontWeight: 'bold',
     color: 'black',
     backgroundColor: '#FF6969',
     padding: 3,
@@ -88,8 +87,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     alignSelf: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
-    fontWeight: '900',
+    fontFamily: 'Custom',
     marginTop: 5,
   },
 

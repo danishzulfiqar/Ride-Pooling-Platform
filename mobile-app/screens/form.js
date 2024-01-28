@@ -46,7 +46,7 @@ export default function form({backbutton,currentUser,sethaveaccount}) {
   };
 
   const setback = () => {
-    backbutton(false);
+    backbutton(0);
   };
 
   return (
@@ -137,20 +137,21 @@ const styles = StyleSheet.create({
     height:35,
     fontSize:16,
     marginRight:4,
+    padding: 5,
     marginBottom: Platform.OS === 'ios' ? 18 : 24,
     backgroundColor: 'white',
-    borderBottomColor: 'black',
-    borderRadius:10,
-    borderWidth: 2,
+    fontFamily:'Custom',
+    borderRadius:5,
+    backgroundColor:'#CCCCCC'
   },
 
   inputStyles2: {
     height:10,
     marginBottom: Platform.OS === 'ios' ? 18 : 24,
     backgroundColor: 'white',
-    borderBottomColor: 'black',
-    borderRadius:10,
-    borderWidth: 2,
+    fontFamily:'Custom',
+    borderRadius:5,
+    backgroundColor:'#CCCCCC'
   },
 
   inputStyles: {
@@ -158,10 +159,10 @@ const styles = StyleSheet.create({
     fontSize:16,
     marginBottom: Platform.OS === 'ios' ? 18 : 24,
     backgroundColor: 'white',
-    borderBottomColor: 'black',
-    borderRadius:10,
-    borderWidth: 2,
     padding: 5,
+    fontFamily:'Custom',
+    borderRadius:5,
+    backgroundColor:'#CCCCCC'
   },
 
   imgstyle: {
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
     height: 40,
     width: 320,
     borderColor: 'black',
-    borderWidth: 3,
+    borderWidth: 2,
     borderRadius: 10,
     alignItems: 'center',
     backgroundColor: '#FF6969',
