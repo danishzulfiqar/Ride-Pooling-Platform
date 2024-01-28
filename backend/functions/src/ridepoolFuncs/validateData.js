@@ -40,17 +40,18 @@ exports.checkData = functions.https.onCall(async (data, context) => {
         );
     }
 
+    const db = admin.firestore();
     let ref;
 
     if (Role == "user") {
-        ref = admin.database().ref(`/users/${UID}`);
+       ref =  db.collection('users').doc(UID);
     } else if (Role == "rider") {
-        ref = admin.database().ref(`/riders/${UID}`)
+       ref = db.collection('riders').doc(UID);
     }
 
     try {
-        const snapshot = await ref.once('value');
-        return snapshot.exists();
+        const doc = await ref.get();
+        return doc.exists;
     } catch (error) {
 
         throw new functions.https.HttpsError('unknown', error.message, error);

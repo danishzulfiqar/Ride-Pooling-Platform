@@ -33,20 +33,21 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
         last_name: data.lname,
         DOB: data.dob,
         email: data.email,
-        email_varification: false,
+        email_verification: false,
         gender: data.gender,
         phone_number: data.phone,
         registration_date: new Date().toISOString()
     }
 
-    let ref = admin.database().ref(`/users/${UID}`);
+    const db = admin.firestore();
+    const ref = db.collection('users').doc(data.uid);
 
-    const snapshot = await ref.once('value');
-
+    // Check if user already exists
+    const doc = await ref.get();
 
     // checks if data already exists for specific node
-    if (snapshot.exists()) {
-        throw new functions.https.HttpsError('unknown', "User already exists for the given role");
+    if (doc.exists) {
+        throw new functions.https.HttpsError('already-exists', "User already exists for the given role");
     }
 
     let result;
