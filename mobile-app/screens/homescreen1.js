@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
   navText:{
     fontSize:14,
-    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+    fontFamily: 'Custom',
 
   },
 });

@@ -142,7 +142,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount}) {
               ))}
             </View>
             <TouchableOpacity onPress={confirmCode} style={styles.buttonstyle}>
-              <Text style={{ color: 'black',fontFamily:'monospace', fontWeight: 'bold', fontSize: 16 }}>Confirm Code</Text>
+              <Text style={{ color: 'black',fontFamily:'CustomB', fontSize: 16 }}>Confirm Code</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -154,7 +154,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount}) {
 
 const styles = StyleSheet.create({
   heading: {
-    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+    fontFamily: 'Custom',
     fontSize: 20,
   },
   formContainer: {
@@ -205,17 +205,17 @@ const styles = StyleSheet.create({
   },
 
   phn_text: {
+    fontFamily:'CustomB',
     fontSize:16,
-    fontWeight:'bold',
     marginTop:30,
     alignSelf:'center'
   },
 
   below_img: {
+    fontFamily:'CustomB',
     marginBottom: 20,
     alignSelf: 'center',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 18
   },
 
   ddcontainer: {

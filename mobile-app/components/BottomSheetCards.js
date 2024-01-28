@@ -30,7 +30,7 @@ export default function Slider({l1,l2, set}) {
         <View style={styles.headingContainer}>
           <Text style={styles.sliderHeading}>Searching For Rider...</Text>
           <TouchableOpacity style={styles.btn3}>
-            <Text style={{    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace', color:'white'}} onPress={back}>Cancel</Text>
+            <Text style={{    fontFamily: 'Custom', color:'white'}} onPress={back}>Cancel</Text>
           </TouchableOpacity>
         </View>
         <BottomSheetScrollView>
@@ -50,7 +50,8 @@ const styles = StyleSheet.create({
     marginTop:10
   },
   locationText:{
-    width:'80%'
+    width:'80%',
+    fontFamily:'Custom',
   },
   imgstyle:{
     width:20,
@@ -59,9 +60,8 @@ const styles = StyleSheet.create({
     marginRight:6
   },
   sliderHeading: {
-    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+    fontFamily:'CustomB',
     fontSize:18,
-    fontWeight:'bold',
     marginLeft:25,
     marginTop:10
   },
@@ -73,8 +73,7 @@ const styles = StyleSheet.create({
     backgroundColor:"#141E46",
     height:30,
     width:90,
-    marginLeft:2,
-    marginRight:5,
+    marginLeft:80,
     borderRadius:10,
     borderColor:'black',
     borderWidth:2,

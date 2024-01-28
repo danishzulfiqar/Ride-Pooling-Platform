@@ -30,14 +30,13 @@ export default function drawerNav() {
             },
             headerTintColor:'black',
             headerTitleStyle:{
-                fontWeight:'bold',
-                fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+                fontFamily: 'Custom',
 
             },
             drawerActiveTintColor:'#FF6969',
             drawerLabelStyle:{
                 color:'#111',
-                fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+                fontFamily: 'Custom',
                 fontWeight:'bold',
                 fontSize:16
             }

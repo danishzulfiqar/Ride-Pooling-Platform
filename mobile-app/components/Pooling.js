@@ -325,8 +325,6 @@ export default function Go() {
                 }
             ]
 
-  
-  let x = 'hello';
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -397,6 +395,33 @@ export default function Go() {
   // console.log('lat1:'+loc1Coordinates.lat+ ',long1:' +loc1Coordinates.lng);
   // console.log('lat2:'+loc2Coordinates.lat+ ',long2:' +loc2Coordinates.lng);
 
+  const [region, setRegion] = useState({
+    latitude: latitude || 0,
+    longitude: longitude || 0,
+    latitudeDelta: 0.015,
+    longitudeDelta: 0.0121,
+  });
+
+  function onChangeLoc (region) {
+    setRegion(region);
+    alert(JSON.stringify(region))
+    console.log(region)
+
+    fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${region.latitude},${region.longitude}&key=${API_KEY}`)
+    .then(response => response.json())
+    .then(data => {
+      const { results } = data;
+      if (results.length > 0) {
+        const address = results[0].formatted_address;
+          setA(address);
+        
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching location coordinates:', error);
+    });
+  } 
+
   return (
 
     <View style={{flex:1,}}>
@@ -411,28 +436,9 @@ export default function Go() {
                 latitudeDelta: 0.015,
                 longitudeDelta: 0.0121,
               }}
+              onRegionChangeComplete={onChangeLoc}
               customMapStyle={newstyle}
             >
-              {latitude && longitude && (
-                <Marker
-                  coordinate={{
-                    latitude: latitude,
-                    longitude: longitude,
-                  }}
-                  title="Your Location"
-                  description="You are here!"
-                />
-              )}
-              {loc1Coordinates && loc1Coordinates.lat && loc1Coordinates.lng && (
-                <Marker
-                  coordinate={{
-                    latitude: loc1Coordinates.lat,
-                    longitude: loc1Coordinates.lng,
-                  }}
-                  title="Location 1"
-                  description="Your pick-up location"
-                />
-              )}
               {loc2Coordinates && loc2Coordinates.lat && loc2Coordinates.lng && (
                 <Marker
                   coordinate={{
@@ -445,13 +451,16 @@ export default function Go() {
               )}
               
               <MapViewDirections
-                  origin={A} // Use loc1Coordinates directly
-                  destination={B} // Use loc2Coordinates directly
+                  origin={A} 
+                  destination={B} 
                   apikey={API_KEY}
                   strokeWidth={5}
                   strokeColor="#000000"/>
   
             </MapView>
+            <View style={styles.markerContainer}>
+        <Image style={styles.markerImage} source={require('../assets/destination.png')} />
+      </View>
      </View>
   
       <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
@@ -482,28 +491,19 @@ export default function Go() {
   
         <View style={styles.inputcontainer}>
           <Text style={styles.h1}>Pooling</Text>
-          {/* <TextInput 
-          style={styles.input} 
-          placeholder=" Enter pick-up point" 
-          selectionColor="orange" 
-          underlineColorAndroid="transparent"/> */}
-  
-          {/* <TextInput 
-          style={styles.input} 
-          placeholder="Enter your destination" 
-          selectionColor="orange"
-          underlineColorAndroid="transparent"/> */}
           
           <View style={styles.location}>
             <View style={styles.pickupT} >
-            <TouchableOpacity onPress={() => { setLocSlider(1) }}><Text style={{marginLeft:10}}>{A}</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => { setLocSlider(1) }}><Text style={{marginLeft:10,fontFamily:'Custom'}}>{A}</Text></TouchableOpacity>
             </View>
             <View style={styles.dropoffT}>
-              <TouchableOpacity onPress={() => { setLocSlider(1) }}><Text style={{marginLeft:10}}>{B}</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => { setLocSlider(1) }}><Text style={{marginLeft:10,fontFamily:'Custom'}}>{B}</Text></TouchableOpacity>
             </View>
           </View>
   
-          <TouchableOpacity style={styles.btn}><Text style={{alignSelf:"center"}}>Choose from Map</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={() => setShowSlider(1)}>
+            <Text style={{ alignSelf: "center" }}>Choose from Map</Text>
+          </TouchableOpacity> 
           <TouchableOpacity style={styles.btn2} onPress={showingSlider}><Text style={{alignSelf:"center"}}>Find Rider</Text></TouchableOpacity>
         </View>
         </View>
@@ -530,6 +530,7 @@ export default function Go() {
             backgroundColor:'transparent',
             color: 'black',
             fontSize: 16,
+            fontFamily:'Custom'
           },
           predefinedPlacesDescription: {
             color: 'orange',
@@ -567,6 +568,7 @@ export default function Go() {
             backgroundColor:'transparent',
             color: 'black',
             fontSize: 16,
+            fontFamily:'Custom'
           },
           predefinedPlacesDescription: {
             color: 'orange',
@@ -615,8 +617,7 @@ const styles = StyleSheet.create({
   },
 
   h1:{
-    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
-
+    fontFamily: 'Custom',
     fontSize:20,
     padding:10,
     backgroundColor:'#141E46',
@@ -625,6 +626,18 @@ const styles = StyleSheet.create({
     marginBottom:5,
     textAlign:'center',
     borderRadius:10
+  },
+
+  markerContainer: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginLeft: -20, // Half of the image width
+    marginTop: -40,  // Half of the image height
+  },
+  markerImage: {
+    width: 40,
+    height: 40,
   },
 
   input:{
