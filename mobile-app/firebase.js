@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "YOUR_GOOGLE_API_KEY",
-  authDomain: "your-firebase-project.firebaseapp.com",
+  authDomain: "RidePool",
   databaseURL: "https://your-firebase-project-default-rtdb.firebaseio.com",
   projectId: "your-firebase-project",
   storageBucket: "your-firebase-project.appspot.com",
