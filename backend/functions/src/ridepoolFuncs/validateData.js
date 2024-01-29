@@ -24,6 +24,8 @@ const transporter = nodemailer.createTransport({
 // Checks Data for a specific Role i.e. Rider, Users and send response as true or false
 exports.checkData = functions.https.onCall(async (data, context) => {
 
+    console.log("checkData called", data);
+
     const Role = data.role;
     const UID = data.uid;
 
@@ -60,6 +62,8 @@ exports.checkData = functions.https.onCall(async (data, context) => {
 
 // Link and validate email address
 exports.validateEmail = functions.https.onCall(async (data, context) => {
+
+    console.log("validateEmail called", data);
 
     const email = data.email;
     const UID = data.uid;

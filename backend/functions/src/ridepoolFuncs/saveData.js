@@ -11,6 +11,8 @@ const {
 // function for saving passenger(user) data
 exports.savePassengerData = functions.https.onCall(async (data, context) => {
 
+    console.log("savePassengerData called", data);
+
     // checking valid arguments
     if (!data.uid || !data.fname || !data.lname || !data.dob || !data.email || !data.gender || !data.phone) {
         throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
@@ -80,6 +82,8 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
 
 // function to send new rider approval request
 exports.sendNewRiderData = functions.https.onCall(async (data, context) => {
+
+    console.log("sendNewRiderData called", data);
 
     // checking valid arguments
     if (!data.uid || !data.fname || !data.lname || !data.dob || !data.email || !data.gender || !data.phone) {
