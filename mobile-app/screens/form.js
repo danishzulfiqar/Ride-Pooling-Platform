@@ -68,7 +68,7 @@ export default function form({ backbutton, currentUser, sethaveaccount }) {
     if (selectedDate !== undefined) {
       setdob(selectedDate);
     }
-    setShowDatePicker(false);
+    setShowDatePicker(true);
   };
 
   const callSavePassengerDataFunction = async (data) => {
