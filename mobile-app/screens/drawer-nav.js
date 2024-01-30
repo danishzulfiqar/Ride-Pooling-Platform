@@ -3,6 +3,9 @@ import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput,Platform } f
 import { NavigationContainer } from '@react-navigation/native';
 import { DrawerItemList, createDrawerNavigator } from '@react-navigation/drawer';
 import Homescreen1 from './homescreen1';
+import Go from '../components/Go';
+import Pooling from '../components/Pooling';
+import Sharing from '../components/Sharing'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Drawer = createDrawerNavigator();
@@ -42,12 +45,28 @@ export default function drawerNav() {
             }
         }}>
         <Drawer.Screen 
-            name='Home'
+            name='Go'
             options={{
-                drawerLabel:'Home',
-                title:'Home',
+                drawerLabel:'Go',
+                title:'Go',
             }}
-            component={Homescreen1}
+            component={Go}
+        />
+        <Drawer.Screen 
+            name='Pooling'
+            options={{
+                drawerLabel:'Pooling',
+                title:'Pooling',
+            }}
+            component={Pooling}
+        />
+        <Drawer.Screen 
+            name='Sharing'
+            options={{
+                drawerLabel:'Sharing',
+                title:'Sharing',
+            }}
+            component={Sharing}
         />
         </Drawer.Navigator>
     </NavigationContainer>
