@@ -117,7 +117,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount}) {
             />
           </View>
             <TouchableOpacity style={styles.buttonstyle} onPress={sendVerification}>
-            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16,color:'white' }}>
               CONTINUE
             </Text>
             </TouchableOpacity>
@@ -142,7 +142,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount}) {
               ))}
             </View>
             <TouchableOpacity onPress={confirmCode} style={styles.buttonstyle}>
-              <Text style={{ color: 'black',fontFamily:'CustomB', fontSize: 16 }}>Confirm Code</Text>
+              <Text style={{ color: 'black',fontFamily:'CustomB', fontSize: 16, color:'white' }}>Confirm Code</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -249,8 +249,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     height: 40,
     width: 320,
-    borderColor: 'black',
-    borderWidth: 2,
     borderRadius: 10,
     alignItems: 'center',
     backgroundColor: '#FF6969',
