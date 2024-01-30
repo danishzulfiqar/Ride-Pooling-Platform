@@ -19,7 +19,7 @@ export default function Pickrole({ getvalue, backbutton }) {
   };
 
   const setback = () => {
-    backbutton(false);
+    backbutton(false); 
   };
 
   return (
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignSelf: 'center',
     fontSize: 22,
-    color: 'black',
+    color: 'white',
     backgroundColor: '#FF6969',
     padding: 3,
     paddingLeft: 20,
@@ -105,6 +105,8 @@ const styles = StyleSheet.create({
     // Android elevation
     elevation: 15,
     borderColor: 'black',
+    borderColor:'lightgrey',
+    borderWidth:2
   },
 
   backbtn: {

@@ -29,6 +29,10 @@ export default function Go() {
   const [longitude, setLongitude] = useState(null);
   const [A, setA] = useState("ENTER PICKUP LOCATION");
   const [B, setB] = useState("ENTER DROPOFF LOCATION");
+  const [loc1lat,setloc1lat] = useState();
+  const [loc1lng,setloc1lng] = useState();
+  const [loc2lat,setloc2lat] = useState();
+  const [loc2lng,setloc2lng] = useState();
   const [locSlider, setLocSlider] = useState(0);
   const [showSlider, setShowSlider] = useState(0);
   const [loc1Coordinates, setLoc1Coordinates] = useState();
@@ -346,6 +350,8 @@ export default function Go() {
       if (results.length > 0) {
         const { lat, lng } = results[0].geometry.location;
         const loc1Coords = results[0].geometry.location;
+        setloc1lat(loc1Coords.lat);
+        setloc1lng(loc1Coords.kng);
         setLoc1Coordinates(loc1Coords);
         console.log('setting loc cords' + loc1Coordinates);
         mapRef.current.animateToRegion(
@@ -377,6 +383,8 @@ export default function Go() {
       if (results.length > 0) {
         const { lat, lng } = results[0].geometry.location;
         const loc2Coords = results[0].geometry.location;
+        setloc2lat(loc2Coords.lat);
+        setloc2lng(loc2Coords.kng);
         setLoc2Coordinates(loc2Coords);
         console.log('setting loc cords' + loc2Coordinates);
         mapRef.current.animateToRegion(
@@ -452,6 +460,8 @@ export default function Go() {
           const address = results[0].formatted_address;
           setA(address);
           setLoc1Coordinates({lat:region.latitude,lng:region.longitude});
+          setloc1lat(region.latitude);
+          setloc1lng(region.longitude);
         }
       })
       .catch((error) => {
@@ -473,6 +483,8 @@ export default function Go() {
           const address = results[0].formatted_address;
           setB(address);
           setLoc2Coordinates({lat:region.latitude,lng:region.longitude});
+          setloc2lat(region.latitude);
+          setloc2lng(region.longitude);
         }
       })
       .catch((error) => {
@@ -535,8 +547,8 @@ export default function Go() {
                 )}
 
               <MapViewDirections
-                origin={A}
-                destination={B}
+                origin={{ latitude: loc1lat, longitude: loc1lng }}
+                destination={{ latitude: loc2lat, longitude: loc2lng }}
                 apikey={API_KEY}
                 strokeWidth={5}
                 strokeColor="#000000"
@@ -639,7 +651,7 @@ export default function Go() {
                       style={styles.btn}
                       onPress={() => setShowSlider(1)}
                     >
-                      <Text style={{ alignSelf: "center" }}>
+                      <Text style={{ alignSelf: "center",fontFamily:'CustomB',color:'black',fontSize:16 }}>
                         Choose from Map
                       </Text>
                     </TouchableOpacity>
@@ -647,7 +659,7 @@ export default function Go() {
                       style={styles.btn2}
                       onPress={showingSlider}
                     >
-                      <Text style={{ alignSelf: "center" }}>Find Rider</Text>
+                      <Text style={{ alignSelf: "center",fontFamily:'CustomB',color:'white',fontSize:16  }}>Find Rider</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -712,7 +724,7 @@ export default function Go() {
               query={{ key: API_KEY, language: "en" }}
             />
             <TouchableOpacity style={styles.btn4}>
-              <Text style={{ alignSelf: "center" }}>Choose from Map</Text>
+              <Text style={{ alignSelf: "center",fontFamily:'CustomB',color:'black',fontSize:16 }}>Choose from Map</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.btn5}
@@ -720,7 +732,7 @@ export default function Go() {
                 setLocSlider(0);
               }}
             >
-              <Text>OKAY</Text>
+              <Text style={{fontFamily:'CustomB', fontSize:16,color:'white'}}>OKAY</Text>
             </TouchableOpacity>
           </BottomSheet>
         </View>
@@ -779,7 +791,7 @@ export default function Go() {
               query={{ key: API_KEY, language: "en" }}
             />
             <TouchableOpacity style={styles.btn4}>
-              <Text style={{ alignSelf: "center" }}>Choose from Map</Text>
+              <Text style={{ alignSelf: "center",fontFamily:'CustomB',color:'black',fontSize:16 }}>Choose from Map</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.btn5}
@@ -787,7 +799,7 @@ export default function Go() {
                 setLocSlider(0);
               }}
             >
-              <Text>OKAY</Text>
+              <Text style={{fontFamily:'CustomB', fontSize:16,color:'white'}}>OKAY</Text>
             </TouchableOpacity>
           </BottomSheet>
         </View>
@@ -840,8 +852,8 @@ const styles = StyleSheet.create({
     marginTop: 0, // Half of the image height
   },
   markerImage: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
   },
 
   input: {
@@ -879,7 +891,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
 
-    borderColor: "black",
+    borderColor: "lightgrey",
     borderWidth: 2,
     borderRadius: 10,
   },
@@ -890,8 +902,6 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 10,
     justifyContent: "center",
-    borderColor: "black",
-    borderWidth: 2,
     borderRadius: 10,
     alignItems: "center",
   },
@@ -937,7 +947,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
     marginTop: 16,
     borderRadius: 10,
-    borderColor: "black",
+    borderColor: "lightgrey",
     borderWidth: 2,
     justifyContent: "center",
     alignItems: "center",
@@ -952,8 +962,6 @@ const styles = StyleSheet.create({
     marginRight: 5,
     marginTop: 16,
     borderRadius: 10,
-    borderColor: "black",
-    borderWidth: 2,
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",

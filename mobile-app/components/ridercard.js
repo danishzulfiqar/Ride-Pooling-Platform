@@ -20,7 +20,7 @@ export default function RiderCard() {
             </View>
           </View>
           <TouchableOpacity style={styles.btn3}>
-            <Text style={{     fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace', }}>Request</Text>
+            <Text style={{     fontFamily: 'CustomB',color:'white',fontSize:15 }}>Request</Text>
           </TouchableOpacity>
         </View>
       ))}
@@ -80,8 +80,6 @@ const styles = StyleSheet.create({
     marginLeft:5,
     marginRight:5,
     borderRadius:10,
-    borderColor:'black',
-    borderWidth:2,
     justifyContent: 'center',
     alignItems: 'center',
   },

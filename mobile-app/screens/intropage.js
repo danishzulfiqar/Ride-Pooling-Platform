@@ -27,7 +27,7 @@ export default function Intropage({ begin }) {
       </View>
       <View style={{ marginTop: 40 }}>
         <TouchableOpacity style={styles.buttonstyle} onPress={handlechange}>
-          <Text style={{ fontWeight: 'bold', fontSize: 16, }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, color:'white'}}>
             BEGIN YOUR JOURNEY
           </Text>
         </TouchableOpacity>
@@ -70,8 +70,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     height: 40,
     width: 260,
-    borderColor: 'black',
-    borderWidth: 2,
     borderRadius: 10,
     alignItems: 'center',
     backgroundColor: '#FF6969',
