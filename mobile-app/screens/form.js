@@ -46,7 +46,7 @@ export default function form({ backbutton, currentUser, sethaveaccount }) {
   const UID = currentUser.uid;
   const phoneNumber = currentUser.phoneNumber;
   const genderCode = gender === "Male" ? "M" : gender === "Female" ? "F" : gender === "Other" ? "O" : "";
-  const dobString= dob.toDateString();
+  const dobString = dob.toDateString();
   const emailString = email.toLowerCase();
 
   const data = {
@@ -59,9 +59,9 @@ export default function form({ backbutton, currentUser, sethaveaccount }) {
     phone: phoneNumber
   }
 
-  function senddata() {
+  async function senddata() {
     console.log("sending data for user", data);
-    callSavePassengerDataFunction(data);
+    await callSavePassengerDataFunction(data)
   }
 
   const handleDateChange = (event, selectedDate) => {
@@ -75,7 +75,7 @@ export default function form({ backbutton, currentUser, sethaveaccount }) {
     const savePassengerData = httpsCallable(functions, 'savePassengerData');
     try {
       const result = await savePassengerData(data);
-      console.log(result.data.status); // Process result data
+      console.log(result.data); // Process result data
       // Additional logic based on the result
       sethaveaccount(result.data.status)
     } catch (error) {
@@ -127,7 +127,7 @@ export default function form({ backbutton, currentUser, sethaveaccount }) {
                 style={styles.datePicker}
                 onPress={() => setShowDatePicker(true)}
               >
-                <Text style={{fontFamily: 'Custom',}}>{dob.toDateString()}</Text>
+                <Text style={{ fontFamily: 'Custom', }}>{dob.toDateString()}</Text>
               </TouchableOpacity>
               {showDatePicker && (
                 <DateTimePicker
