@@ -5,6 +5,9 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { auth } from '../firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Spinner from 'react-native-loading-spinner-overlay';
+import Toast from 'react-native-toast-message';
+
 
 const GenderSelector = ({ selectedGender, onSelectGender }) => {
   return (
@@ -41,6 +44,8 @@ export default function form({ backbutton, currentUser, sethaveaccount }) {
   const [dob, setdob] = useState(new Date());
   const [gender, setGender] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const functions = getFunctions(auth.app);
 
   const UID = currentUser.uid;
@@ -60,8 +65,12 @@ export default function form({ backbutton, currentUser, sethaveaccount }) {
   }
 
   async function senddata() {
+    setLoading(true);
     console.log("sending data for user", data);
     await callSavePassengerDataFunction(data)
+      .catch((error) => {
+        console.error("Error in senddata:", error);
+      })
   }
 
   const handleDateChange = (event, selectedDate) => {
@@ -75,9 +84,9 @@ export default function form({ backbutton, currentUser, sethaveaccount }) {
     const savePassengerData = httpsCallable(functions, 'savePassengerData');
     try {
       const result = await savePassengerData(data);
-      console.log(result.data); // Process result data
-      // Additional logic based on the result
-      sethaveaccount(result.data.status)
+      console.log(result.data);
+      setLoading(false);
+      sethaveaccount(result.data.status);
     } catch (error) {
       console.error("Error calling Savepassenger Function:", error);
     }
@@ -88,65 +97,77 @@ export default function form({ backbutton, currentUser, sethaveaccount }) {
   };
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
+      <Spinner
+        visible={loading}
+        textContent={'Please wait'}
+        textStyle={{ color: 'white' }}
+        overlayColor="rgba(0,0,0,0.5)"
+      />
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <View style={styles.container}>
-          <TouchableOpacity style={styles.backbtn} onPress={setback}>
-            <Icon name="arrow-left" size={30} color="grey" />
-          </TouchableOpacity>
-
-          <View style={styles.ddcontainer}>
-            <Image
-              style={styles.imgstyle}
-              resizeMode="contain"
-              source={require('../assets/Hlogo.png')}
-            />
-          </View>
+        {
           <View>
-            <View style={styles.name}>
-              <TextInput style={styles.inputStyles1}
-                placeholder=" FIRST NAME..."
-                onChangeText={(text) => setfname(text)}
-                value={fname}
-              />
-              <TextInput style={styles.inputStyles1}
-                placeholder=" LAST NAME..."
-                onChangeText={(text) => setlname(text)}
-                value={lname}
-              />
-            </View>
-            <TextInput style={styles.inputStyles}
-              inputMode='email'
-              placeholder=" EMAIL..."
-              onChangeText={(text) => setemail(text)}
-              value={email}
-            />
-            <View style={styles.datePickerContainer}>
-              <Text style={styles.label}>Date of Birth:</Text>
-              <TouchableOpacity
-                style={styles.datePicker}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Text style={{ fontFamily: 'Custom', }}>{dob.toDateString()}</Text>
-              </TouchableOpacity>
-              {showDatePicker && (
-                <DateTimePicker
-                  value={dob}
-                  mode="date"
-                  display="default"
-                  onChange={handleDateChange}
-                />
-              )}
-            </View>
-            <Text style={{ marginTop: 20, marginBottom: 10, color: "grey", fontSize: 15 }}>Gender:</Text>
-            <GenderSelector selectedGender={gender} onSelectGender={setGender} />
-            <TouchableOpacity style={styles.buttonstyle} onPress={senddata}>
-              <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
-                Continue
-              </Text>
-            </TouchableOpacity>
+            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+              <View style={styles.container}>
+                <TouchableOpacity style={styles.backbtn} onPress={setback}>
+                  <Icon name="arrow-left" size={30} color="grey" />
+                </TouchableOpacity>
+
+                <View style={styles.ddcontainer}>
+                  <Image
+                    style={styles.imgstyle}
+                    resizeMode="contain"
+                    source={require('../assets/Hlogo.png')}
+                  />
+                </View>
+                <View>
+                  <View style={styles.name}>
+                    <TextInput style={styles.inputStyles1}
+                      placeholder=" FIRST NAME..."
+                      onChangeText={(text) => setfname(text)}
+                      value={fname}
+                    />
+                    <TextInput style={styles.inputStyles1}
+                      placeholder=" LAST NAME..."
+                      onChangeText={(text) => setlname(text)}
+                      value={lname}
+                    />
+                  </View>
+                  <TextInput style={styles.inputStyles}
+                    inputMode='email'
+                    placeholder=" EMAIL..."
+                    onChangeText={(text) => setemail(text)}
+                    value={email}
+                  />
+                  <View style={styles.datePickerContainer}>
+                    <Text style={styles.label}>Date of Birth:</Text>
+                    <TouchableOpacity
+                      style={styles.datePicker}
+                      onPress={() => setShowDatePicker(true)}
+                    >
+                      <Text style={{ fontFamily: 'Custom', }}>{dob.toDateString()}</Text>
+                    </TouchableOpacity>
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={dob}
+                        mode="date"
+                        display="default"
+                        onChange={handleDateChange}
+                      />
+                    )}
+                  </View>
+                  <Text style={{ marginTop: 20, marginBottom: 10, color: "grey", fontSize: 15 }}>Gender:</Text>
+                  <GenderSelector selectedGender={gender} onSelectGender={setGender} />
+                  <TouchableOpacity style={styles.buttonstyle} onPress={senddata}>
+                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
+                      Continue
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </View>
+        }
       </TouchableWithoutFeedback>
     </View>
   );

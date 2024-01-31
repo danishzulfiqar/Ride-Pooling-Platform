@@ -15,6 +15,8 @@ import Homescreen1 from './screens/homescreen1';
 import MapsG  from './maps';
 import Go from './components/Go';
 import Slider from './components/BottomSheetCards';
+import Toast from 'react-native-toast-message';
+
 
 
 export default function App() {
@@ -60,6 +62,7 @@ export default function App() {
         : null) 
         : (<Intropage begin={setgetstarted} />)}
     </View>
+    <Toast />
     </GestureHandlerRootView>
   );
 }
