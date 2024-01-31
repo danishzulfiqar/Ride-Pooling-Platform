@@ -171,20 +171,17 @@ async function sendEmailVarificationLink(data) {
         </html>`,
     };
 
-    let returnValue;
-
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.error('Error sending email:', error);
-            returnValue = { status: false, message: error };
-            throw new Error('Error sending verification email.');
-        } else {
-            returnValue = { status: true, message: "Email Sent" };
-            console.log('Email sent: ' + info.response);
-        }
+    return new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.error('Error sending email:', error);
+                reject({ status: false, message: 'Error sending verification email.' });
+            } else {
+                console.log('Email sent: ' + info.response);
+                resolve({ status: true, message: "Email Sent" });
+            }
+        });
     });
-
-    return returnValue;
 }
 // Exporting sendEmailVarificationLink
 exports.sendEmailVarificationLink = sendEmailVarificationLink;

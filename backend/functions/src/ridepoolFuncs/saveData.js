@@ -71,8 +71,13 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
         availability: false
 
     }).then(async () => {
-        await sendEmailVarificationLink({ email: data.email, uid: data.uid });
-        result = { status: true, msg: "User made successfully!" };
+        await admin.auth().getUserByEmail(data.email)
+            .then(async () => {
+                result = { status: true, msg: "User made successfully!", emailSendStatus: false, emailMessage: "Email exists for another user" };
+            }).catch(async (error) => {
+                const emailReturn = await sendEmailVarificationLink({ email: data.email, uid: data.uid });
+                result = { status: true, msg: "User made successfully!", emailSendStatus: emailReturn.status, emailMessage:emailReturn.message };
+            })
     }).catch((error) => {
         throw new functions.https.HttpsError('unknown', error.message, error);
     })
