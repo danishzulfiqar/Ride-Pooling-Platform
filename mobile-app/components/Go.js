@@ -673,7 +673,7 @@ export default function Go() {
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
             <MapView
-              provider={PROVIDER_DEFAULT}
+              provider={PROVIDER_GOOGLE}
               style={styles.map}
               ref={mapRef}
               initialRegion={{
@@ -742,7 +742,7 @@ export default function Go() {
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
             <MapView
-              provider={PROVIDER_DEFAULT}
+              provider={PROVIDER_GOOGLE}
               style={styles.map}
               ref={mapRef}
               initialRegion={{
