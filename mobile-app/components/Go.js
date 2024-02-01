@@ -29,10 +29,10 @@ export default function Go() {
   const [longitude, setLongitude] = useState(null);
   const [A, setA] = useState("ENTER PICKUP LOCATION");
   const [B, setB] = useState("ENTER DROPOFF LOCATION");
-  const [loc1lat,setloc1lat] = useState();
-  const [loc1lng,setloc1lng] = useState();
-  const [loc2lat,setloc2lat] = useState();
-  const [loc2lng,setloc2lng] = useState();
+  const [loc1lat,setloc1lat] = useState(0);
+  const [loc1lng,setloc1lng] = useState(0);
+  const [loc2lat,setloc2lat] = useState(0);
+  const [loc2lng,setloc2lng] = useState(0);
   const [locSlider, setLocSlider] = useState(0);
   const [showSlider, setShowSlider] = useState(0);
   const [loc1Coordinates, setLoc1Coordinates] = useState();
@@ -351,7 +351,7 @@ export default function Go() {
         const { lat, lng } = results[0].geometry.location;
         const loc1Coords = results[0].geometry.location;
         setloc1lat(loc1Coords.lat);
-        setloc1lng(loc1Coords.kng);
+        setloc1lng(loc1Coords.lng);
         setLoc1Coordinates(loc1Coords);
         console.log('setting loc cords' + loc1Coordinates);
         mapRef.current.animateToRegion(
@@ -384,7 +384,7 @@ export default function Go() {
         const { lat, lng } = results[0].geometry.location;
         const loc2Coords = results[0].geometry.location;
         setloc2lat(loc2Coords.lat);
-        setloc2lng(loc2Coords.kng);
+        setloc2lng(loc2Coords.lng);
         setLoc2Coordinates(loc2Coords);
         console.log('setting loc cords' + loc2Coordinates);
         mapRef.current.animateToRegion(
