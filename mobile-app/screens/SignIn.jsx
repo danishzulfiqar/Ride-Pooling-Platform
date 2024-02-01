@@ -10,6 +10,7 @@ import { signInWithPhoneNumber, PhoneAuthProvider, signInWithCredential } from '
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast from 'react-native-toast-message';
+import OTPTextInput from 'react-native-otp-textinput';
 
 
 const ScreenStates = {
@@ -21,11 +22,11 @@ const ScreenStates = {
 
 function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
   const [phoneNumber, setPhoneNumber] = useState("+92");
-  const [code, setCode] = useState(new Array(6).fill(""));
+  const [otpInput, setOtpInput] = useState("");
   const [verificationId, setVerificationId] = useState(null);
   const [currentScreen, setCurrentScreen] = useState(ScreenStates.NUMBER_SCREEN);
   const recaptchaVerifier = useRef(null);
-  const otpInputRefs = useRef(code.map(() => React.createRef()));
+  const [code, setCode] = useState(new Array(6).fill(""));
   const [loading, setLoading] = useState(false);
 
   const functions = getFunctions(auth.app);
@@ -47,22 +48,61 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
   };
 
   const sendVerification = async () => {
-    try {
-      const phoneProvider = new PhoneAuthProvider(auth);
-      const verificationId = await phoneProvider.verifyPhoneNumber(phoneNumber, recaptchaVerifier.current);
-      setVerificationId(verificationId);
-      setCurrentScreen(ScreenStates.CODE_SCREEN);
-      Alert.alert("Verification code sent", "Please check your phone for the verification code.");
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", error.message);
+    if (phoneNumber.length === 13) {
+      try {
+        const phoneProvider = new PhoneAuthProvider(auth);
+        const verificationId = await phoneProvider.verifyPhoneNumber(phoneNumber, recaptchaVerifier.current);
+        setVerificationId(verificationId);
+        setCurrentScreen(ScreenStates.CODE_SCREEN);
+        Toast.show({
+          type: 'success',
+          text1: 'Code Sent',
+          text1Style: {
+            fontSize: 18
+          },
+          text2: 'Verification code sent to your phone number',
+        });
+      } catch (error) {
+        console.error(error);
+        if (error.code === "auth/invalid-phone-number") {
+          Toast.show({
+            type: 'error',
+            text1: 'Invalid Number',
+            text1Style: {
+              fontSize: 18
+            },
+            text2: 'Please enter a correct phone number',
+          });
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'System Error',
+            text1Style: {
+              fontSize: 18
+            },
+            text2: error,
+          });
+        }
+      }
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Incomplete Phone number',
+        text1Style: {
+          fontSize: 18
+        },
+        text2: "Enter correct phone number without 0",
+        text2Style: {
+          fontSize: 13
+        },
+      });
     }
   };
 
   const confirmCode = async () => {
     setLoading(true);
     try {
-      const credential = PhoneAuthProvider.credential(verificationId, code.join(''));
+      const credential = PhoneAuthProvider.credential(verificationId, otpInput);
       const userCredential = await signInWithCredential(auth, credential);
       await callCheckDataFunction(userCredential.user.uid, role);
       console.log(role);
@@ -76,7 +116,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
           type: 'error',
           text1: 'Incorrect Code',
           text1Style: {
-            fontSize: 18 
+            fontSize: 18
           },
           text2: 'The code you entered is incorrect. Please try again.',
         });
@@ -85,7 +125,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
           type: 'error',
           text1: 'Error occured',
           text1Style: {
-            fontSize: 18 
+            fontSize: 18
           },
           text2: 'We cannot process your request. Please try again.'
         });
@@ -95,14 +135,16 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
 
   const onCodeChange = (index, value) => {
     const newCode = [...code];
+
     newCode[index] = value;
     setCode(newCode);
 
     if (value && index < 5) {
-      const nextInput = otpInputRefs.current[index + 1];
-      if (nextInput) {
-        nextInput.focus();
-      }
+      otpInputRefs.current[index + 1].focus();
+    }
+
+    if (!value && index > 0) {
+      otpInputRefs.current[index - 1].focus();
     }
   };
 
@@ -161,20 +203,14 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
                 {currentScreen === ScreenStates.CODE_SCREEN && (
                   <View style={styles.formContainer}>
                     <Text style={styles.heading}>Enter Verification Code</Text>
-                    <View style={styles.otpContainer}>
-                      {code.map((digit, index) => (
-                        <TextInput
-                          key={index}
-                          style={styles.otpInput}
-                          value={digit}
-                          onChangeText={(value) => onCodeChange(index, value)}
-                          maxLength={1}
-                          keyboardType="number-pad"
-                          selectionColor="orange"
-                          ref={el => (otpInputRefs.current[index] = el)}
-                        />
-                      ))}
-                    </View>
+                    <OTPTextInput
+                      handleTextChange={(text) => setOtpInput(text)}
+                      containerStyle={styles.otpContainer}
+                      textInputStyle={styles.otpInput}
+                      tintColor="#FF6969"
+                      offTintColor="#BBB"
+                      inputCount={6}
+                    />
                     <TouchableOpacity onPress={confirmCode} style={styles.buttonstyle}>
                       <Text style={{ color: 'black', fontFamily: 'CustomB', fontSize: 16, color: 'white' }}>Confirm Code</Text>
                     </TouchableOpacity>
