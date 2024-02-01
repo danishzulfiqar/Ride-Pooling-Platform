@@ -80,7 +80,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
             text1Style: {
               fontSize: 18
             },
-            text2: error,
+            text2: String(error),
           });
         }
       }
@@ -171,14 +171,14 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
                 {currentScreen === ScreenStates.NUMBER_SCREEN && (
 
                   <View>
-                    <View style={styles.ddcontainer}>
+                    {/* <View style={styles.ddcontainer}>
                       <Image
                         style={styles.imgstyle}
                         resizeMode="contain"
                         source={require('../assets/Hlogo.png')} />
-                    </View>
+                    </View> */}
 
-                    <Text style={styles.below_img}>PASSENGER LOGIN</Text>
+                    <Text style={styles.below_img}>| PASSENGER LOGIN</Text>
                     <Text style={styles.phn_text}>Enter Your Phone Number</Text>
                     <View style={styles.inputGroup}>
                       <Text style={styles.countryCode}>+92</Text>
@@ -239,14 +239,14 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     flexDirection: 'row',
-    alignSelf: 'center',
+    alignSelf: 'flex-start',
     marginBottom: 20,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   countryCode: {
-    fontSize: 18,
+    fontSize: 20,
     marginRight: 0,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   input: {
     fontSize: 20,
@@ -281,37 +281,40 @@ const styles = StyleSheet.create({
     fontFamily: 'CustomB',
     fontSize: 16,
     marginTop: 30,
-    alignSelf: 'center'
+    alignSelf: "flex-start"
   },
 
   below_img: {
     fontFamily: 'CustomB',
     marginBottom: 20,
-    alignSelf: 'center',
-    fontSize: 18
+    alignSelf: 'flex-start',
+    fontSize: 22
   },
 
   ddcontainer: {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
+    // borderColor:"black",
+    // borderWidth:2,
     marginBottom: Platform.OS === 'ios' ? 30 : 30,
   },
 
   backbtn: {
-    marginBottom: 60,
+    marginBottom: 25,
   },
 
   inputStyles: {
-    width: 270,
+    width: 185,
     marginLeft: 5,
     marginTop: 15,
-    fontSize: 18,
+    fontSize: 20,
     marginBottom: 15,
     backgroundColor: 'white',
     borderBottomColor: 'black',
     borderBottomWidth: 2,
   },
+
   imgstyle: {
     width: 450,
     height: 200,
