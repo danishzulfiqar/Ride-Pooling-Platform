@@ -508,6 +508,7 @@ export default function Go() {
                 latitudeDelta: 0.015,
                 longitudeDelta: 0.0121,
               }}
+              loadingEnabled={true}
               customMapStyle={newstyle}
             >
               {latitude && longitude && (
@@ -551,7 +552,7 @@ export default function Go() {
                 origin={{ latitude: loc1lat, longitude: loc1lng }}
                 destination={{ latitude: loc2lat, longitude: loc2lng }}
                 apikey={API_KEY}
-                strokeWidth={5}
+                strokeWidth={3}
                 strokeColor="#000000"
                 precision="high"
               />
