@@ -80,7 +80,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
             text1Style: {
               fontSize: 18
             },
-            text2: error,
+            text2: String(error),
           });
         }
       }
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   },
 
   backbtn: {
-    marginBottom: 60,
+    marginBottom: 25,
   },
 
   inputStyles: {
