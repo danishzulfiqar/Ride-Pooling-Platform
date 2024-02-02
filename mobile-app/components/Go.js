@@ -493,6 +493,8 @@ export default function Go() {
       });
   }
 
+  console.log()
+
   return (
     <View style={{ flex: 1 }}>
       {locSlider === 0 ? (
