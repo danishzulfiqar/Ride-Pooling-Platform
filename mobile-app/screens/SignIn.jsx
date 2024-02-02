@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast from 'react-native-toast-message';
 import OTPTextInput from 'react-native-otp-textinput';
+import { PhoneInput } from 'react-native-phone-number-input'; 
 
 
 const ScreenStates = {
@@ -50,10 +51,12 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
   const sendVerification = async () => {
     if (phoneNumber.length === 13) {
       try {
+        setLoading(true);
         const phoneProvider = new PhoneAuthProvider(auth);
         const verificationId = await phoneProvider.verifyPhoneNumber(phoneNumber, recaptchaVerifier.current);
         setVerificationId(verificationId);
         setCurrentScreen(ScreenStates.CODE_SCREEN);
+        setLoading(false);
         Toast.show({
           type: 'success',
           text1: 'Code Sent',
