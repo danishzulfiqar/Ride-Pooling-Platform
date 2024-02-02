@@ -11,7 +11,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast from 'react-native-toast-message';
 import OTPTextInput from 'react-native-otp-textinput';
-import { PhoneInput } from 'react-native-phone-number-input'; 
+import PhoneInput from 'react-native-phone-input'
 
 
 const ScreenStates = {
@@ -29,6 +29,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
   const recaptchaVerifier = useRef(null);
   const [code, setCode] = useState(new Array(6).fill(""));
   const [loading, setLoading] = useState(false);
+  const phoneInputRef = useRef(null);
 
   const functions = getFunctions(auth.app);
 
@@ -174,25 +175,19 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
                 {currentScreen === ScreenStates.NUMBER_SCREEN && (
 
                   <View>
-                    {/* <View style={styles.ddcontainer}>
-                      <Image
-                        style={styles.imgstyle}
-                        resizeMode="contain"
-                        source={require('../assets/Hlogo.png')} />
-                    </View> */}
-
                     <Text style={styles.below_img}>| PASSENGER LOGIN</Text>
                     <Text style={styles.phn_text}>Enter Your Phone Number</Text>
                     <View style={styles.inputGroup}>
-                      <Text style={styles.countryCode}>+92</Text>
-                      <TextInput
-                        style={styles.inputStyles}
-                        onChangeText={(text) => setPhoneNumber("+92" + text)}
-                        value={phoneNumber.substring(3)}
-                        placeholder="Enter phone number"
-                        keyboardType="phone-pad"
-                        selectionColor="orange"
-                        maxLength={10}
+                      <PhoneInput
+                        ref={phoneInputRef}
+                        initialCountry="pk"
+                        autoFormat={true}
+                        onChangePhoneNumber={setPhoneNumber}
+                        value={phoneNumber}
+                        // Style for the container of the PhoneInput
+                        style={styles.phoneInputContainer}
+                        // Prop for the text input style might vary, this is an example
+                        textComponentStyle={styles.phoneTextInput}
                       />
                     </View>
                     <TouchableOpacity style={styles.buttonstyle} onPress={sendVerification}>
@@ -331,6 +326,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     backgroundColor: '#FF6969',
+  },
+  phoneInputContainer: {
+    width: '100%', 
+    height: 50, 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#ccc', 
+    marginBottom: 20, 
+  },
+  phoneTextInput: {
+    color: '#000', 
+    fontSize: 16, 
+    paddingVertical: 10, 
   },
 });
 
