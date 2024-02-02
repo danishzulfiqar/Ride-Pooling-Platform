@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
-import { GestureHandlerRootView } from 'react-native-gesture-handler'; 
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { auth } from './firebase';
 import { useFonts } from 'expo-font';
 import SignIn from './screens/SignIn';
@@ -12,7 +12,7 @@ import RiderCard from './components/ridercard';
 import BottomSheet from './components/BottomSheetCards';
 import DrawerNav from './screens/drawer-nav';
 import Homescreen1 from './screens/homescreen1';
-import MapsG  from './maps';
+import MapsG from './maps';
 import Go from './components/Go';
 import Slider from './components/BottomSheetCards';
 import Toast from 'react-native-toast-message';
@@ -27,21 +27,34 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
 
   const [loaded] = useFonts({
-    Mono : require('./assets/fonts/Monospace.ttf'),
-    MonoB : require('./assets/fonts/MonospaceBold.ttf'),
-    Oswald : require('./assets/fonts/Oswald-Bold.ttf'),
-    Custom : require('./assets/fonts/UberMoveMedium.ttf'),
-    CustomB : require('./assets/fonts/UberMoveBold.ttf')
+    Mono: require('./assets/fonts/Monospace.ttf'),
+    MonoB: require('./assets/fonts/MonospaceBold.ttf'),
+    Oswald: require('./assets/fonts/Oswald-Bold.ttf'),
+    Custom: require('./assets/fonts/UberMoveMedium.ttf'),
+    CustomB: require('./assets/fonts/UberMoveBold.ttf')
   })
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUser(user);
+        Toast.show({
+          type: 'info',
+          text1: 'Logged-In',
+          text1Style: {
+            fontSize: 18
+          },
+          text2: `You are logged ${user.phoneNumber}`,
+        });
       } else {
-        console.log('User signed out');
+        setCurrentUser(null);
+        console.log('No User found');
+        setgetstarted(false);
       }
     });
+
+    // Cleanup subscription on unmount
+    return unsubscribe;
   }, []);
 
   if (!loaded) {
@@ -51,18 +64,18 @@ export default function App() {
   console.log('currentUser', currentUser?.uid)
 
   return (
-    <GestureHandlerRootView style={{flex:1}}>
-    <View style={styles.container}>
-      {getstarted ? (
-        role === 0 ? (<Pickrole getvalue={setrole} backbutton={setgetstarted} />) 
-        : role === 'rider' ? ( haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount= {sethaveaccount}/>)) 
-        : (<Form backbutton={sethaveaccount} currentUser={currentUser} sethaveaccount= {sethaveaccount}/>)) 
-        : role === 'user' ? ( haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount= {sethaveaccount}/>)) 
-        : (<Form backbutton={setrole} currentUser={currentUser} sethaveaccount= {sethaveaccount}/>)) 
-        : null) 
-        : (<Intropage begin={setgetstarted} />)}
-    </View>
-    <Toast />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        {getstarted ? (
+          role === 0 ? (<Pickrole getvalue={setrole} backbutton={setgetstarted} />)
+            : role === 'rider' ? (haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount={sethaveaccount} />))
+              : (<Form backbutton={sethaveaccount} currentUser={currentUser} sethaveaccount={sethaveaccount} />))
+              : role === 'user' ? (haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount={sethaveaccount} />))
+                : (<Form backbutton={setrole} currentUser={currentUser} sethaveaccount={sethaveaccount} />))
+                : null)
+          : (<Intropage begin={setgetstarted} />)}
+      </View>
+      <Toast />
     </GestureHandlerRootView>
   );
 }
