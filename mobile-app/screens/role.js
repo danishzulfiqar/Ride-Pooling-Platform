@@ -19,7 +19,7 @@ export default function Pickrole({ getvalue, backbutton }) {
   };
 
   const setback = () => {
-    backbutton(false); 
+    backbutton(false);
   };
 
   return (
@@ -27,7 +27,7 @@ export default function Pickrole({ getvalue, backbutton }) {
       <TouchableOpacity style={styles.backbtn} onPress={setback}>
         <Icon name="arrow-left" size={30} color="grey" />
       </TouchableOpacity>
-      <Text style={styles.heading}>SELECT YOUR ROLE</Text>
+      <Text style={styles.heading}>| SELECT YOUR ROLE</Text>
 
       <View style={styles.role}>
         <TouchableOpacity style={styles.button} onPress={setrider}>
@@ -36,8 +36,8 @@ export default function Pickrole({ getvalue, backbutton }) {
             resizeMode="contain"
             source={require('../assets/rider.png')}
           />
+          <Text style={styles.text}>BECOME A RIDER</Text>
         </TouchableOpacity>
-        <Text style={styles.text}>BECOME A RIDER</Text>
       </View>
 
       <View style={styles.role}>
@@ -47,8 +47,8 @@ export default function Pickrole({ getvalue, backbutton }) {
             resizeMode="contain"
             source={require('../assets/passenger.png')}
           />
+          <Text style={styles.text}>BECOME A PASSENGER</Text>
         </TouchableOpacity>
-        <Text style={styles.text}>BECOME A PASSENGER</Text>
       </View>
     </View>
   );
@@ -63,50 +63,52 @@ const styles = StyleSheet.create({
   imgstyle: {
     width: 170,
     height: 170,
-    margin:20,
   },
 
   heading: {
     fontFamily: 'CustomB',
     marginTop: 20,
-    alignSelf: 'center',
+    alignSelf: 'flex-start',
     fontSize: 22,
-    color: 'white',
-    backgroundColor: '#FF6969',
+    color: 'black',
     padding: 3,
-    paddingLeft: 20,
+    paddingLeft: 40,
     paddingRight: 20,
     borderRadius: 6,
+    marginBottom: 25,
   },
 
   role: {
+    // // backgroundColor: "#FF6969",
+    borderBottomWidth: 15,
+    borderBottomColor: "#FF6969",
+    borderRadius: 4.84,
     marginTop: Platform.OS === 'ios' ? 18 : 40,
     alignItems: 'center',
+    width: 300,
+    alignSelf: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4.84,
+    elevation: 5,
+    marginBottom: 20,
+    backgroundColor: "white"
   },
 
   text: {
-    fontSize: 16,
+    fontSize: 20,
     alignSelf: 'center',
     fontFamily: 'Custom',
-    marginTop: 5,
+    marginTop: 20,
+    marginBottom: 15,
+    color: "black",
   },
 
   button: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
-    borderRadius: 50,
     marginTop: 10,
-    // iOS shadow
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 15,
-    // Android elevation
-    elevation: 15,
-    borderColor: 'black',
-    borderColor:'lightgrey',
-    borderWidth:2
   },
 
   backbtn: {
