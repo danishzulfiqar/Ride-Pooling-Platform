@@ -5,7 +5,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export default function Slider({l1,l2, set}) {
-  const snapPoints = useMemo(() => ['25%', '50%', '80%'], []);
+  const snapPoints = useMemo(() => ['30%', '50%', '80%'], []);
 
   function back(){
     set(0)
