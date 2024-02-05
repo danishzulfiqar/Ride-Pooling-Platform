@@ -23,7 +23,7 @@ const ScreenStates = {
 
 function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [formattedValue, setFormattedValue] = useState(""); // 
+  const [formattedValue, setFormattedValue] = useState("");
   const [otpInput, setOtpInput] = useState("");
   const [verificationId, setVerificationId] = useState(null);
   const [currentScreen, setCurrentScreen] = useState(ScreenStates.NUMBER_SCREEN);
