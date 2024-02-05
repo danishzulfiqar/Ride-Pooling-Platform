@@ -3,8 +3,10 @@ const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-const senderEmail = functions.config().myapp.sender_email;
-const senderEmailPassword = functions.config().myapp.sender_email_password;
+const functionsConfig = functions.config().myapp;
+
+const senderEmail = functionsConfig ? functionsConfig.sender_email : process.env.senderEmail;
+const senderEmailPassword = functionsConfig ? functionsConfig.sender_email_password : process.env.pas;
 
 // email configuration for sending email
 const transporter = nodemailer.createTransport({

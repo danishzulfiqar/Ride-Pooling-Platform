@@ -4,6 +4,9 @@ const { onCall } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const logger = require("firebase-functions/logger");
 const nodemailer = require('nodemailer');
+const firestore = require("firebase-admin/firestore");
+const { GeoFirestore } = require('geofirestore');
+
 require('dotenv').config();
 const {
     generateEmailVerificationLink,
@@ -38,3 +41,9 @@ exports.sendNewRiderData = saveData.sendNewRiderData;
 
 
 // --------------- getData funcs ---------------------------
+
+// Get a specific users data
+exports.getUserData = getData.getUserData;
+
+// Generate GeoPoint with geohash
+exports.generateGeoPoint = getData.generateGeoPoint;
