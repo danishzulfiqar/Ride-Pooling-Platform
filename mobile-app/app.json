@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "react-native-firebase-starter",
-    "slug": "react-native-firebase-starter",
+    "name": "RidePool",
+    "slug": "RidePool",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/Hicon.png",
