@@ -3,6 +3,7 @@ import MapView, {
   PROVIDER_DEFAULT,
   Marker,
   PROVIDER_GOOGLE,
+  Overlay,
 } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import {
@@ -13,11 +14,13 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Slider from "./BottomSheetCards";
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -48,6 +51,7 @@ export default function Go() {
   const snapPoints = useMemo(() => ["30%", "55%"], []);
   const snapPoints1 = useMemo(() => ["30%", "100%"], []);
   const snapPoints2 = useMemo(() => ["30%", "55%"], []);
+  const [loading, setLoading] = useState(false);
 
   function showingSlider() {
     setShowSlider(1);
@@ -371,6 +375,7 @@ export default function Go() {
       );
       const data = await response.json();
       const { results } = data;
+      console.log("moveToloc", results[0].geometry.location)
       if (results.length > 0) {
         const { lat, lng } = results[0].geometry.location;
         const loc1Coords = results[0].geometry.location;
@@ -410,7 +415,7 @@ export default function Go() {
         setloc2lat(loc2Coords.lat);
         setloc2lng(loc2Coords.lng);
         setLoc2Coordinates(loc2Coords);
-        console.log("setting loc cords" + loc2Coordinates);
+        console.log("setting loc cords:", loc2Coordinates);
         mapRef.current.animateToRegion(
           {
             latitude: lat,
@@ -428,42 +433,32 @@ export default function Go() {
     }
   }
 
-  useEffect(() => {
-    const fetchLocation = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
-
-      let currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation);
-    };
-
-    fetchLocation();
-  }, []);
-
-  useEffect(() => {
-    if (errorMsg) {
-      console.log(errorMsg);
-    } else if (location) {
-      setLatitude(location.coords.latitude);
-      setLongitude(location.coords.longitude);
-
-      // Animate to the new region
-      if (mapRef.current) {
-        mapRef.current.animateToRegion(
-          {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.015,
-            longitudeDelta: 0.0121,
-          },
-          1000
-        );
-      }
+  const setUserLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission to access location was denied');
+      return;
     }
-  }, [errorMsg, location]);
+
+    let currentLocation = await Location.getCurrentPositionAsync({});
+    setLocation(currentLocation);
+
+    // Animate to the user's current location once it is obtained
+    if (mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+        latitudeDelta: 0.015,
+        longitudeDelta: 0.0121,
+      }, 1000);
+      setLoading(false);
+    }
+    else {
+      // In case mapRef.current is not available, ensure loading is also set to false
+      setLoading(false);
+    }
+  }
+
 
   const [region, setRegion] = useState({
     latitude: latitude || 0,
@@ -518,7 +513,7 @@ export default function Go() {
       });
   }
 
-  console.log();
+  console.log("loading:", loading);
 
   return (
     <View style={{ flex: 1 }}>
@@ -529,26 +524,25 @@ export default function Go() {
               provider={PROVIDER_GOOGLE}
               style={styles.map}
               ref={mapRef}
-              Region={{
-                latitude: latitude,
-                longitude: longitude,
-                latitudeDelta: 0.015,
-                longitudeDelta: 0.0121,
+              // initialRegion={{
+              //   latitude: latitude || 33.6844,
+              //   longitude: longitude || 73.0479,
+              //   latitudeDelta: 0.015,
+              //   longitudeDelta: 0.0121,
+              // }}
+              camera={{
+                center: { latitude: 33.6844, longitude: 73.0479 },
+                pitch: 0,
+                heading: 0,
+                altitude: 500,
+                zoom: 10
               }}
               loadingEnabled={true}
               customMapStyle={newstyle}
+              showsUserLocation={true}
+              userLocationPriority="high"
+              onMapReady={setUserLocation}
             >
-              {latitude && longitude && (
-                <Marker
-                  coordinate={{
-                    latitude: latitude,
-                    longitude: longitude,
-                  }}
-                  title="Location 1"
-                  description="Your location"
-                />
-              )}
-
               {loc1Coordinates &&
                 loc1Coordinates.lat &&
                 loc1Coordinates.lng && (
@@ -736,7 +730,7 @@ export default function Go() {
             <BottomSheet index={indexVal1} snapPoints={snapPoints1}>
               {txtInput1 === 0 ? (
                 <View style={styles.pickupT1}>
-                  <TouchableOpacity onPress={function(){
+                  <TouchableOpacity onPress={function () {
                     setIndexVal1(1);
                     setTxtInput1(1);
                   }}>
@@ -772,17 +766,19 @@ export default function Go() {
                     },
                     predefinedPlacesDescription: { color: "orange" },
                   }}
+                  
                   placeholder="Enter pick-up point"
-                  onPress={(data, details = null) => {
+                  onPress={async (data, details = null) => {
+                    console.log("Pickup clicked");
                     setIndexVal1(0);
                     setTxtInput1(0);
                     // 'details' is provided when fetchDetails = true
-                    movetoloc(data.description);
+                   await movetoloc(data.description);
                     const location1 = data.description;
                     setA(location1);
                     console.log("textinput1" + location1);
                   }}
-                  query={{ key: API_KEY, language: "en" }}
+                  query={{ key: API_KEY, language: "en", components: "country:PK" }}
                 />
               )}
 
@@ -903,50 +899,50 @@ export default function Go() {
           <BottomSheet index={indexVal2} snapPoints={snapPoints1}>
             {txtInput2 === 0 ? (
               <View style={styles.pickupT1}>
-              <TouchableOpacity onPress={function(){
-                setIndexVal2(1);
-                setTxtInput2(1);
-              }}>
-                <Text
-                  style={{ marginLeft: 10, fontFamily: "Custom", width: "90%" }}
-                >
-                  {B}
-                </Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity onPress={function () {
+                  setIndexVal2(1);
+                  setTxtInput2(1);
+                }}>
+                  <Text
+                    style={{ marginLeft: 10, fontFamily: "Custom", width: "90%" }}
+                  >
+                    {B}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             ) : (
               <GooglePlacesAutocomplete
-              styles={{
-                container: { flex: 0 },
-                textInputContainer: {
-                  backgroundColor: "#ECECEC",
-                  marginLeft: 10,
-                  marginRight: 10,
-                  height: 40,
-                  borderRadius: 5,
-                  alignItems: "center",
-                  marginTop: 10,
-                },
-                textInput: {
-                  backgroundColor: "transparent",
-                  color: "black",
-                  fontSize: 16,
-                  fontFamily: "Custom",
-                },
-                predefinedPlacesDescription: { color: "orange" },
-              }}
-              placeholder="Enter your destination"
-              onPress={(data, details = null) => {
-                // 'details' is provided when fetchDetails = true
-                setIndexVal2(0);
-                setTxtInput2(0);
-                const location2 = data.description;
-                movetoloc1(data.description);
-                setB(location2);
-                console.log(details);
-              }}
-              query={{ key: API_KEY, language: "en" }}
-            />)}
+                styles={{
+                  container: { flex: 0 },
+                  textInputContainer: {
+                    backgroundColor: "#ECECEC",
+                    marginLeft: 10,
+                    marginRight: 10,
+                    height: 40,
+                    borderRadius: 5,
+                    alignItems: "center",
+                    marginTop: 10,
+                  },
+                  textInput: {
+                    backgroundColor: "transparent",
+                    color: "black",
+                    fontSize: 16,
+                    fontFamily: "Custom",
+                  },
+                  predefinedPlacesDescription: { color: "orange" },
+                }}
+                placeholder="Enter your destination"
+                onPress={async (data, details = null) => {
+                  // 'details' is provided when fetchDetails = true
+                  setIndexVal2(0);
+                  setTxtInput2(0);
+                  const location2 = data.description;
+                  await movetoloc1(data.description);
+                  setB(location2);
+                  console.log(details);
+                }}
+                query={{ key: API_KEY, language: "en", components: "country:PK"  }}
+              />)}
             <TouchableOpacity
               style={styles.btn4}
               onPress={function () {
@@ -1205,5 +1201,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent white
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100, // Make sure it covers the map
   },
 });
