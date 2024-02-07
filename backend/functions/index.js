@@ -47,3 +47,6 @@ exports.getUserData = getData.getUserData;
 
 // Generate GeoPoint with geohash
 exports.generateGeoPoint = getData.generateGeoPoint;
+
+// Get Go mode availaible riders
+exports.getGoRiders = getData.getGoRiders;
