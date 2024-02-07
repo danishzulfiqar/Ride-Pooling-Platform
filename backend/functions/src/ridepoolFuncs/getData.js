@@ -10,6 +10,16 @@ exports.getUserData = functions.https.onCall(async (data, context) => {
 
     console.log("getUserData called", data);
 
+
+    // checking auth state and if user sent request himself
+    if (!context.auth || (context.auth.uid != data.uid)) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Authentication required."
+        );
+    }
+
+
     const uid = data.uid;
     const role = data.role;
 
@@ -36,6 +46,22 @@ exports.generateGeoPoint = functions.https.onCall(async (data, context) => {
 // Get GO mode avilaible riders in specific radius 
 exports.getGoRiders = functions.https.onCall(async (data, context) => {
 
+    console.log("getGoRiders called", data);
+
+    // checking valid arguments
+    if (!data.lat || !data.lng || !data.radius) {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+
+    // checking auth state and if user sent request himself
+    if (!context.auth || (context.auth.uid != data.uid)) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Authentication required."
+        );
+    }
+
     const db = admin.firestore();
 
     const { lat, lng, radius } = data;
@@ -49,8 +75,9 @@ exports.getGoRiders = functions.https.onCall(async (data, context) => {
     const promises = [];
 
     for (const b of bounds) {
-        // console.log(b);
+        console.log(b);
         const q = db.collection('riders')
+            .where('availability', '==', true)
             .orderBy('geohash')
             .startAt(b[0])
             .endAt(b[1]);
@@ -76,7 +103,7 @@ exports.getGoRiders = functions.https.onCall(async (data, context) => {
         }
 
         return matchingDocs;
-        
+
     } catch (error) {
         throw new functions.https.HttpsError('internal', 'Unable to fetch riders', error);
     }
