@@ -1,0 +1,153 @@
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+const { GeoFirestore } = require('geofirestore');
+
+admin.initializeApp();
+
+const db = admin.firestore();
+const geoFirestore = new GeoFirestore(db);
+const ridersCollection = geoFirestore.collection('riders'); // Replace with your Firestore collection name for riders
+
+exports.searchNearbyRiders = functions.https.onCall(async (data, context) => {
+  try {
+    const { latitude, longitude, radiusInKm } = data;
+
+    // Create a GeoPoint for the user's location
+    const userLocation = new admin.firestore.GeoPoint(latitude, longitude);
+
+    // Create a GeoQuery centered around the user's location
+    const query = ridersCollection.near({ center: userLocation, radius: radiusInKm });
+
+    // Execute the GeoQuery
+    const querySnapshot = await query.get();
+
+    const nearbyRiders = [];
+    querySnapshot.docs.forEach((doc) => {
+      const riderData = doc.data();
+      nearbyRiders.push({
+        id: doc.id,
+        name: riderData.name, // Replace with the field containing the rider's name
+        vehicle: riderData.vehicle, // Replace with the field containing the rider's vehicle
+        location: riderData.location // Replace with the field containing the GeoPoint
+      });
+    });
+
+    return { riders: nearbyRiders };
+  } catch (error) {
+    console.error('Error searching for nearby riders:', error);
+    return { error: 'An error occurred while searching for nearby riders.' };
+  }
+});
+
+
+///// ----------------- Beta -------------------- ////////
+
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+const { calculateGeoHash, geohashQueryBounds, distanceBetween } = require('geofire-common');
+
+admin.initializeApp();
+
+exports.findRidersInRadius = functions.https.onCall(async (data, context) => {
+  const db = admin.firestore();
+  const { latitude, longitude, radiusInKm } = data;
+  const center = [latitude, longitude];
+  const radiusInM = radiusInKm * 1000;
+  const bounds = geohashQueryBounds(center, radiusInM);
+  const promises = [];
+
+  for (const b of bounds) {
+    const q = db.collection('riders')
+      .orderBy('geohash')
+      .startAt(b[0])
+      .endAt(b[1]);
+
+    promises.push(q.get());
+  }
+
+  try {
+    const snapshots = await Promise.all(promises);
+    const matchingDocs = [];
+
+    for (const snap of snapshots) {
+      for (const doc of snap.docs) {
+        const lat = doc.get('lat');
+        const lng = doc.get('lng');
+        const distanceInM = distanceBetween([lat, lng], center) * 1000;
+        if (distanceInM <= radiusInM) {
+          matchingDocs.push(doc.data());
+        }
+      }
+    }
+
+    return matchingDocs;
+  } catch (error) {
+    throw new functions.https.HttpsError('internal', 'Unable to fetch riders', error);
+  }
+});
+
+
+///// ----------------- Test Data -------------------- ///////
+
+rider1:
+{
+"name": "Jane Doe",
+"lat": 51.5074,
+"lng": -0.1278,
+"geohash": "gcpuvpk44kpr"
+}
+
+//// ------------------ Random Data ----------------- /////////
+
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+const geohash = require('node-geohash');
+admin.initializeApp();
+
+function generateRandomPoint(center, radius) {
+  const y0 = center.latitude;
+  const x0 = center.longitude;
+  const rd = radius / 111300; // about 111300 meters in one degree
+
+  const u = Math.random();
+  const v = Math.random();
+
+  const w = rd * Math.sqrt(u);
+  const t = 2 * Math.PI * v;
+  const x = w * Math.cos(t);
+  const y = w * Math.sin(t);
+
+  // Adjust the x-coordinate for the shrinking of the east-west distances
+  const xp = x / Math.cos(y0);
+
+  const newlat = y + y0;
+  const newlon = xp + x0;
+  return { latitude: newlat, longitude: newlon };
+}
+
+exports.generateRider = functions.https.onCall(async (data, context) => {
+  const { latitude, longitude } = data;
+  const center = { latitude, longitude };
+  const radius = 15000; // 15 km
+  const randomPoint = generateRandomPoint(center, radius);
+  const randomGeohash = geohash.encode(randomPoint.latitude, randomPoint.longitude);
+  
+  // Generate a random name (simple example, consider a better naming strategy)
+  const randomName = `Rider-${Math.random().toString(36).substring(7)}`;
+
+  const riderDoc = {
+    name: randomName,
+    lat: randomPoint.latitude,
+    lng: randomPoint.longitude,
+    geohash: randomGeohash,
+  };
+
+  try {
+    const docRef = await admin.firestore().collection('riders').add(riderDoc);
+    return { success: true, id: docRef.id, ...riderDoc };
+  } catch (error) {
+    console.error('Error saving rider document: ', error);
+    throw new functions.https.HttpsError('internal', 'Failed to create rider document', error);
+  }
+});
+

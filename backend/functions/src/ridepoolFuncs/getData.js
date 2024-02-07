@@ -49,7 +49,7 @@ exports.getGoRiders = functions.https.onCall(async (data, context) => {
     console.log("getGoRiders called", data);
 
     // checking valid arguments
-    if (!data.lat || !data.lng || !data.radius) {
+    if (!data.uid || !data.lat || !data.lng || !data.radius) {
         throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
     }
 
@@ -66,7 +66,7 @@ exports.getGoRiders = functions.https.onCall(async (data, context) => {
 
     const { lat, lng, radius } = data;
     const geoPoint = new firestore.GeoPoint(lat, lng);
-    const hash = geofire.geohashForLocation([data.lat, data.lng]);
+    const hash = geofire.geohashForLocation([lat, lng]);
     const center = [lat, lng];
     const radiusInM = radius;
 
