@@ -19,6 +19,7 @@ import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Slider from "./BottomSheetCards";
 import newstyle from "../styles/mapstyle";
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -42,6 +43,7 @@ export default function Go() {
   const [A, setA] = useState("ENTER PICKUP LOCATION");
   const [B, setB] = useState("ENTER DROPOFF LOCATION");
   const snapPoints1 = useMemo(() => ["20%", "100%"], []);
+  const [loading, setLoading] = useState(false);
 
   function showingSlider() {
     setShowSlider(1);
@@ -100,28 +102,32 @@ export default function Go() {
     fetchAddressFromCoordinates();
   }, []);
 
-  useEffect(() => {
-    if (errorMsg) {
-      console.log(errorMsg);
-    } else if (location) {
-      setLatitude(location.coords.latitude);
-      setLongitude(location.coords.longitude);
-      // setLoc1Coordinates({ lat: location.coords.latitude, lng: location.coords.longitude });
-
-      // Animate to the new region
-      if (mapRef.current) {
-        mapRef.current.animateToRegion(
-          {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.015,
-            longitudeDelta: 0.0121,
-          },
-          1000
-        );
-      }
+  const setUserLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission to access location was denied');
+      return;
     }
-  }, [errorMsg, location]);
+
+    let currentLocation = await Location.getCurrentPositionAsync({});
+    setLocation(currentLocation);
+
+    // Animate to the user's current location once it is obtained
+    if (mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+        latitudeDelta: 0.015,
+        longitudeDelta: 0.0121,
+      }, 1000);
+      setLoading(false);
+    }
+    else {
+      // In case mapRef.current is not available, ensure loading is also set to false
+      setLoading(false);
+    }
+  }
+
 
   const [region, setRegion] = useState({
     latitude: latitude || 0,
@@ -262,16 +268,21 @@ export default function Go() {
               provider={PROVIDER_GOOGLE}
               style={styles.map}
               ref={mapRef}
-              Region={{
-                latitude: latitude,
-                longitude: longitude,
-                latitudeDelta: 0.015,
-                longitudeDelta: 0.0121,
+              camera={{
+                center: { latitude: 33.6844, longitude: 73.0479 },
+                pitch: 0,
+                heading: 0,
+                altitude: 500,
+                zoom: 10
               }}
               loadingEnabled={true}
               customMapStyle={newstyle}
               showsUserLocation={true}
-              userLocationPriority="high" >
+              userLocationPriority="high" 
+              onMapReady={async ()=>{
+                await setUserLocation();
+              }}
+              >
 
               {/* {latitude && longitude && (
                 <Marker
@@ -475,9 +486,9 @@ export default function Go() {
                     predefinedPlacesDescription: { color: "orange" },
                   }}
                   placeholder="Enter pick-up point"
-                  onPress={(data, details = null) => {
+                  onPress={async (data, details = null) => {
                     // 'details' is provided when fetchDetails = true
-                    movetoloc(data.description);
+                    await movetoloc(data.description);
                     const location1 = data.description;
                     setA(location1);
                   }}
@@ -546,10 +557,10 @@ export default function Go() {
                 predefinedPlacesDescription: { color: "orange" },
               }}
               placeholder="Enter your destination"
-              onPress={(data, details = null) => {
+              onPress={async (data, details = null) => {
                 // 'details' is provided when fetchDetails = true
                 const location2 = data.description;
-                movetoloc1(data.description);
+                await movetoloc1(data.description);
                 setB(location2);
               }}
               query={{ key: API_KEY, language: "en" }}
