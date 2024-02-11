@@ -61,8 +61,8 @@ const styles = StyleSheet.create({
   },
 
   imgstyle: {
-    width: 170,
-    height: 170,
+    width: 150,
+    height: 150,
   },
 
   heading: {
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     paddingLeft: 40,
     paddingRight: 20,
     borderRadius: 6,
-    marginBottom: 25,
+    marginBottom: 10,
   },
 
   role: {
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4.84,
     elevation: 5,
-    marginBottom: 20,
+    marginBottom: 10,
     backgroundColor: "white"
   },
 
