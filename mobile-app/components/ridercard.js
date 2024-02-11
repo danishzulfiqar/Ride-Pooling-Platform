@@ -48,9 +48,9 @@ const styles = StyleSheet.create({
       width: 0,
       height: 6,
     },
-    shadowOpacity: 0.9,
+    shadowOpacity: 0.3,
     shadowRadius: 10,
-    elevation: 10,
+    elevation: 5,
   },
   card: {
     flexDirection:'row',

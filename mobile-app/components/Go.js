@@ -3,7 +3,6 @@ import MapView, {
   PROVIDER_DEFAULT,
   Marker,
   PROVIDER_GOOGLE,
-  Overlay,
 } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import {
@@ -14,343 +13,41 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Image,
-  ActivityIndicator,
 } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Slider from "./BottomSheetCards";
-import Spinner from 'react-native-loading-spinner-overlay';
+import newstyle from "../styles/mapstyle";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
 export default function Go() {
   const mapRef = useRef(null);
-  const [Change, setChange] = useState(0);
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
-  const [A, setA] = useState("ENTER PICKUP LOCATION");
-  const [B, setB] = useState("ENTER DROPOFF LOCATION");
+  const [Change, setChange] = useState(0);
   const [loc1lat, setloc1lat] = useState(0);
   const [loc1lng, setloc1lng] = useState(0);
   const [loc2lat, setloc2lat] = useState(0);
   const [loc2lng, setloc2lng] = useState(0);
   const [locSlider, setLocSlider] = useState(0);
   const [showSlider, setShowSlider] = useState(0);
+  const [enterPickUp, setEnterPickUp] = useState(false);
+  const [enterDropOff, setEnterDropOff] = useState(false);
   const [loc1Coordinates, setLoc1Coordinates] = useState();
   const [loc2Coordinates, setLoc2Coordinates] = useState();
-  const [fromMap1, setFromMap1] = useState(0);
-  const [fromMap2, setFromMap2] = useState(0);
-  const [indexVal, setIndexVal] = useState(1);
-  const [indexVal1, setIndexVal1] = useState(0);
-  const [indexVal2, setIndexVal2] = useState(0);
-  const [txtInput1, setTxtInput1] = useState(0);
-  const [txtInput2, setTxtInput2] = useState(0);
-  const snapPoints = useMemo(() => ["30%", "55%"], []);
-  const snapPoints1 = useMemo(() => ["30%", "100%"], []);
-  const snapPoints2 = useMemo(() => ["30%", "55%"], []);
-  const [loading, setLoading] = useState(false);
+  const [A, setA] = useState("ENTER PICKUP LOCATION");
+  const [B, setB] = useState("ENTER DROPOFF LOCATION");
+  const snapPoints1 = useMemo(() => ["20%", "100%"], []);
 
   function showingSlider() {
     setShowSlider(1);
   }
 
-  const newstyle = [
-    {
-      featureType: "administrative",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#d6e2e6",
-        },
-      ],
-    },
-    {
-      featureType: "administrative",
-      elementType: "geometry.stroke",
-      stylers: [
-        {
-          color: "#cfd4d5",
-        },
-      ],
-    },
-    {
-      featureType: "administrative",
-      elementType: "labels.text.fill",
-      stylers: [
-        {
-          color: "#7492a8",
-        },
-      ],
-    },
-    {
-      featureType: "administrative.neighborhood",
-      elementType: "labels.text.fill",
-      stylers: [
-        {
-          lightness: 25,
-        },
-      ],
-    },
-    {
-      featureType: "landscape.man_made",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#dde2e3",
-        },
-      ],
-    },
-    {
-      featureType: "landscape.man_made",
-      elementType: "geometry.stroke",
-      stylers: [
-        {
-          color: "#cfd4d5",
-        },
-      ],
-    },
-    {
-      featureType: "landscape.natural",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#dde2e3",
-        },
-      ],
-    },
-    {
-      featureType: "landscape.natural",
-      elementType: "labels.text.fill",
-      stylers: [
-        {
-          color: "#7492a8",
-        },
-      ],
-    },
-    {
-      featureType: "landscape.natural.terrain",
-      elementType: "all",
-      stylers: [
-        {
-          visibility: "off",
-        },
-      ],
-    },
-    {
-      featureType: "poi",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#dde2e3",
-        },
-      ],
-    },
-    {
-      featureType: "poi",
-      elementType: "labels.text.fill",
-      stylers: [
-        {
-          color: "#588ca4",
-        },
-      ],
-    },
-    {
-      featureType: "poi",
-      elementType: "labels.icon",
-      stylers: [
-        {
-          saturation: -100,
-        },
-      ],
-    },
-    {
-      featureType: "poi.park",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#a9de83",
-        },
-      ],
-    },
-    {
-      featureType: "poi.park",
-      elementType: "geometry.stroke",
-      stylers: [
-        {
-          color: "#bae6a1",
-        },
-      ],
-    },
-    {
-      featureType: "poi.sports_complex",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#c6e8b3",
-        },
-      ],
-    },
-    {
-      featureType: "poi.sports_complex",
-      elementType: "geometry.stroke",
-      stylers: [
-        {
-          color: "#bae6a1",
-        },
-      ],
-    },
-    {
-      featureType: "road",
-      elementType: "labels.text.fill",
-      stylers: [
-        {
-          color: "#41626b",
-        },
-      ],
-    },
-    {
-      featureType: "road",
-      elementType: "labels.icon",
-      stylers: [
-        {
-          saturation: -45,
-        },
-        {
-          lightness: 10,
-        },
-        {
-          visibility: "on",
-        },
-      ],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#c1d1d6",
-        },
-      ],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "geometry.stroke",
-      stylers: [
-        {
-          color: "#a6b5bb",
-        },
-      ],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "labels.icon",
-      stylers: [
-        {
-          visibility: "on",
-        },
-      ],
-    },
-    {
-      featureType: "road.highway.controlled_access",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#9fb6bd",
-        },
-      ],
-    },
-    {
-      featureType: "road.arterial",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#ffffff",
-        },
-      ],
-    },
-    {
-      featureType: "road.local",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#ffffff",
-        },
-      ],
-    },
-    {
-      featureType: "transit",
-      elementType: "labels.icon",
-      stylers: [
-        {
-          saturation: -70,
-        },
-      ],
-    },
-    {
-      featureType: "transit.line",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#b4cbd4",
-        },
-      ],
-    },
-    {
-      featureType: "transit.line",
-      elementType: "labels.text.fill",
-      stylers: [
-        {
-          color: "#588ca4",
-        },
-      ],
-    },
-    {
-      featureType: "transit.station",
-      elementType: "all",
-      stylers: [
-        {
-          visibility: "off",
-        },
-      ],
-    },
-    {
-      featureType: "transit.station",
-      elementType: "labels.text.fill",
-      stylers: [
-        {
-          color: "#008cb5",
-        },
-        {
-          visibility: "on",
-        },
-      ],
-    },
-    {
-      featureType: "transit.station.airport",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          saturation: -100,
-        },
-        {
-          lightness: -5,
-        },
-      ],
-    },
-    {
-      featureType: "water",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#a6cbe3",
-        },
-      ],
-    },
-  ];
-
+///////////////////////////////  Animate to location ///////////////////////
   useEffect(() => {
     fitToCoordinates();
   }, [loc1Coordinates, loc2Coordinates]);
@@ -366,110 +63,80 @@ export default function Go() {
     }
   };
 
-  async function movetoloc(locationString) {
-    try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-          locationString
-        )}&key=${API_KEY}`
-      );
-      const data = await response.json();
-      const { results } = data;
-      console.log("moveToloc", results[0].geometry.location)
-      if (results.length > 0) {
-        const { lat, lng } = results[0].geometry.location;
-        const loc1Coords = results[0].geometry.location;
-        setloc1lat(loc1Coords.lat);
-        setloc1lng(loc1Coords.lng);
-        setLoc1Coordinates(loc1Coords);
-        console.log("setting loc cords" + loc1Coordinates);
+////////////////////////// Get users location /////////////////////////
+
+
+  
+  useEffect(() => {
+    const fetchAddressFromCoordinates = async () => {
+      try {
+        // Get the current location
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          throw new Error("Permission to access location was denied");
+        }
+
+        const currentLocation = await Location.getCurrentPositionAsync({});
+        setLocation(currentLocation);
+        // Perform reverse geocoding
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation.coords.latitude},${currentLocation.coords.longitude}&key=${API_KEY}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch address from coordinates");
+        }
+
+        const data = await response.json();
+        const formattedAddress = data.results[0].formatted_address;
+
+        // Update the address state variable
+        // setA(formattedAddress);
+      } catch (error) {
+        console.error("Error fetching address:", error);
+      }
+    };
+
+    fetchAddressFromCoordinates();
+  }, []);
+
+  useEffect(() => {
+    if (errorMsg) {
+      console.log(errorMsg);
+    } else if (location) {
+      setLatitude(location.coords.latitude);
+      setLongitude(location.coords.longitude);
+      // setLoc1Coordinates({ lat: location.coords.latitude, lng: location.coords.longitude });
+
+      // Animate to the new region
+      if (mapRef.current) {
         mapRef.current.animateToRegion(
           {
-            latitude: lat,
-            longitude: lng,
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
             latitudeDelta: 0.015,
             longitudeDelta: 0.0121,
           },
           1000
         );
-      } else {
-        console.error("No results found for the given location.");
       }
-    } catch (error) {
-      console.error("Error fetching location coordinates:", error);
     }
-  }
-
-  async function movetoloc1(locationString) {
-    try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-          locationString
-        )}&key=${API_KEY}`
-      );
-      const data = await response.json();
-      const { results } = data;
-      if (results.length > 0) {
-        const { lat, lng } = results[0].geometry.location;
-        const loc2Coords = results[0].geometry.location;
-        setloc2lat(loc2Coords.lat);
-        setloc2lng(loc2Coords.lng);
-        setLoc2Coordinates(loc2Coords);
-        console.log("setting loc cords:", loc2Coordinates);
-        mapRef.current.animateToRegion(
-          {
-            latitude: lat,
-            longitude: lng,
-            latitudeDelta: 0.015,
-            longitudeDelta: 0.0121,
-          },
-          1000
-        );
-      } else {
-        console.error("No results found for the given location.");
-      }
-    } catch (error) {
-      console.error("Error fetching location coordinates:", error);
-    }
-  }
-
-  const setUserLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      console.log('Permission to access location was denied');
-      return;
-    }
-
-    let currentLocation = await Location.getCurrentPositionAsync({});
-    setLocation(currentLocation);
-
-    // Animate to the user's current location once it is obtained
-    if (mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-        latitudeDelta: 0.015,
-        longitudeDelta: 0.0121,
-      }, 1000);
-      setLoading(false);
-    }
-    else {
-      // In case mapRef.current is not available, ensure loading is also set to false
-      setLoading(false);
-    }
-  }
-
+  }, [errorMsg, location]);
 
   const [region, setRegion] = useState({
     latitude: latitude || 0,
     longitude: longitude || 0,
-    latitudeDelta: 0.015,
-    longitudeDelta: 0.0121,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1,
   });
+
+
+
+
+////////////////////////// Getting address from pickup coordinates  /////////////////////////
 
   function onChangeLoc1(region) {
     setRegion(region);
-    console.log("static 1" + region);
 
     fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${region.latitude},${region.longitude}&key=${API_KEY}`
@@ -490,9 +157,11 @@ export default function Go() {
       });
   }
 
+  
+////////////////////////// Getting address from dropOff coordinates  /////////////////////////
+
   function onChangeLoc2(region) {
     setRegion(region);
-    console.log("static 2" + region);
 
     fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${region.latitude},${region.longitude}&key=${API_KEY}`
@@ -513,7 +182,76 @@ export default function Go() {
       });
   }
 
-  console.log("loading:", loading);
+////////////////////////// Animate map(move) to pickup /////////////////////////
+
+  async function movetoloc(locationString) {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          locationString
+        )}&key=${API_KEY}`
+      );
+      const data = await response.json();
+      const { results } = data;
+      if (results.length > 0) {
+        const { lat, lng } = results[0].geometry.location;
+        const loc1Coords = results[0].geometry.location;
+        setloc1lat(loc1Coords.lat);
+        setloc1lng(loc1Coords.lng);
+        setLoc1Coordinates(loc1Coords);
+        mapRef.current.animateToRegion(
+          {
+            latitude: lat,
+            longitude: lng,
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.0121,
+          },
+          1000
+        );
+      } else {
+        console.error("No results found for the given location.");
+      }
+    } catch (error) {
+      console.error("Error fetching location coordinates:", error);
+    }
+  }
+
+
+////////////////////////// Animate map(move) to dropOff /////////////////////////
+
+  async function movetoloc1(locationString) {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          locationString
+        )}&key=${API_KEY}`
+      );
+      const data = await response.json();
+      const { results } = data;
+      if (results.length > 0) {
+        const { lat, lng } = results[0].geometry.location;
+        const loc2Coords = results[0].geometry.location;
+        setloc2lat(loc2Coords.lat);
+        setloc2lng(loc2Coords.lng);
+        setLoc2Coordinates(loc2Coords);
+        mapRef.current.animateToRegion(
+          {
+            latitude: lat,
+            longitude: lng,
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.0121,
+          },
+          1000
+        );
+      } else {
+        console.error("No results found for the given location.");
+      }
+    } catch (error) {
+      console.error("Error fetching location coordinates:", error);
+    }
+  }
+///////////////////////////////////////////////////////////////////////////////////////////
+
 
   return (
     <View style={{ flex: 1 }}>
@@ -524,25 +262,28 @@ export default function Go() {
               provider={PROVIDER_GOOGLE}
               style={styles.map}
               ref={mapRef}
-              // initialRegion={{
-              //   latitude: latitude || 33.6844,
-              //   longitude: longitude || 73.0479,
-              //   latitudeDelta: 0.015,
-              //   longitudeDelta: 0.0121,
-              // }}
-              camera={{
-                center: { latitude: 33.6844, longitude: 73.0479 },
-                pitch: 0,
-                heading: 0,
-                altitude: 500,
-                zoom: 10
+              Region={{
+                latitude: latitude,
+                longitude: longitude,
+                latitudeDelta: 0.015,
+                longitudeDelta: 0.0121,
               }}
               loadingEnabled={true}
               customMapStyle={newstyle}
               showsUserLocation={true}
-              userLocationPriority="high"
-              onMapReady={setUserLocation}
-            >
+              userLocationPriority="high" >
+
+              {/* {latitude && longitude && (
+                <Marker
+                  coordinate={{
+                    latitude: latitude,
+                    longitude: longitude,
+                  }}
+                  title="Location 1"
+                  description="Your location"
+                />
+              )} */}
+
               {loc1Coordinates &&
                 loc1Coordinates.lat &&
                 loc1Coordinates.lng && (
@@ -578,27 +319,28 @@ export default function Go() {
                 precision="high"
                 onReady={(result) => {
                   const coordinates = result.coordinates;
-
                   mapRef.current.fitToCoordinates(coordinates, {
                     edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
                     animated: true,
                   });
-                  setIndexVal(0);
                 }}
               />
             </MapView>
           </View>
+          
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             {showSlider === 1 ? (
               <Slider l1={A} l2={B} set={setShowSlider} />
             ) : (
-              <BottomSheet index={indexVal} snapPoints={snapPoints}>
+              
                 <View style={styles.topCon}>
                   <View
                     style={{
                       flexDirection: "row",
-                      marginLeft: 10,
-                      marginRight: 10,
+                      alignItems:"center",
+                      justifyContent:"center",
+                      gap:10,
+                      width:"100%"
                     }}
                   >
                     <TouchableOpacity
@@ -655,7 +397,7 @@ export default function Go() {
                       <View style={styles.pickupT}>
                         <TouchableOpacity
                           onPress={() => {
-                            setLocSlider(1);
+                            setEnterPickUp(true);
                           }}
                         >
                           <Text
@@ -668,7 +410,7 @@ export default function Go() {
                       <View style={styles.dropoffT}>
                         <TouchableOpacity
                           onPress={() => {
-                            setLocSlider(null);
+                            setEnterDropOff(true);
                           }}
                         >
                           <Text
@@ -705,47 +447,13 @@ export default function Go() {
                     </TouchableOpacity>
                   </View>
                 </View>
-              </BottomSheet>
             )}
           </TouchableWithoutFeedback>
-        </View>
-      ) : locSlider === 1 ? (
-        fromMap1 === 0 ? (
-          <View style={styles.container}>
-            <View style={styles.mapsContainer}>
-              <MapView
-                provider={PROVIDER_GOOGLE}
-                style={styles.map}
-                ref={mapRef}
-                initialRegion={{
-                  latitude: latitude || 0,
-                  longitude: longitude || 0,
-                  latitudeDelta: 0.015,
-                  longitudeDelta: 0.0121,
-                }}
-                customMapStyle={newstyle}
-              ></MapView>
-            </View>
-
-            <BottomSheet index={indexVal1} snapPoints={snapPoints1}>
-              {txtInput1 === 0 ? (
-                <View style={styles.pickupT1}>
-                  <TouchableOpacity onPress={function () {
-                    setIndexVal1(1);
-                    setTxtInput1(1);
-                  }}>
-                    <Text
-                      style={{
-                        marginLeft: 10,
-                        fontFamily: "Custom",
-                        width: "90%",
-                      }}
-                    >
-                      {A}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
+          {/*****************************   pickUp *******************************/ }
+          {enterPickUp === true && (
+            <BottomSheet index={1} 
+                       snapPoints={snapPoints1} 
+                       style={styles.bottomSheetStyle}>
                 <GooglePlacesAutocomplete
                   styles={{
                     container: { flex: 0 },
@@ -766,28 +474,20 @@ export default function Go() {
                     },
                     predefinedPlacesDescription: { color: "orange" },
                   }}
-                  
                   placeholder="Enter pick-up point"
-                  onPress={async (data, details = null) => {
-                    console.log("Pickup clicked");
-                    setIndexVal1(0);
-                    setTxtInput1(0);
+                  onPress={(data, details = null) => {
                     // 'details' is provided when fetchDetails = true
-                   await movetoloc(data.description);
+                    movetoloc(data.description);
                     const location1 = data.description;
                     setA(location1);
-                    console.log("textinput1" + location1);
                   }}
-                  query={{ key: API_KEY, language: "en", components: "country:PK" }}
+                  query={{ key: API_KEY, language: "en" }}
                 />
-              )}
 
               <TouchableOpacity
                 style={styles.btn4}
                 onPress={function () {
-                  setFromMap1(1);
-                  setIndexVal1(0);
-                  setTxtInput1(0);
+                  setLocSlider(1);
                 }}
               >
                 <Text
@@ -804,9 +504,7 @@ export default function Go() {
               <TouchableOpacity
                 style={styles.btn5}
                 onPress={() => {
-                  setLocSlider(0);
-                  setIndexVal1(0);
-                  setTxtInput1(0);
+                  setEnterPickUp(false);
                 }}
               >
                 <Text
@@ -820,135 +518,46 @@ export default function Go() {
                 </Text>
               </TouchableOpacity>
             </BottomSheet>
-          </View>
-        ) : (
-          <View style={styles.container}>
-            <View style={styles.mapsContainer}>
-              <MapView
-                provider={PROVIDER_GOOGLE}
-                style={styles.map}
-                ref={mapRef}
-                initialRegion={{
-                  latitude: latitude || 0,
-                  longitude: longitude || 0,
-                  latitudeDelta: 0.015,
-                  longitudeDelta: 0.0121,
-                }}
-                onRegionChangeComplete={onChangeLoc1}
-                customMapStyle={newstyle}
-              ></MapView>
+          )}
 
-              <View style={styles.markerContainer}>
-                <Image
-                  style={styles.markerImage}
-                  source={require("../assets/placeholder.png")}
-                />
-              </View>
-            </View>
-
-            <BottomSheet index={0} snapPoints={snapPoints2}>
-              <View style={styles.pickupT1}>
-                <TouchableOpacity>
-                  <Text
-                    style={{
-                      marginLeft: 10,
-                      fontFamily: "Custom",
-                      width: "90%",
-                    }}
-                  >
-                    {A}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity
-                style={styles.btn5}
-                onPress={() => {
-                  setLocSlider(0);
-                  setFromMap1(0);
-                }}
-              >
-                <Text
-                  style={{
-                    fontFamily: "CustomB",
-                    fontSize: 16,
-                    color: "white",
-                  }}
-                >
-                  OKAY
-                </Text>
-              </TouchableOpacity>
-            </BottomSheet>
-          </View>
-        )
-      ) : fromMap2 === 0 ? (
-        <View style={styles.container}>
-          <View style={styles.mapsContainer}>
-            <MapView
-              provider={PROVIDER_GOOGLE}
-              style={styles.map}
-              ref={mapRef}
-              initialRegion={{
-                latitude: latitude || 0,
-                longitude: longitude || 0,
-                latitudeDelta: 0.015,
-                longitudeDelta: 0.0121,
-              }}
-              customMapStyle={newstyle}
-            ></MapView>
-          </View>
-          <BottomSheet index={indexVal2} snapPoints={snapPoints1}>
-            {txtInput2 === 0 ? (
-              <View style={styles.pickupT1}>
-                <TouchableOpacity onPress={function () {
-                  setIndexVal2(1);
-                  setTxtInput2(1);
-                }}>
-                  <Text
-                    style={{ marginLeft: 10, fontFamily: "Custom", width: "90%" }}
-                  >
-                    {B}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
+{/*****************************   dropOff *******************************/ }
+            {enterDropOff === true && (
+              <BottomSheet index={1} 
+                         snapPoints={snapPoints1} 
+                         style={styles.bottomSheetStyle}>
               <GooglePlacesAutocomplete
-                styles={{
-                  container: { flex: 0 },
-                  textInputContainer: {
-                    backgroundColor: "#ECECEC",
-                    marginLeft: 10,
-                    marginRight: 10,
-                    height: 40,
-                    borderRadius: 5,
-                    alignItems: "center",
-                    marginTop: 10,
-                  },
-                  textInput: {
-                    backgroundColor: "transparent",
-                    color: "black",
-                    fontSize: 16,
-                    fontFamily: "Custom",
-                  },
-                  predefinedPlacesDescription: { color: "orange" },
-                }}
-                placeholder="Enter your destination"
-                onPress={async (data, details = null) => {
-                  // 'details' is provided when fetchDetails = true
-                  setIndexVal2(0);
-                  setTxtInput2(0);
-                  const location2 = data.description;
-                  await movetoloc1(data.description);
-                  setB(location2);
-                  console.log(details);
-                }}
-                query={{ key: API_KEY, language: "en", components: "country:PK"  }}
-              />)}
+              styles={{
+                container: { flex: 0 },
+                textInputContainer: {
+                  backgroundColor: "#ECECEC",
+                  marginLeft: 10,
+                  marginRight: 10,
+                  height: 40,
+                  borderRadius: 5,
+                  alignItems: "center",
+                  marginTop: 10,
+                },
+                textInput: {
+                  backgroundColor: "transparent",
+                  color: "black",
+                  fontSize: 16,
+                  fontFamily: "Custom",
+                },
+                predefinedPlacesDescription: { color: "orange" },
+              }}
+              placeholder="Enter your destination"
+              onPress={(data, details = null) => {
+                // 'details' is provided when fetchDetails = true
+                const location2 = data.description;
+                movetoloc1(data.description);
+                setB(location2);
+              }}
+              query={{ key: API_KEY, language: "en" }}
+            />
             <TouchableOpacity
               style={styles.btn4}
               onPress={function () {
-                setFromMap2(1);
-                setIndexVal2(0);
-                setTxtInput2(0);
+                setLocSlider(2);
               }}
             >
               <Text
@@ -965,9 +574,7 @@ export default function Go() {
             <TouchableOpacity
               style={styles.btn5}
               onPress={() => {
-                setLocSlider(0);
-                setIndexVal2(0);
-                setTxtInput2(0);
+                setEnterDropOff(false);
               }}
             >
               <Text
@@ -977,20 +584,64 @@ export default function Go() {
               </Text>
             </TouchableOpacity>
           </BottomSheet>
+            )}
+{/*******************************************************************************/ }
         </View>
+      ) : locSlider === 1 ? (
+          <View style={styles.container}>
+            <View style={styles.mapsContainer}>
+              <MapView
+                provider={PROVIDER_GOOGLE}
+                style={styles.map1}
+                ref={mapRef}
+                // initialRegion={{
+                //   latitude: latitude || 0,
+                //   longitude: longitude || 0,
+                //   latitudeDelta: 0.015,
+                //   longitudeDelta: 0.0121,
+                // }}
+                onRegionChangeComplete={onChangeLoc1}
+                customMapStyle={newstyle}
+              ></MapView>
+
+              <View style={styles.markerContainer}>
+                <Image
+                  style={styles.markerImage}
+                  source={require("../assets/placeholder.png")}
+                />
+              </View>
+            </View>
+            <TouchableOpacity
+                style={styles.btn51}
+                onPress={() => {
+                  setLocSlider(0);
+                  setEnterPickUp(false);
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: "CustomB",
+                    fontSize: 16,
+                    color: "white",
+                  }}
+                >
+                  OKAY
+                </Text>
+              </TouchableOpacity>
+          </View>
       ) : (
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
             <MapView
               provider={PROVIDER_GOOGLE}
-              style={styles.map}
+              style={styles.map1}
               ref={mapRef}
-              initialRegion={{
-                latitude: latitude || 0,
-                longitude: longitude || 0,
-                latitudeDelta: 0.015,
-                longitudeDelta: 0.0121,
-              }}
+              // initialRegion={{
+              //   latitude: latitude || 0,
+              //   longitude: longitude || 0,
+              //   latitudeDelta: 0.015,
+              //   longitudeDelta: 0.0121,
+              // }}
               onRegionChangeComplete={onChangeLoc2}
               customMapStyle={newstyle}
             ></MapView>
@@ -1001,21 +652,11 @@ export default function Go() {
               />
             </View>
           </View>
-          <BottomSheet index={0} snapPoints={snapPoints2}>
-            <View style={styles.pickupT1}>
-              <TouchableOpacity>
-                <Text
-                  style={{ marginLeft: 10, fontFamily: "Custom", width: "90%" }}
-                >
-                  {B}
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-              style={styles.btn5}
+          <TouchableOpacity
+              style={styles.btn51}
               onPress={() => {
                 setLocSlider(0);
-                setFromMap2(0);
+                setEnterDropOff(false);
               }}
             >
               <Text
@@ -1024,7 +665,6 @@ export default function Go() {
                 OKAY
               </Text>
             </TouchableOpacity>
-          </BottomSheet>
         </View>
       )}
     </View>
@@ -1035,41 +675,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  
   topCon: {
-    height: "100%",
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    // Add other styles as needed
   },
+  
 
   inputcontainer: {
     backgroundColor: "white",
-    marginLeft: 10,
-    marginRight: 10,
     padding: 10,
-    marginTop: 2,
-    borderRadius: 10,
-    // For iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.7,
-    shadowRadius: 4,
-    shadowColor: "black",
-    // For Android
-    elevation: 6,
+    marginTop: 4,
+    borderTopLeftRadius: 10, // Set the top left border radius
+    borderTopRightRadius: 10,
   },
 
   h1: {
     fontFamily: "Custom",
-    fontSize: 20,
+    fontSize: 16,
     padding: 10,
     backgroundColor: "#141E46",
-    width: 120,
+    width: 80,
     color: "white",
-    marginBottom: 20,
     textAlign: "center",
     borderRadius: 10,
   },
 
   markerContainer: {
     position: "absolute",
-    top: "30%",
+    top: "44%",
     left: "50%",
     marginLeft: -25, // Half of the image width
     marginTop: 0, // Half of the image height
@@ -1104,7 +740,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "start",
     borderRadius: 8,
-    marginBottom: 20,
   },
 
   pickupT1: {
@@ -1147,12 +782,9 @@ const styles = StyleSheet.create({
   },
 
   btn3: {
-    marginTop: 10,
-    backgroundColor: "#ECECEC",
-    height: 60,
-    width: 128,
-    marginLeft: 1,
-    marginRight: 1,
+    backgroundColor: "white",
+    height: 50,
+    width: 120,
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
@@ -1172,7 +804,14 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
-    marginBottom: 200,
+    marginBottom:200
+  },
+  map1: {
+    ...StyleSheet.absoluteFillObject,
+  },
+
+  bottomSheetStyle: {
+    zIndex: 1, // Set a higher z-index for the bottom sheet
   },
 
   btn4: {
@@ -1202,15 +841,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
   },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent white
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100, // Make sure it covers the map
+
+  btn51: {
+    backgroundColor: "#FF6969",
+    height: 40,
+    width: "90%",
+    marginLeft: 5,
+    marginRight: 5,
+    bottom:20,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    position:"absolute"
   },
 });
