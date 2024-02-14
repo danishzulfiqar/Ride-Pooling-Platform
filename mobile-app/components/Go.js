@@ -593,21 +593,21 @@ export default function Go() {
           {/*******************************************************************************/}
         </View>
       ) : locSlider === 1 ? (
-        <View style={styles.container}>
-          <View style={styles.mapsContainer}>
-            <MapView
-              provider={PROVIDER_GOOGLE}
-              style={styles.map1}
-              ref={mapRef}
-              // initialRegion={{
-              //   latitude: latitude || 0,
-              //   longitude: longitude || 0,
-              //   latitudeDelta: 0.015,
-              //   longitudeDelta: 0.0121,
-              // }}
-              onRegionChangeComplete={onChangeLoc1}
-              customMapStyle={newstyle}
-            ></MapView>
+          <View style={styles.container}>
+            <View style={styles.mapsContainer}>
+              <MapView
+                provider={PROVIDER_GOOGLE}
+                style={styles.map1}
+                ref={mapRef}
+                // initialRegion={{
+                //   latitude: latitude || 0,
+                //   longitude: longitude || 0,
+                //   latitudeDelta: 0.015,
+                //   longitudeDelta: 0.0121,
+                // }}
+                onRegionChangeComplete={onChangeLoc1}
+                customMapStyle={newstyle}
+              ></MapView>
 
             <View style={styles.markerContainer}>
               <Image
@@ -641,12 +641,12 @@ export default function Go() {
               provider={PROVIDER_GOOGLE}
               style={styles.map1}
               ref={mapRef}
-              // initialRegion={{
-              //   latitude: latitude || 0,
-              //   longitude: longitude || 0,
-              //   latitudeDelta: 0.015,
-              //   longitudeDelta: 0.0121,
-              // }}
+              initialRegion={{
+                latitude: latitude || 0,
+                longitude: longitude || 0,
+                latitudeDelta: 0.015,
+                longitudeDelta: 0.0121,
+              }}
               onRegionChangeComplete={onChangeLoc2}
               customMapStyle={newstyle}
             ></MapView>
