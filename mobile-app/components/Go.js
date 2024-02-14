@@ -19,7 +19,7 @@ import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Slider from "./BottomSheetCards";
 import newstyle from "../styles/mapstyle";
-import Spinner from 'react-native-loading-spinner-overlay';
+import Spinner from "react-native-loading-spinner-overlay";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -30,10 +30,10 @@ export default function Go() {
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
   const [Change, setChange] = useState(0);
-  const [loc1lat, setloc1lat] = useState(0);
-  const [loc1lng, setloc1lng] = useState(0);
-  const [loc2lat, setloc2lat] = useState(0);
-  const [loc2lng, setloc2lng] = useState(0);
+  const [loc1lat, setloc1lat] = useState();
+  const [loc1lng, setloc1lng] = useState();
+  const [loc2lat, setloc2lat] = useState();
+  const [loc2lng, setloc2lng] = useState();
   const [locSlider, setLocSlider] = useState(0);
   const [showSlider, setShowSlider] = useState(0);
   const [enterPickUp, setEnterPickUp] = useState(false);
@@ -49,7 +49,7 @@ export default function Go() {
     setShowSlider(1);
   }
 
-///////////////////////////////  Animate to location ///////////////////////
+  ///////////////////////////////  Animate to location ///////////////////////
   useEffect(() => {
     fitToCoordinates();
   }, [loc1Coordinates, loc2Coordinates]);
@@ -65,10 +65,8 @@ export default function Go() {
     }
   };
 
-////////////////////////// Get users location /////////////////////////
+  ////////////////////////// Get users location /////////////////////////
 
-
-  
   useEffect(() => {
     const fetchAddressFromCoordinates = async () => {
       try {
@@ -104,8 +102,8 @@ export default function Go() {
 
   const setUserLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      console.log('Permission to access location was denied');
+    if (status !== "granted") {
+      console.log("Permission to access location was denied");
       return;
     }
 
@@ -114,20 +112,21 @@ export default function Go() {
 
     // Animate to the user's current location once it is obtained
     if (mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-        latitudeDelta: 0.015,
-        longitudeDelta: 0.0121,
-      }, 1000);
+      mapRef.current.animateToRegion(
+        {
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+          latitudeDelta: 0.015,
+          longitudeDelta: 0.0121,
+        },
+        1000
+      );
       setLoading(false);
-    }
-    else {
+    } else {
       // In case mapRef.current is not available, ensure loading is also set to false
       setLoading(false);
     }
-  }
-
+  };
 
   const [region, setRegion] = useState({
     latitude: latitude || 0,
@@ -136,10 +135,7 @@ export default function Go() {
     longitudeDelta: 0.1,
   });
 
-
-
-
-////////////////////////// Getting address from pickup coordinates  /////////////////////////
+  ////////////////////////// Getting address from pickup coordinates  /////////////////////////
 
   function onChangeLoc1(region) {
     setRegion(region);
@@ -163,8 +159,7 @@ export default function Go() {
       });
   }
 
-  
-////////////////////////// Getting address from dropOff coordinates  /////////////////////////
+  ////////////////////////// Getting address from dropOff coordinates  /////////////////////////
 
   function onChangeLoc2(region) {
     setRegion(region);
@@ -188,7 +183,7 @@ export default function Go() {
       });
   }
 
-////////////////////////// Animate map(move) to pickup /////////////////////////
+  ////////////////////////// Animate map(move) to pickup /////////////////////////
 
   async function movetoloc(locationString) {
     try {
@@ -222,8 +217,7 @@ export default function Go() {
     }
   }
 
-
-////////////////////////// Animate map(move) to dropOff /////////////////////////
+  ////////////////////////// Animate map(move) to dropOff /////////////////////////
 
   async function movetoloc1(locationString) {
     try {
@@ -256,8 +250,7 @@ export default function Go() {
       console.error("Error fetching location coordinates:", error);
     }
   }
-///////////////////////////////////////////////////////////////////////////////////////////
-
+  ///////////////////////////////////////////////////////////////////////////////////////////
 
   return (
     <View style={{ flex: 1 }}>
@@ -273,27 +266,26 @@ export default function Go() {
                 pitch: 0,
                 heading: 0,
                 altitude: 500,
-                zoom: 10
+                zoom: 10,
               }}
               loadingEnabled={true}
               customMapStyle={newstyle}
               showsUserLocation={true}
-              userLocationPriority="high" 
-              onMapReady={async ()=>{
+              userLocationPriority="high"
+              onMapReady={async () => {
                 await setUserLocation();
               }}
-              >
-
+            >
               {/* {latitude && longitude && (
-                <Marker
-                  coordinate={{
-                    latitude: latitude,
-                    longitude: longitude,
-                  }}
-                  title="Location 1"
-                  description="Your location"
-                />
-              )} */}
+    <Marker
+      coordinate={{
+        latitude: latitude,
+        longitude: longitude,
+      }}
+      title="Location 1"
+      description="Your location"
+    />
+  )} */}
 
               {loc1Coordinates &&
                 loc1Coordinates.lat &&
@@ -321,119 +313,116 @@ export default function Go() {
                   />
                 )}
 
-              <MapViewDirections
-                origin={{ latitude: loc1lat, longitude: loc1lng }}
-                destination={{ latitude: loc2lat, longitude: loc2lng }}
-                apikey={API_KEY}
-                strokeWidth={3}
-                strokeColor="#000000"
-                precision="high"
-                onReady={(result) => {
-                  const coordinates = result.coordinates;
-                  mapRef.current.fitToCoordinates(coordinates, {
-                    edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-                    animated: true,
-                  });
-                }}
-              />
+              {loc1lat && loc1lng && loc2lat && loc2lng && (
+                <MapViewDirections
+                  origin={{ latitude: loc1lat, longitude: loc1lng }}
+                  destination={{ latitude: loc2lat, longitude: loc2lng }}
+                  apikey={API_KEY}
+                  strokeWidth={3}
+                  strokeColor="#000000"
+                  precision="high"
+                  onReady={(result) => {
+                    const coordinates = result.coordinates;
+                    mapRef.current.fitToCoordinates(coordinates, {
+                      edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                      animated: true,
+                    });
+                  }}
+                />
+              )}
             </MapView>
           </View>
-          
+
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             {showSlider === 1 ? (
               <Slider l1={A} l2={B} set={setShowSlider} />
             ) : (
-              
-                <View style={styles.topCon}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems:"center",
-                      justifyContent:"center",
-                      gap:10,
-                      width:"100%"
+              <View style={styles.topCon}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 10,
+                    width: "100%",
+                  }}
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.btn3,
+                      Change === 1 ? styles.buttonPressed : null,
+                    ]}
+                    onPress={() => {
+                      setChange(1);
                     }}
                   >
-                    <TouchableOpacity
-                      style={[
-                        styles.btn3,
-                        Change === 1 ? styles.buttonPressed : null,
-                      ]}
-                      onPress={() => {
-                        setChange(1);
-                      }}
-                    >
-                      <Image
-                        style={styles.imgstyle}
-                        resizeMode="contain"
-                        source={require("../assets/motor-sports.png")}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.btn3,
-                        Change === 2 ? styles.buttonPressed : null,
-                      ]}
-                      onPress={() => {
-                        setChange(2);
-                      }}
-                    >
-                      <Image
-                        style={styles.imgstyle}
-                        resizeMode="contain"
-                        source={require("../assets/standard.png")}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.btn3,
-                        Change === 3 ? styles.buttonPressed : null,
-                      ]}
-                      onPress={() => {
-                        setChange(3);
-                      }}
-                    >
-                      <Image
-                        style={styles.imgstyle}
-                        resizeMode="contain"
-                        source={require("../assets/air-conditioner.png")}
-                      />
-                    </TouchableOpacity>
+                    <Image
+                      style={styles.imgstyle}
+                      resizeMode="contain"
+                      source={require("../assets/motor-sports.png")}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.btn3,
+                      Change === 2 ? styles.buttonPressed : null,
+                    ]}
+                    onPress={() => {
+                      setChange(2);
+                    }}
+                  >
+                    <Image
+                      style={styles.imgstyle}
+                      resizeMode="contain"
+                      source={require("../assets/standard.png")}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.btn3,
+                      Change === 3 ? styles.buttonPressed : null,
+                    ]}
+                    onPress={() => {
+                      setChange(3);
+                    }}
+                  >
+                    <Image
+                      style={styles.imgstyle}
+                      resizeMode="contain"
+                      source={require("../assets/air-conditioner.png")}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.inputcontainer}>
+                  <Text style={styles.h1}>GO</Text>
+
+                  <View style={styles.location}>
+                    <View style={styles.pickupT}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setEnterPickUp(true);
+                        }}
+                      >
+                        <Text style={{ marginLeft: 10, fontFamily: "Custom" }}>
+                          {A}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={styles.dropoffT}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setEnterDropOff(true);
+                        }}
+                      >
+                        <Text style={{ marginLeft: 10, fontFamily: "Custom" }}>
+                          {B}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
 
-                  <View style={styles.inputcontainer}>
-                    <Text style={styles.h1}>GO</Text>
-
-                    <View style={styles.location}>
-                      <View style={styles.pickupT}>
-                        <TouchableOpacity
-                          onPress={() => {
-                            setEnterPickUp(true);
-                          }}
-                        >
-                          <Text
-                            style={{ marginLeft: 10, fontFamily: "Custom" }}
-                          >
-                            {A}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                      <View style={styles.dropoffT}>
-                        <TouchableOpacity
-                          onPress={() => {
-                            setEnterDropOff(true);
-                          }}
-                        >
-                          <Text
-                            style={{ marginLeft: 10, fontFamily: "Custom" }}
-                          >
-                            {B}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-
-                    {/* <TouchableOpacity
+                  {/* <TouchableOpacity
                       style={styles.btn}
                       onPress={() => setShowSlider(1)}
                     >
@@ -441,59 +430,58 @@ export default function Go() {
                         Choose from Map
                       </Text>
                     </TouchableOpacity> */}
-                    <TouchableOpacity
-                      style={styles.btn2}
-                      onPress={showingSlider}
+                  <TouchableOpacity style={styles.btn2} onPress={showingSlider}>
+                    <Text
+                      style={{
+                        alignSelf: "center",
+                        fontFamily: "CustomB",
+                        color: "white",
+                        fontSize: 16,
+                      }}
                     >
-                      <Text
-                        style={{
-                          alignSelf: "center",
-                          fontFamily: "CustomB",
-                          color: "white",
-                          fontSize: 16,
-                        }}
-                      >
-                        Find Rider
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                      Find Rider
+                    </Text>
+                  </TouchableOpacity>
                 </View>
+              </View>
             )}
           </TouchableWithoutFeedback>
-          {/*****************************   pickUp *******************************/ }
+          {/*****************************   pickUp *******************************/}
           {enterPickUp === true && (
-            <BottomSheet index={1} 
-                       snapPoints={snapPoints1} 
-                       style={styles.bottomSheetStyle}>
-                <GooglePlacesAutocomplete
-                  styles={{
-                    container: { flex: 0 },
-                    textInputContainer: {
-                      backgroundColor: "#ECECEC",
-                      marginLeft: 10,
-                      marginRight: 10,
-                      height: 40,
-                      borderRadius: 5,
-                      alignItems: "center",
-                      marginTop: 10,
-                    },
-                    textInput: {
-                      backgroundColor: "transparent",
-                      color: "black",
-                      fontSize: 16,
-                      fontFamily: "Custom",
-                    },
-                    predefinedPlacesDescription: { color: "orange" },
-                  }}
-                  placeholder="Enter pick-up point"
-                  onPress={async (data, details = null) => {
-                    // 'details' is provided when fetchDetails = true
-                    await movetoloc(data.description);
-                    const location1 = data.description;
-                    setA(location1);
-                  }}
-                  query={{ key: API_KEY, language: "en" }}
-                />
+            <BottomSheet
+              index={1}
+              snapPoints={snapPoints1}
+              style={styles.bottomSheetStyle}
+            >
+              <GooglePlacesAutocomplete
+                styles={{
+                  container: { flex: 0 },
+                  textInputContainer: {
+                    backgroundColor: "#ECECEC",
+                    marginLeft: 10,
+                    marginRight: 10,
+                    height: 40,
+                    borderRadius: 5,
+                    alignItems: "center",
+                    marginTop: 10,
+                  },
+                  textInput: {
+                    backgroundColor: "transparent",
+                    color: "black",
+                    fontSize: 16,
+                    fontFamily: "Custom",
+                  },
+                  predefinedPlacesDescription: { color: "orange" },
+                }}
+                placeholder="Enter pick-up point"
+                onPress={async (data, details = null) => {
+                  // 'details' is provided when fetchDetails = true
+                  await movetoloc(data.description);
+                  const location1 = data.description;
+                  setA(location1);
+                }}
+                query={{ key: API_KEY, language: "en" }}
+              />
 
               <TouchableOpacity
                 style={styles.btn4}
@@ -531,102 +519,63 @@ export default function Go() {
             </BottomSheet>
           )}
 
-{/*****************************   dropOff *******************************/ }
-            {enterDropOff === true && (
-              <BottomSheet index={1} 
-                         snapPoints={snapPoints1} 
-                         style={styles.bottomSheetStyle}>
-              <GooglePlacesAutocomplete
-              styles={{
-                container: { flex: 0 },
-                textInputContainer: {
-                  backgroundColor: "#ECECEC",
-                  marginLeft: 10,
-                  marginRight: 10,
-                  height: 40,
-                  borderRadius: 5,
-                  alignItems: "center",
-                  marginTop: 10,
-                },
-                textInput: {
-                  backgroundColor: "transparent",
-                  color: "black",
-                  fontSize: 16,
-                  fontFamily: "Custom",
-                },
-                predefinedPlacesDescription: { color: "orange" },
-              }}
-              placeholder="Enter your destination"
-              onPress={async (data, details = null) => {
-                // 'details' is provided when fetchDetails = true
-                const location2 = data.description;
-                await movetoloc1(data.description);
-                setB(location2);
-              }}
-              query={{ key: API_KEY, language: "en" }}
-            />
-            <TouchableOpacity
-              style={styles.btn4}
-              onPress={function () {
-                setLocSlider(2);
-              }}
+          {/*****************************   dropOff *******************************/}
+          {enterDropOff === true && (
+            <BottomSheet
+              index={1}
+              snapPoints={snapPoints1}
+              style={styles.bottomSheetStyle}
             >
-              <Text
-                style={{
-                  alignSelf: "center",
-                  fontFamily: "CustomB",
-                  color: "black",
-                  fontSize: 16,
+              <GooglePlacesAutocomplete
+                styles={{
+                  container: { flex: 0 },
+                  textInputContainer: {
+                    backgroundColor: "#ECECEC",
+                    marginLeft: 10,
+                    marginRight: 10,
+                    height: 40,
+                    borderRadius: 5,
+                    alignItems: "center",
+                    marginTop: 10,
+                  },
+                  textInput: {
+                    backgroundColor: "transparent",
+                    color: "black",
+                    fontSize: 16,
+                    fontFamily: "Custom",
+                  },
+                  predefinedPlacesDescription: { color: "orange" },
+                }}
+                placeholder="Enter your destination"
+                onPress={async (data, details = null) => {
+                  // 'details' is provided when fetchDetails = true
+                  const location2 = data.description;
+                  await movetoloc1(data.description);
+                  setB(location2);
+                }}
+                query={{ key: API_KEY, language: "en" }}
+              />
+              <TouchableOpacity
+                style={styles.btn4}
+                onPress={function () {
+                  setLocSlider(2);
                 }}
               >
-                Choose from Map
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.btn5}
-              onPress={() => {
-                setEnterDropOff(false);
-              }}
-            >
-              <Text
-                style={{ fontFamily: "CustomB", fontSize: 16, color: "white" }}
-              >
-                OKAY
-              </Text>
-            </TouchableOpacity>
-          </BottomSheet>
-            )}
-{/*******************************************************************************/ }
-        </View>
-      ) : locSlider === 1 ? (
-          <View style={styles.container}>
-            <View style={styles.mapsContainer}>
-              <MapView
-                provider={PROVIDER_GOOGLE}
-                style={styles.map1}
-                ref={mapRef}
-                // initialRegion={{
-                //   latitude: latitude || 0,
-                //   longitude: longitude || 0,
-                //   latitudeDelta: 0.015,
-                //   longitudeDelta: 0.0121,
-                // }}
-                onRegionChangeComplete={onChangeLoc1}
-                customMapStyle={newstyle}
-              ></MapView>
-
-              <View style={styles.markerContainer}>
-                <Image
-                  style={styles.markerImage}
-                  source={require("../assets/placeholder.png")}
-                />
-              </View>
-            </View>
-            <TouchableOpacity
-                style={styles.btn51}
+                <Text
+                  style={{
+                    alignSelf: "center",
+                    fontFamily: "CustomB",
+                    color: "black",
+                    fontSize: 16,
+                  }}
+                >
+                  Choose from Map
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.btn5}
                 onPress={() => {
-                  setLocSlider(0);
-                  setEnterPickUp(false);
+                  setEnterDropOff(false);
                 }}
               >
                 <Text
@@ -639,7 +588,52 @@ export default function Go() {
                   OKAY
                 </Text>
               </TouchableOpacity>
+            </BottomSheet>
+          )}
+          {/*******************************************************************************/}
+        </View>
+      ) : locSlider === 1 ? (
+        <View style={styles.container}>
+          <View style={styles.mapsContainer}>
+            <MapView
+              provider={PROVIDER_GOOGLE}
+              style={styles.map1}
+              ref={mapRef}
+              // initialRegion={{
+              //   latitude: latitude || 0,
+              //   longitude: longitude || 0,
+              //   latitudeDelta: 0.015,
+              //   longitudeDelta: 0.0121,
+              // }}
+              onRegionChangeComplete={onChangeLoc1}
+              customMapStyle={newstyle}
+            ></MapView>
+
+            <View style={styles.markerContainer}>
+              <Image
+                style={styles.markerImage}
+                source={require("../assets/placeholder.png")}
+              />
+            </View>
           </View>
+          <TouchableOpacity
+            style={styles.btn51}
+            onPress={() => {
+              setLocSlider(0);
+              setEnterPickUp(false);
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "CustomB",
+                fontSize: 16,
+                color: "white",
+              }}
+            >
+              OKAY
+            </Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
@@ -664,18 +658,18 @@ export default function Go() {
             </View>
           </View>
           <TouchableOpacity
-              style={styles.btn51}
-              onPress={() => {
-                setLocSlider(0);
-                setEnterDropOff(false);
-              }}
+            style={styles.btn51}
+            onPress={() => {
+              setLocSlider(0);
+              setEnterDropOff(false);
+            }}
+          >
+            <Text
+              style={{ fontFamily: "CustomB", fontSize: 16, color: "white" }}
             >
-              <Text
-                style={{ fontFamily: "CustomB", fontSize: 16, color: "white" }}
-              >
-                OKAY
-              </Text>
-            </TouchableOpacity>
+              OKAY
+            </Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>
@@ -686,14 +680,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  
+
   topCon: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
-    width: '100%',
+    width: "100%",
     // Add other styles as needed
   },
-  
 
   inputcontainer: {
     backgroundColor: "white",
@@ -815,7 +808,7 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
-    marginBottom:200
+    marginBottom: 200,
   },
   map1: {
     ...StyleSheet.absoluteFillObject,
@@ -859,11 +852,11 @@ const styles = StyleSheet.create({
     width: "90%",
     marginLeft: 5,
     marginRight: 5,
-    bottom:20,
+    bottom: 20,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
-    position:"absolute"
+    position: "absolute",
   },
 });
