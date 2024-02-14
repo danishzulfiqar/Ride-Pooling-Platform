@@ -67,6 +67,22 @@ export default function Go() {
 
   ////////////////////////// Get users location /////////////////////////
 
+  const getCurrentLocation = async () => {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        error => reject(error),
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+      );
+    });
+  };
+  
+
   useEffect(() => {
     const fetchAddressFromCoordinates = async () => {
       try {
@@ -139,6 +155,7 @@ export default function Go() {
 
   function onChangeLoc1(region) {
     setRegion(region);
+    console.log("onChangeLoc1",region);
 
     fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${region.latitude},${region.longitude}&key=${API_KEY}`
@@ -163,6 +180,7 @@ export default function Go() {
 
   function onChangeLoc2(region) {
     setRegion(region);
+    console.log("onChangeLoc2",region);
 
     fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${region.latitude},${region.longitude}&key=${API_KEY}`
@@ -593,21 +611,27 @@ export default function Go() {
           {/*******************************************************************************/}
         </View>
       ) : locSlider === 1 ? (
-          <View style={styles.container}>
-            <View style={styles.mapsContainer}>
-              <MapView
-                provider={PROVIDER_GOOGLE}
-                style={styles.map1}
-                ref={mapRef}
-                // initialRegion={{
-                //   latitude: latitude || 0,
-                //   longitude: longitude || 0,
-                //   latitudeDelta: 0.015,
-                //   longitudeDelta: 0.0121,
-                // }}
-                onRegionChangeComplete={onChangeLoc1}
-                customMapStyle={newstyle}
-              ></MapView>
+        <View style={styles.container}>
+          <View style={styles.mapsContainer}>
+            <MapView
+              provider={PROVIDER_GOOGLE}
+              style={styles.map1}
+              ref={mapRef}
+              camera={{
+                center: { latitude: 33.6844, longitude: 73.0479 },
+                pitch: 0,
+                heading: 0,
+                altitude: 500,
+                zoom: 10,
+              }}
+              // initialRegion={{
+              //   latitude: latitude || 0,
+              //   longitude: longitude || 0,
+              //   latitudeDelta: 0.015,
+              //   longitudeDelta: 0.0121,
+              // }}
+              customMapStyle={newstyle}
+            ></MapView>
 
             <View style={styles.markerContainer}>
               <Image
@@ -641,13 +665,13 @@ export default function Go() {
               provider={PROVIDER_GOOGLE}
               style={styles.map1}
               ref={mapRef}
-              initialRegion={{
-                latitude: latitude || 0,
-                longitude: longitude || 0,
-                latitudeDelta: 0.015,
-                longitudeDelta: 0.0121,
+              camera={{
+                center: { latitude: 33.6844, longitude: 73.0479 },
+                pitch: 0,
+                heading: 0,
+                altitude: 500,
+                zoom: 10,
               }}
-              onRegionChangeComplete={onChangeLoc2}
               customMapStyle={newstyle}
             ></MapView>
             <View style={styles.markerContainer}>
