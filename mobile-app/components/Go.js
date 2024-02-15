@@ -31,6 +31,10 @@ export default function Go() {
   const [loc1lng, setloc1lng] = useState();
   const [loc2lat, setloc2lat] = useState();
   const [loc2lng, setloc2lng] = useState();
+  const [ani1lat, setAni1lat] = useState();
+  const [ani1lng, setAni1lng] = useState();
+  const [ani2lat, setAni2lat] = useState();
+  const [ani2lng, setAni2lng] = useState();
   const [locSlider, setLocSlider] = useState(0);
   const [showSlider, setShowSlider] = useState(0);
   const [enterPickUp, setEnterPickUp] = useState(false);
@@ -46,21 +50,7 @@ export default function Go() {
     setShowSlider(1);
   }
 
-  ///////////////////////////////  Animate to location ///////////////////////
-  // useEffect(() => {
-  //   fitToCoordinates();
-  // }, [loc1Coordinates, loc2Coordinates]);
 
-  // const fitToCoordinates = () => {
-  //   if (loc1Coordinates && loc2Coordinates) {
-  //     const coordinates = [loc1Coordinates, loc2Coordinates];
-
-  //     mapRef.current.fitToCoordinates(coordinates, {
-  //       edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-  //       animated: true,
-  //     });
-  //   }
-  // };
 
   ////////////////////////// Get users location /////////////////////////
 
@@ -106,6 +96,12 @@ export default function Go() {
     }
 
     let currentLocation = await Location.getCurrentPositionAsync({});
+    setLatitude(currentLocation.coords.latitude);
+    setLongitude(currentLocation.coords.longitude);
+    setAni1lat(currentLocation.coords.latitude);
+    setAni1lng(currentLocation.coords.longitude);
+    setAni2lat(currentLocation.coords.latitude);
+    setAni2lng(currentLocation.coords.longitude);
     setLocation(currentLocation);
 
     // Animate to the user's current location once it is obtained
@@ -150,6 +146,8 @@ export default function Go() {
           setLoc1Coordinates({ lat: region.latitude, lng: region.longitude });
           setloc1lat(region.latitude);
           setloc1lng(region.longitude);
+          setAni1lat(region.latitude);
+          setAni1lng(region.longitude);
         }
       })
       .catch((error) => {
@@ -174,6 +172,8 @@ export default function Go() {
           setLoc2Coordinates({ lat: region.latitude, lng: region.longitude });
           setloc2lat(region.latitude);
           setloc2lng(region.longitude);
+          setAni2lat(region.latitude);
+          setAni2lng(region.longitude);
         }
       })
       .catch((error) => {
@@ -195,21 +195,10 @@ export default function Go() {
       const loc1Coords = results[0].geometry.location;
       setloc1lat(loc1Coords.lat);
       setloc1lng(loc1Coords.lng);
+      setAni1lat(loc1Coords.lat);
+      setAni1lng(loc1Coords.lng);
       setLoc1Coordinates(loc1Coords);
-      // if (results.length > 0) {
-      //   const { lat, lng } = results[0].geometry.location;
-      //   mapRef.current.animateToRegion(
-      //     {
-      //       latitude: lat,
-      //       longitude: lng,
-      //       latitudeDelta: 0.015,
-      //       longitudeDelta: 0.0121,
-      //     },
-      //     1000
-      //   );
-      // } else {
-      //   console.error("No results found for the given location.");
-      // }
+
     } catch (error) {
       console.error("Error fetching pickup location coordinates:", error);
     }
@@ -219,10 +208,10 @@ export default function Go() {
     if (mapRef2.current) {
       mapRef2.current.animateToRegion(
         {
-          latitude: loc1lat,
-          longitude: loc1lng,
-          latitudeDelta: 0.015,
-          longitudeDelta: 0.0121,
+          latitude: ani1lat,
+          longitude: ani1lng,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.02,
         },
         1000
       );
@@ -245,21 +234,10 @@ export default function Go() {
       const loc2Coords = results[0].geometry.location;
       setloc2lat(loc2Coords.lat);
       setloc2lng(loc2Coords.lng);
+      setAni2lat(loc2Coords.lat);
+      setAni2lng(loc2Coords.lng);
       setLoc2Coordinates(loc2Coords);
-      // if (results.length > 0) {
-      //   const { lat, lng } = results[0].geometry.location;
-      //   mapRef.current.animateToRegion(
-      //     {
-      //       latitude: lat,
-      //       longitude: lng,
-      //       latitudeDelta: 0.015,
-      //       longitudeDelta: 0.0121,
-      //     },
-      //     1000
-      //   );
-      // } else {
-      //   console.error("No results found for the given location.");
-      // }
+  
     } catch (error) {
       console.error("Error fetching dropOff location coordinates:", error);
     }
@@ -269,10 +247,10 @@ export default function Go() {
     if (mapRef3.current) {
       mapRef3.current.animateToRegion(
         {
-          latitude: loc2lat,
-          longitude: loc2lng,
-          latitudeDelta: 0.015,
-          longitudeDelta: 0.0121,
+          latitude: ani2lat,
+          longitude: ani2lng,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.02,
         },
         800
       );
@@ -307,16 +285,6 @@ export default function Go() {
                 await setUserLocation();
               }}
             >
-              {/* {latitude && longitude && (
-    <Marker
-      coordinate={{
-        latitude: latitude,
-        longitude: longitude,
-      }}
-      title="Location 1"
-      description="Your location"
-    />
-  )} */}
 
               {loc1Coordinates &&
                 loc1Coordinates.lat &&
@@ -453,14 +421,6 @@ export default function Go() {
                     </View>
                   </View>
 
-                  {/* <TouchableOpacity
-                      style={styles.btn}
-                      onPress={() => setShowSlider(1)}
-                    >
-                      <Text style={{ alignSelf: "center",fontFamily:'CustomB',color:'black',fontSize:16 }}>
-                        Choose from Map
-                      </Text>
-                    </TouchableOpacity> */}
                   <TouchableOpacity style={styles.btn2} onPress={showingSlider}>
                     <Text
                       style={{

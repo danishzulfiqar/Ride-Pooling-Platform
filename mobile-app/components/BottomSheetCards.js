@@ -8,7 +8,7 @@ export default function Slider({l1,l2, set}) {
   const snapPoints = useMemo(() => ['40%', '50%', '80%'], []);
 
   function back(){
-    set(0)
+    set(1)
   }
 
   return (

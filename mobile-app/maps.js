@@ -6,23 +6,23 @@ export default function MapsG() {
   const [region, setRegion] = useState({
     latitude: 37.78825,
     longitude: -122.4324,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitudeDelta: 0.03,
+    longitudeDelta: 0.03,
   });
 
-  function onChangeValue(region) {
-    alert(JSON.stringify(region));
-    setRegion(region);
-  }
+  // function onChangeValue(region) {
+  //   alert(JSON.stringify(region));
+  //   setRegion(region);
+  // }
 
   return (
     <View style={styles.mapsContainer}>
       <MapView
         style={styles.map}
         initialRegion={region}
-        onRegionChangeComplete={onChangeValue}
+        // onRegionChangeComplete={onChangeValue}
         provider={PROVIDER_GOOGLE}
-        showsTraffic={true}
+        // showsTraffic={true}
       >
         {/* You can add markers here if needed */}
         {/* <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} /> */}

@@ -17,6 +17,7 @@ const cardData = [
         passengers: 1,
         distance: '2 miles',
       },
+      
 
 ]
 
