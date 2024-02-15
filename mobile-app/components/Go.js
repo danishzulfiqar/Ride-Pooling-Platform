@@ -1,9 +1,5 @@
 import { React, useState, useMemo, useEffect, useRef } from "react";
-import MapView, {
-  PROVIDER_DEFAULT,
-  Marker,
-  PROVIDER_GOOGLE,
-} from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import {
   View,
@@ -19,12 +15,13 @@ import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Slider from "./BottomSheetCards";
 import newstyle from "../styles/mapstyle";
-import Spinner from "react-native-loading-spinner-overlay";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
 export default function Go() {
   const mapRef = useRef(null);
+  const mapRef2 = useRef(null);
+  const mapRef3 = useRef(null);
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [latitude, setLatitude] = useState(null);
@@ -50,72 +47,57 @@ export default function Go() {
   }
 
   ///////////////////////////////  Animate to location ///////////////////////
-  useEffect(() => {
-    fitToCoordinates();
-  }, [loc1Coordinates, loc2Coordinates]);
+  // useEffect(() => {
+  //   fitToCoordinates();
+  // }, [loc1Coordinates, loc2Coordinates]);
 
-  const fitToCoordinates = () => {
-    if (loc1Coordinates && loc2Coordinates) {
-      const coordinates = [loc1Coordinates, loc2Coordinates];
+  // const fitToCoordinates = () => {
+  //   if (loc1Coordinates && loc2Coordinates) {
+  //     const coordinates = [loc1Coordinates, loc2Coordinates];
 
-      mapRef.current.fitToCoordinates(coordinates, {
-        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-        animated: true,
-      });
-    }
-  };
+  //     mapRef.current.fitToCoordinates(coordinates, {
+  //       edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+  //       animated: true,
+  //     });
+  //   }
+  // };
 
   ////////////////////////// Get users location /////////////////////////
 
-  const getCurrentLocation = async () => {
-    return new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        error => reject(error),
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
-      );
-    });
-  };
-  
+  // useEffect(() => {
+  //   const fetchAddressFromCoordinates = async () => {
+  //     try {
+  //       // Get the current location
+  //       const { status } = await Location.requestForegroundPermissionsAsync();
+  //       if (status !== "granted") {
+  //         throw new Error("Permission to access location was denied");
+  //       }
 
-  useEffect(() => {
-    const fetchAddressFromCoordinates = async () => {
-      try {
-        // Get the current location
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          throw new Error("Permission to access location was denied");
-        }
+  //       const currentLocation = await Location.getCurrentPositionAsync({});
+  //       setLocation(currentLocation);
+  //       // Perform reverse geocoding
+  //       const response = await fetch(
+  //         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation.coords.latitude},${currentLocation.coords.longitude}&key=${API_KEY}`
+  //       );
 
-        const currentLocation = await Location.getCurrentPositionAsync({});
-        setLocation(currentLocation);
-        // Perform reverse geocoding
-        const response = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation.coords.latitude},${currentLocation.coords.longitude}&key=${API_KEY}`
-        );
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch address from coordinates");
+  //       }
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch address from coordinates");
-        }
+  //       const data = await response.json();
+  //       const formattedAddress = data.results[0].formatted_address;
 
-        const data = await response.json();
-        const formattedAddress = data.results[0].formatted_address;
+  //       // Update the address state variable
+  //       // setA(formattedAddress);
+  //     } catch (error) {
+  //       console.error("Error fetching address:", error);
+  //     }
+  //   };
 
-        // Update the address state variable
-        // setA(formattedAddress);
-      } catch (error) {
-        console.error("Error fetching address:", error);
-      }
-    };
+  //   fetchAddressFromCoordinates();
+  // }, []);
 
-    fetchAddressFromCoordinates();
-  }, []);
-
+  ////////////////////////// Get users location /////////////////////////
   const setUserLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -155,7 +137,6 @@ export default function Go() {
 
   function onChangeLoc1(region) {
     setRegion(region);
-    console.log("onChangeLoc1",region);
 
     fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${region.latitude},${region.longitude}&key=${API_KEY}`
@@ -172,7 +153,7 @@ export default function Go() {
         }
       })
       .catch((error) => {
-        console.error("Error fetching location coordinates:", error);
+        console.error("Error fetching pickup location coordinates:", error);
       });
   }
 
@@ -180,7 +161,6 @@ export default function Go() {
 
   function onChangeLoc2(region) {
     setRegion(region);
-    console.log("onChangeLoc2",region);
 
     fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${region.latitude},${region.longitude}&key=${API_KEY}`
@@ -197,7 +177,7 @@ export default function Go() {
         }
       })
       .catch((error) => {
-        console.error("Error fetching location coordinates:", error);
+        console.error("Error fetching dropOff location coordinates:", error);
       });
   }
 
@@ -212,26 +192,42 @@ export default function Go() {
       );
       const data = await response.json();
       const { results } = data;
-      if (results.length > 0) {
-        const { lat, lng } = results[0].geometry.location;
-        const loc1Coords = results[0].geometry.location;
-        setloc1lat(loc1Coords.lat);
-        setloc1lng(loc1Coords.lng);
-        setLoc1Coordinates(loc1Coords);
-        mapRef.current.animateToRegion(
-          {
-            latitude: lat,
-            longitude: lng,
-            latitudeDelta: 0.015,
-            longitudeDelta: 0.0121,
-          },
-          1000
-        );
-      } else {
-        console.error("No results found for the given location.");
-      }
+      const loc1Coords = results[0].geometry.location;
+      setloc1lat(loc1Coords.lat);
+      setloc1lng(loc1Coords.lng);
+      setLoc1Coordinates(loc1Coords);
+      // if (results.length > 0) {
+      //   const { lat, lng } = results[0].geometry.location;
+      //   mapRef.current.animateToRegion(
+      //     {
+      //       latitude: lat,
+      //       longitude: lng,
+      //       latitudeDelta: 0.015,
+      //       longitudeDelta: 0.0121,
+      //     },
+      //     1000
+      //   );
+      // } else {
+      //   console.error("No results found for the given location.");
+      // }
     } catch (error) {
-      console.error("Error fetching location coordinates:", error);
+      console.error("Error fetching pickup location coordinates:", error);
+    }
+  }
+
+  function animatePickUp() {
+    if (mapRef2.current) {
+      mapRef2.current.animateToRegion(
+        {
+          latitude: loc1lat,
+          longitude: loc1lng,
+          latitudeDelta: 0.015,
+          longitudeDelta: 0.0121,
+        },
+        1000
+      );
+    } else {
+      console.error("mapRef2 is not assigned or null.");
     }
   }
 
@@ -246,28 +242,45 @@ export default function Go() {
       );
       const data = await response.json();
       const { results } = data;
-      if (results.length > 0) {
-        const { lat, lng } = results[0].geometry.location;
-        const loc2Coords = results[0].geometry.location;
-        setloc2lat(loc2Coords.lat);
-        setloc2lng(loc2Coords.lng);
-        setLoc2Coordinates(loc2Coords);
-        mapRef.current.animateToRegion(
-          {
-            latitude: lat,
-            longitude: lng,
-            latitudeDelta: 0.015,
-            longitudeDelta: 0.0121,
-          },
-          1000
-        );
-      } else {
-        console.error("No results found for the given location.");
-      }
+      const loc2Coords = results[0].geometry.location;
+      setloc2lat(loc2Coords.lat);
+      setloc2lng(loc2Coords.lng);
+      setLoc2Coordinates(loc2Coords);
+      // if (results.length > 0) {
+      //   const { lat, lng } = results[0].geometry.location;
+      //   mapRef.current.animateToRegion(
+      //     {
+      //       latitude: lat,
+      //       longitude: lng,
+      //       latitudeDelta: 0.015,
+      //       longitudeDelta: 0.0121,
+      //     },
+      //     1000
+      //   );
+      // } else {
+      //   console.error("No results found for the given location.");
+      // }
     } catch (error) {
-      console.error("Error fetching location coordinates:", error);
+      console.error("Error fetching dropOff location coordinates:", error);
     }
   }
+
+  function animateDropOff() {
+    if (mapRef3.current) {
+      mapRef3.current.animateToRegion(
+        {
+          latitude: loc2lat,
+          longitude: loc2lng,
+          latitudeDelta: 0.015,
+          longitudeDelta: 0.0121,
+        },
+        800
+      );
+    } else {
+      console.error("mapRef2 is not assigned or null.");
+    }
+  }
+
   ///////////////////////////////////////////////////////////////////////////////////////////
 
   return (
@@ -494,6 +507,7 @@ export default function Go() {
                 placeholder="Enter pick-up point"
                 onPress={async (data, details = null) => {
                   // 'details' is provided when fetchDetails = true
+
                   await movetoloc(data.description);
                   const location1 = data.description;
                   setA(location1);
@@ -568,6 +582,7 @@ export default function Go() {
                 onPress={async (data, details = null) => {
                   // 'details' is provided when fetchDetails = true
                   const location2 = data.description;
+
                   await movetoloc1(data.description);
                   setB(location2);
                 }}
@@ -616,20 +631,19 @@ export default function Go() {
             <MapView
               provider={PROVIDER_GOOGLE}
               style={styles.map1}
-              ref={mapRef}
-              camera={{
+              ref={mapRef2}
+              initialCamera={{
                 center: { latitude: 33.6844, longitude: 73.0479 },
                 pitch: 0,
                 heading: 0,
-                altitude: 500,
-                zoom: 10,
+                altitude: 1000,
+                zoom: 16,
               }}
-              // initialRegion={{
-              //   latitude: latitude || 0,
-              //   longitude: longitude || 0,
-              //   latitudeDelta: 0.015,
-              //   longitudeDelta: 0.0121,
-              // }}
+              onLayout={() => {
+                // Call animatePickUp when MapView is rendered
+                animatePickUp();
+              }}
+              onRegionChangeComplete={onChangeLoc1}
               customMapStyle={newstyle}
             ></MapView>
 
@@ -640,6 +654,23 @@ export default function Go() {
               />
             </View>
           </View>
+          <TouchableOpacity
+                style={styles.btn41}
+                onPress={function () {
+                  setLocSlider(0);
+                }}
+              >
+                <Text
+                  style={{
+                    alignSelf: "center",
+                    fontFamily: "CustomB",
+                    color: "black",
+                    fontSize: 16,
+                  }}
+                >
+                  Enter Location
+                </Text>
+              </TouchableOpacity>
           <TouchableOpacity
             style={styles.btn51}
             onPress={() => {
@@ -664,14 +695,19 @@ export default function Go() {
             <MapView
               provider={PROVIDER_GOOGLE}
               style={styles.map1}
-              ref={mapRef}
-              camera={{
+              ref={mapRef3}
+              initialCamera={{
                 center: { latitude: 33.6844, longitude: 73.0479 },
                 pitch: 0,
                 heading: 0,
-                altitude: 500,
-                zoom: 10,
+                altitude: 1000,
+                zoom: 16,
               }}
+              onLayout={() => {
+                // Call animatePickUp when MapView is rendered
+                animateDropOff();
+              }}
+              onRegionChangeComplete={onChangeLoc2}
               customMapStyle={newstyle}
             ></MapView>
             <View style={styles.markerContainer}>
@@ -681,6 +717,23 @@ export default function Go() {
               />
             </View>
           </View>
+          <TouchableOpacity
+                style={styles.btn41}
+                onPress={function () {
+                  setLocSlider(0);
+                }}
+              >
+                <Text
+                  style={{
+                    alignSelf: "center",
+                    fontFamily: "CustomB",
+                    color: "black",
+                    fontSize: 16,
+                  }}
+                >
+                  Enter Location
+                </Text>
+              </TouchableOpacity>
           <TouchableOpacity
             style={styles.btn51}
             onPress={() => {
@@ -877,6 +930,20 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     marginRight: 5,
     bottom: 20,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    position: "absolute",
+  },
+
+  btn41: {
+    backgroundColor: "#ECECEC",
+    height: 40,
+    width: "90%",
+    marginLeft: 5,
+    marginRight: 5,
+    bottom: 70,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
