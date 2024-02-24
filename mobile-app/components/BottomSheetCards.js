@@ -8,7 +8,7 @@ export default function Slider({l1,l2, set}) {
   const snapPoints = useMemo(() => ['40%', '50%', '80%'], []);
 
   function back(){
-    set(1)
+    set(0)
   }
 
   return (
@@ -29,8 +29,8 @@ export default function Slider({l1,l2, set}) {
       </View>
         <View style={styles.headingContainer}>
           <Text style={styles.sliderHeading}>Searching For Rider...</Text>
-          <TouchableOpacity style={styles.btn3}>
-            <Text style={{    fontFamily: 'Custom', color:'white'}} onPress={back}>Cancel</Text>
+          <TouchableOpacity style={styles.btn3} onPress={back}>
+            <Text style={{    fontFamily: 'Custom', color:'white'}} >Cancel</Text>
           </TouchableOpacity>
         </View>
         <BottomSheetScrollView>

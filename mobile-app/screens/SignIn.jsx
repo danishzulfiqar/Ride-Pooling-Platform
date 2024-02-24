@@ -13,6 +13,7 @@ import Toast from 'react-native-toast-message';
 import OTPTextInput from 'react-native-otp-textinput';
 import PhoneInput from "react-native-phone-number-input";
 
+let UID;
 
 const ScreenStates = {
   NUMBER_SCREEN: 'NUMBER_SCREEN',
@@ -21,13 +22,14 @@ const ScreenStates = {
 };
 
 
-function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
+function SignIn({ setUser, backbutton, role, sethaveaccount }) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [formattedValue, setFormattedValue] = useState("");
   const [otpInput, setOtpInput] = useState("");
   const [verificationId, setVerificationId] = useState(null);
   const [currentScreen, setCurrentScreen] = useState(ScreenStates.NUMBER_SCREEN);
   const recaptchaVerifier = useRef(null);
+  const [userID , setUserId] = useState(null);
   const [code, setCode] = useState(new Array(6).fill(""));
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState("");
@@ -42,6 +44,7 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
   };
 
   const callCheckDataFunction = async (uid, role) => {
+    UID = uid;
     const checkData = httpsCallable(functions, 'checkData');
     try {
       const result = await checkData({ uid, role });
@@ -260,6 +263,8 @@ function SignIn({ user, setUser, backbutton, role, sethaveaccount }) {
     </View>
   );
 }
+
+export { UID };
 
 const styles = StyleSheet.create({
   heading: {

@@ -1,6 +1,7 @@
 import { React, useState, useMemo, useEffect, useRef } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import {
   View,
   TouchableOpacity,
@@ -15,6 +16,8 @@ import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Slider from "./BottomSheetCards";
 import newstyle from "../styles/mapstyle";
+import { auth } from '../firebase';
+import { UID } from '../screens/SignIn';
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -46,9 +49,34 @@ export default function Go() {
   const snapPoints1 = useMemo(() => ["20%", "100%"], []);
   const [loading, setLoading] = useState(false);
 
-  function showingSlider() {
-    setShowSlider(1);
+  const functions = getFunctions(auth.app);
+
+  const data = {
+    uid:UID,
+    lat:loc1lat,
+    lng:loc1lng,
+    radius:5000,
   }
+
+  async function showingSlider() {
+    setShowSlider(1);
+    await getGoRidersDataFunction(data)
+      .catch((error) => {
+        console.error("Error in senddata:", error);
+      })
+  }
+
+
+
+  const getGoRidersDataFunction = async (data) => {
+    const getGoRiders = httpsCallable(functions, 'getGoRiders');
+    try {
+      const result = await getGoRiders(data);
+      console.log(result.data);
+    } catch (error) {
+      console.error("Error calling Function:", error);
+    }
+  };
 
 
 
