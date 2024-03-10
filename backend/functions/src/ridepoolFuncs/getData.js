@@ -5,7 +5,8 @@ const { GeoFirestore } = require('geofirestore');
 const geofire = require('geofire-common');
 const firestore = require("firebase-admin/firestore");
 
-// get sData of a user for a specific role
+
+// get Data of a user for a specific role 
 exports.getUserData = functions.https.onCall(async (data, context) => {
 
     console.log("getUserData called", data);
@@ -22,6 +23,22 @@ exports.getUserData = functions.https.onCall(async (data, context) => {
 
     const uid = data.uid;
     const role = data.role;
+
+    const db = admin.firestore();
+    const userRef = db.collection(role).doc(uid);
+    
+    try {
+        const userDoc = await userRef.get();
+        if (!userDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'User not found');
+        }
+        return userDoc.data();
+
+    }
+    catch (error) {
+        console.error('Error getting user data:', error);
+        throw new functions.https.HttpsError('internal', 'An error occurred while getting user data');
+    }
 
 });
 
@@ -109,3 +126,4 @@ exports.getGoRiders = functions.https.onCall(async (data, context) => {
     }
 
 });
+
