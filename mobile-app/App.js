@@ -16,6 +16,7 @@ import MapsG from './maps';
 import Go from './components/Go';
 import Slider from './components/BottomSheetCards';
 import Toast from 'react-native-toast-message';
+import RiderOnWay from './components/on-way-rider';
 
 
 

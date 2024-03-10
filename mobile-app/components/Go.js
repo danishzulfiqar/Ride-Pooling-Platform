@@ -18,6 +18,8 @@ import Slider from "./BottomSheetCards";
 import newstyle from "../styles/mapstyle";
 import { auth } from '../firebase';
 import { UID } from '../screens/SignIn';
+import cardData from "./carddata";
+import RiderOnWay from "./on-way-rider";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -40,12 +42,15 @@ export default function Go() {
   const [ani2lng, setAni2lng] = useState();
   const [locSlider, setLocSlider] = useState(0);
   const [showSlider, setShowSlider] = useState(0);
+  const [riderBooked, setRiderBooked] = useState(0);
   const [enterPickUp, setEnterPickUp] = useState(false);
   const [enterDropOff, setEnterDropOff] = useState(false);
   const [loc1Coordinates, setLoc1Coordinates] = useState();
   const [loc2Coordinates, setLoc2Coordinates] = useState();
-  const [A, setA] = useState("ENTER PICKUP LOCATION");
-  const [B, setB] = useState("ENTER DROPOFF LOCATION");
+  const [ridersDistanceVal, setRidersDistanceVal] = useState();
+  const [ridersData, setRidersData] = useState(null);
+  const [A, setA] = useState("ENTER  PICK-UP LOCATION");
+  const [B, setB] = useState("ENTER  DROP-OFF  LOCATION");
   const snapPoints1 = useMemo(() => ["20%", "100%"], []);
   const [loading, setLoading] = useState(false);
 
@@ -55,7 +60,7 @@ export default function Go() {
     uid:UID,
     lat:loc1lat,
     lng:loc1lng,
-    radius:5000,
+    radius:17000,
   }
 
   async function showingSlider() {
@@ -73,11 +78,11 @@ export default function Go() {
     try {
       const result = await getGoRiders(data);
       console.log(result.data);
+      setRidersData(result.data);
     } catch (error) {
       console.error("Error calling Function:", error);
     }
   };
-
 
 
   ////////////////////////// Get users location /////////////////////////
@@ -291,7 +296,8 @@ export default function Go() {
 
   return (
     <View style={{ flex: 1 }}>
-      {locSlider === 0 ? (
+      { riderBooked === 0 ? (
+        locSlider === 0 ? (
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
             <MapView
@@ -362,7 +368,7 @@ export default function Go() {
 
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             {showSlider === 1 ? (
-              <Slider l1={A} l2={B} set={setShowSlider} />
+              <Slider l1={A} l2={B} setRidersDistanceVal={setRidersDistanceVal} set={setShowSlider} riderCardData={ridersData} setRiderBooked={setRiderBooked} setRidersData={setRidersData}/>
             ) : (
               <View style={styles.topCon}>
                 <View
@@ -736,6 +742,9 @@ export default function Go() {
             </Text>
           </TouchableOpacity>
         </View>
+      )
+      ) : (
+        <RiderOnWay setRiderBooked={setRiderBooked} set={setShowSlider} setA={setA} setB={setB} ridersDistanceVal={ridersDistanceVal} loc1Coordinates={loc1Coordinates}/>
       )}
     </View>
   );

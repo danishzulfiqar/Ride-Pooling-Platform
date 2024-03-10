@@ -2,9 +2,9 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import RiderCard from './ridercard';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
-export default function Slider({l1,l2, set}) {
+export default function Slider({l1,l2, set, riderCardData, setRiderBooked, setRidersData, setRidersDistanceVal}) {
   const snapPoints = useMemo(() => ['40%', '50%', '80%'], []);
 
   function back(){
@@ -33,9 +33,10 @@ export default function Slider({l1,l2, set}) {
             <Text style={{    fontFamily: 'Custom', color:'white'}} >Cancel</Text>
           </TouchableOpacity>
         </View>
-        <BottomSheetScrollView>
-          <RiderCard />
-        </BottomSheetScrollView>
+        <View style={styles.hr}/>
+        <ScrollView>
+          <RiderCard riderCardData={riderCardData} setRiderBooked={setRiderBooked} setRidersData={setRidersData} setRidersDistanceVal={setRidersDistanceVal}/>
+        </ScrollView>
       </BottomSheet>
     </View>
   );
@@ -48,6 +49,13 @@ const styles = StyleSheet.create({
   location:{
     flexDirection:'row',
     marginTop:10
+  },
+  hr:{
+    backgroundColor:'grey',
+    height:2,
+    width:'90%',
+    alignSelf:"center",
+    marginTop:20,
   },
   locationText:{
     width:'80%',
