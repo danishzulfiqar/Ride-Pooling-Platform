@@ -18,6 +18,7 @@ const {
 const validateData = require('./src/ridepoolFuncs/validateData');
 const saveData = require('./src/ridepoolFuncs/saveData');
 const getData = require('./src/ridepoolFuncs/getData');
+const generateFakeData = require('./src/ridepoolFuncs/generateFakeData');
 
 admin.initializeApp();
 
@@ -50,3 +51,9 @@ exports.generateGeoPoint = getData.generateGeoPoint;
 
 // Get Go mode availaible riders
 exports.getGoRiders = getData.getGoRiders;
+
+
+// --------------- generateFakeData funcs -------------------
+
+// Generate a new fake rider data
+exports.generateFakeRiderData = generateFakeData.generateFakeRiderData;
