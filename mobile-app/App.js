@@ -4,19 +4,23 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { auth } from './firebase';
 import { useFonts } from 'expo-font';
-import SignIn from './screens/SignIn';
+import SignIn from './screens/user/SignIn';
+import SignInRider from './screens/rider/SignInRider';
 import Intropage from './screens/intropage';
 import Pickrole from './screens/role';
-import Form from './screens/form';
-import RiderCard from './components/ridercard';
-import BottomSheet from './components/BottomSheetCards';
-import DrawerNav from './screens/drawer-nav';
+import Form from './screens/user/form';
+import FormRider from './screens/rider/formRider';
+import RiderCard from './components-user/ridercard';
+import BottomSheet from './components-user/BottomSheetCards';
+import DrawerNav from './screens/user/drawer-nav';
 import Homescreen1 from './screens/homescreen1';
 import MapsG from './maps';
-import Go from './components/Go';
-import Slider from './components/BottomSheetCards';
+import Go from './components-user/Go';
+import Slider from './components-user/BottomSheetCards';
 import Toast from 'react-native-toast-message';
-import RiderOnWay from './components/on-way-rider';
+import RiderOnWay from './components-user/on-way-rider';
+import Home from './components-rider/home';
+import DrawerNavRider from './screens/rider/drawerNavRider';
 
 
 
@@ -69,8 +73,8 @@ export default function App() {
       <View style={styles.container}>
         {getstarted ? (
           role === 0 ? (<Pickrole getvalue={setrole} backbutton={setgetstarted} />)
-            : role === 'rider' ? (haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount={sethaveaccount} />))
-              : (<Form backbutton={sethaveaccount} currentUser={currentUser} sethaveaccount={sethaveaccount} />))
+            : role === 'rider' ? (haveaccount ? (currentUser ? (<DrawerNavRider />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount={sethaveaccount} />))
+              : (<FormRider backbutton={sethaveaccount} currentUser={currentUser} sethaveaccount={sethaveaccount} />))
               : role === 'user' ? (haveaccount ? (currentUser ? (<DrawerNav />) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount={sethaveaccount} />))
                 : (<Form backbutton={setrole} currentUser={currentUser} sethaveaccount={sethaveaccount} />))
                 : null)

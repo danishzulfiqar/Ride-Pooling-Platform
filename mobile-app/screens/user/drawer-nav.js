@@ -2,12 +2,12 @@ import React from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { DrawerItemList, createDrawerNavigator } from '@react-navigation/drawer';
-import Homescreen1 from './homescreen1';
-import Go from '../components/Go';
-import Pooling from '../components/Pooling';
-import Sharing from '../components/Sharing'
+import Homescreen1 from '../homescreen1';
+import Go from '../../components-user/Go';
+import Pooling from '../../components-user/Pooling';
+import Sharing from '../../components-user/Sharing'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { auth } from '../firebase';
+import { auth } from '../../firebase';
 import Toast from 'react-native-toast-message';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 

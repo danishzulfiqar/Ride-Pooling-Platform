@@ -3,7 +3,7 @@ import {
   StyleSheet, View, Text, TextInput, TouchableOpacity,
   TouchableWithoutFeedback, Alert, Image, Keyboard
 } from 'react-native';
-import { auth } from '../firebase';
+import { auth } from '../../firebase';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { signInWithPhoneNumber, PhoneAuthProvider, signInWithCredential } from 'firebase/auth';

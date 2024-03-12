@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { auth } from '../firebase';
+import { auth } from '../../firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -117,7 +117,7 @@ export default function form({ backbutton, currentUser, sethaveaccount }) {
                   <Image
                     style={styles.imgstyle}
                     resizeMode="contain"
-                    source={require('../assets/Hlogo.png')}
+                    source={require('../../assets/Hlogo.png')}
                   />
                 </View>
                 <View>

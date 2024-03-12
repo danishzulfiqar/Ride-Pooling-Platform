@@ -17,7 +17,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import Slider from "./BottomSheetCards";
 import newstyle from "../styles/mapstyle";
 import { auth } from '../firebase';
-import { UID } from '../screens/SignIn';
+import { UID } from '../screens/user/SignIn';
 import cardData from "./carddata";
 import RiderOnWay from "./on-way-rider";
 

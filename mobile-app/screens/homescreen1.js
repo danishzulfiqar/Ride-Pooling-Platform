@@ -11,9 +11,9 @@ import {
 } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import Go from '../components/Go';
-import Pooling from '../components/Pooling';
-import Sharing from '../components/Sharing';
+import Go from '../components-user/Go';
+import Pooling from '../components-user/Pooling';
+import Sharing from '../components-user/Sharing';
 
 const Tab = createBottomTabNavigator();
 
