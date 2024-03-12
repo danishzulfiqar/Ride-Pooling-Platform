@@ -113,18 +113,21 @@ exports.saveRiderData = functions.https.onCall(async (data, context) => {
         last_name: data.lname,
         DOB: data.dob,
         email: data.email,
+        email_verification: false,
         gender: data.gender,
         phone_number: data.phone,
         registration_date: new Date().toISOString()
     }
 
-    let ref = admin.database().ref(`/ApprovalRequests/pending_riders/${UID}`);
+    const db = admin.firestore();
+    const ref = db.collection('riders').doc(data.uid);
 
-    const snapshot = await ref.once('value');
+    // Check if user already exists
+    const doc = await ref.get();
 
     // checks if data already exists for specific node
-    if (snapshot.exists()) {
-        throw new functions.https.HttpsError('unknown', "User already exists for the given role");
+    if (doc.exists) {
+        throw new functions.https.HttpsError('already-exists', "User already exists for the given role");
     }
 
     let result;
@@ -141,17 +144,26 @@ exports.saveRiderData = functions.https.onCall(async (data, context) => {
             rating: {
                 rating_factor: 2,
                 rating_value: 5
-            }
+            },
+            varification: {
+                driving_license: false,
+                vehicle_registration: false,
+                vehicle_insurance: false,
+                vehicle_inspection: false,
+                vehicle_photo: false
+            },
+            varified: false,
         },
-        availability: false
+        availability: false,
 
-    }).then(() => {
-        result = { status: true, message: "approval request sent" };
-    }).catch((error) => {
+    }).then(async () => {
+        result = { status: true, msg: "rider request sent!" };
+    }
+    ).catch((error) => {
         throw new functions.https.HttpsError('unknown', error.message, error);
     })
-
     return result;
+
 });
 
 
