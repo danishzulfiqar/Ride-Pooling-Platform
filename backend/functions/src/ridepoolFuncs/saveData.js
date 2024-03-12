@@ -76,7 +76,7 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
                 result = { status: true, msg: "User made successfully!", emailSendStatus: false, emailMessage: "Email exists for another user" };
             }).catch(async (error) => {
                 const emailReturn = await sendEmailVarificationLink({ email: data.email, uid: data.uid });
-                result = { status: true, msg: "User made successfully!", emailSendStatus: emailReturn.status, emailMessage:emailReturn.message };
+                result = { status: true, msg: "User made successfully!", emailSendStatus: emailReturn.status, emailMessage: emailReturn.message };
             })
     }).catch((error) => {
         throw new functions.https.HttpsError('unknown', error.message, error);
@@ -85,10 +85,10 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
 })
 
 
-// function to send new rider approval request
-exports.sendNewRiderData = functions.https.onCall(async (data, context) => {
+// function to save rider data
+exports.saveRiderData = functions.https.onCall(async (data, context) => {
 
-    console.log("sendNewRiderData called", data);
+    console.log("saveRiderData called", data);
 
     // checking valid arguments
     if (!data.uid || !data.fname || !data.lname || !data.dob || !data.email || !data.gender || !data.phone) {
@@ -152,4 +152,12 @@ exports.sendNewRiderData = functions.https.onCall(async (data, context) => {
     })
 
     return result;
+});
+
+
+// function to send new rider approval request
+exports.sendNewRiderData = functions.https.onCall(async (data, context) => {
+
+    console.log("sendNewRiderData called", data);
+
 })

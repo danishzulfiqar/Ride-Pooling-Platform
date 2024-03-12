@@ -40,6 +40,9 @@ exports.savePassengerData = saveData.savePassengerData;
 // function to send new rider approval request
 exports.sendNewRiderData = saveData.sendNewRiderData;
 
+// function to save new rider data
+exports.saveRiderData = saveData.saveRiderData;
+
 
 // --------------- getData funcs ---------------------------
 
