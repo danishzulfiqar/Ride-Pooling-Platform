@@ -37,11 +37,12 @@ exports.validateEmail = validateData.validateEmail;
 // function for saving passenger(user) data
 exports.savePassengerData = saveData.savePassengerData;
 
-// function to send new rider approval request
-exports.sendNewRiderData = saveData.sendNewRiderData;
-
 // function to save new rider data
 exports.saveRiderData = saveData.saveRiderData;
+
+
+// function to save geopoint and geohash of a specific role
+exports.saveLocationData = saveData.saveLocationData;
 
 
 // --------------- getData funcs ---------------------------

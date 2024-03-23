@@ -26,7 +26,7 @@ exports.getUserData = functions.https.onCall(async (data, context) => {
 
     const db = admin.firestore();
     const userRef = db.collection(role).doc(uid);
-    
+
     try {
         const userDoc = await userRef.get();
         if (!userDoc.exists) {
@@ -60,7 +60,7 @@ exports.generateGeoPoint = functions.https.onCall(async (data, context) => {
 });
 
 
-// Get GO mode avilaible riders in specific radius 
+// Get GO mode available riders in specific radius 
 exports.getGoRiders = functions.https.onCall(async (data, context) => {
 
     console.log("getGoRiders called", data);
@@ -69,7 +69,6 @@ exports.getGoRiders = functions.https.onCall(async (data, context) => {
     if (!data.uid || !data.lat || !data.lng || !data.radius) {
         throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
     }
-
 
     // checking auth state and if user sent request himself
     if (!context.auth || (context.auth.uid != data.uid)) {
@@ -95,7 +94,7 @@ exports.getGoRiders = functions.https.onCall(async (data, context) => {
         console.log(b);
         const q = db.collection('riders')
             .where('availability', '==', true)
-            .orderBy('geohash')
+            .orderBy('location.geohash')
             .startAt(b[0])
             .endAt(b[1]);
 
@@ -109,8 +108,9 @@ exports.getGoRiders = functions.https.onCall(async (data, context) => {
 
         for (const snap of snapshots) {
             for (const doc of snap.docs) {
-                const lat = doc.get('lat');
-                const lng = doc.get('lng');
+                const location = doc.get('location');
+                const lat = location.geopoint.latitude;
+                const lng = location.geopoint.longitude;
                 const distanceInM = geofire.distanceBetween([lat, lng], center) * 1000;
                 console.log(doc.data(), distanceInM);
                 if (distanceInM <= radiusInM) {
@@ -122,8 +122,8 @@ exports.getGoRiders = functions.https.onCall(async (data, context) => {
         return matchingDocs;
 
     } catch (error) {
+        console.error('Error fetching riders:', error);
         throw new functions.https.HttpsError('internal', 'Unable to fetch riders', error);
     }
 
 });
-

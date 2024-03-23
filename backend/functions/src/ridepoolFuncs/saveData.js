@@ -1,6 +1,9 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
+const { GeoFirestore } = require('geofirestore');
+const geofire = require('geofire-common');
+const firestore = require("firebase-admin/firestore");
 require('dotenv').config();
 const {
     generateEmailVerificationLink,
@@ -167,9 +170,64 @@ exports.saveRiderData = functions.https.onCall(async (data, context) => {
 });
 
 
-// function to send new rider approval request
-exports.sendNewRiderData = functions.https.onCall(async (data, context) => {
+// function to save geopoint and geohash of a specific role
+exports.saveLocationData = functions.https.onCall(async (data, context) => {
 
-    console.log("sendNewRiderData called", data);
+    console.log("saveLocationData called", data);
 
-})
+    // checking valid arguments
+    if (!data.uid || !data.role || !data.lat || !data.lng) {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    // checking auth state and if user sent request himself
+    if (!context.auth || (context.auth.uid != data.uid)) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Authentication required."
+        );
+    }
+
+    const role = data.role;
+    const UID = data.uid;
+
+    const db = admin.firestore();
+    let ref;
+
+    if(role != "rider" && role != "user") {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    if (role == "rider") {
+        ref = db.collection('riders').doc(UID);
+    } else if (role == "user") {
+        ref = db.collection('users').doc(UID);
+    }
+
+    //checking if user doesn't exists
+    const doc = await ref.get();
+    if (!doc.exists) {
+        throw new functions.https.HttpsError('not-found', 'User not found');
+    }
+
+    const geoPoint = new firestore.GeoPoint(data.lat, data.lng);
+    const hash = geofire.geohashForLocation([data.lat, data.lng]);
+
+    let result;
+
+    await ref.update(
+        {
+            location: {
+                geopoint: geoPoint,
+                geohash: hash
+            }
+        }
+    ).then(() => {
+        result = { status: true, msg: "Location saved successfully!" };
+    }).catch((error) => {
+        throw new functions.https.HttpsError('unknown', error.message, error);
+    })
+    return result;
+
+});
+
