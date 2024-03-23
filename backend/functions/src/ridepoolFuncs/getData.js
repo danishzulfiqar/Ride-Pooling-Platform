@@ -60,6 +60,8 @@ exports.generateGeoPoint = functions.https.onCall(async (data, context) => {
 });
 
 
+// ------------------------- Go mode functions ---------------------------
+
 // Get GO mode available riders in specific radius 
 exports.getGoRiders = functions.https.onCall(async (data, context) => {
 

@@ -44,6 +44,10 @@ exports.saveRiderData = saveData.saveRiderData;
 // function to save geopoint and geohash of a specific role
 exports.saveLocationData = saveData.saveLocationData;
 
+// function for sending request to get GO mode available riders
+
+exports.sendRequestToRider = saveData.sendRequestToRider;
+
 
 // --------------- getData funcs ---------------------------
 

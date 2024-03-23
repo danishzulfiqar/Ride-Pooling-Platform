@@ -194,7 +194,7 @@ exports.saveLocationData = functions.https.onCall(async (data, context) => {
     const db = admin.firestore();
     let ref;
 
-    if(role != "rider" && role != "user") {
+    if (role != "rider" && role != "user") {
         throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
     }
 
@@ -231,3 +231,81 @@ exports.saveLocationData = functions.https.onCall(async (data, context) => {
 
 });
 
+
+// ------------------------- Go mode functions ---------------------------
+
+// function for sending request to get GO mode available riders
+
+exports.sendRequestToRider = functions.https.onCall(async (data, context) => {
+
+    console.log("sendRequestToRider called", data);
+
+    // checking valid arguments
+    if (!data.uid || !data.pickup || !data.dropoff || !data.pickup_lat || !data.pickup_lng || !data.dropoff_lat || !data.dropoff_lng || !data.riderUID) {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    // checking auth state and if user sent request himself
+    if (!context.auth || (context.auth.uid != data.uid)) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Authentication required."
+        );
+    }
+
+    const UID = data.uid;
+    // getting user's rating and info
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(UID);
+
+    const userDoc = await userRef.get();
+    if (!userDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'User not found');
+    }
+
+    const user_Data = userDoc.data();
+
+    const requestData = {
+        basicInfo: {
+            user_id: UID,
+            first_name: user_Data.crest.UserData.first_name,
+            last_name: user_Data.crest.UserData.last_name,
+            phone_number: user_Data.crest.UserData.phone_number,
+        },
+        rating: {
+            value: user_Data.crest.rating.rating_value,
+            totalRides: user_Data.crest.activities.rides_booked,
+        },
+        route: {
+            pickup: data.pickup,
+            dropoff: data.dropoff,
+            pickup_location: new firestore.GeoPoint(data.pickup_lat, data.pickup_lng),
+            dropoff_location: new firestore.GeoPoint(data.dropoff_lat, data.dropoff_lng),
+        },
+        price: 4354,
+        request_time: new Date().toISOString(),
+    }
+
+    // console.log("Request Data:", requestData);
+
+    // cheking if rider exists then saving requestData to rider's request node
+    const riderRef = db.collection('riders').doc(data.riderUID);
+    const riderDoc = await riderRef.get();
+    if (!riderDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'Rider not found');
+    }
+
+    let result;
+
+    // adding new request to rider's request subcollection with name of uid of user
+    await riderRef.collection('requests').doc(UID).set(requestData)
+        .then(() => {
+            result = { status: true, msg: "Request sent to rider!" };
+        }).catch((error) => {
+            console.error('Error sending request:', error);
+            throw new functions.https.HttpsError('unknown', error.message, error);
+        })
+
+    return result;
+
+});
