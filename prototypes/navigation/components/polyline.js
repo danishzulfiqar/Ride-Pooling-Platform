@@ -68,7 +68,7 @@ export default function Route() {
   useEffect(() => {
     const interval = setInterval(() => {
       getUserLocation();
-    }, 500);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -87,9 +87,9 @@ export default function Route() {
       },
       pitch: 50,
       altitude: 500,
-      zoom: 19,
+      zoom: 17,
       heading: heading1, // You can optionally include heading
-      duration: 1000, // Animation duration
+      duration: 7000, // Animation duration
     });
   };
 
@@ -103,7 +103,7 @@ export default function Route() {
         showsCompass={true}
       >
         {location && (
-          <Marker coordinate={markerPosition} anchor={{ x: 0.7, y: 0.7 }}>
+          <Marker coordinate={markerPosition} anchor={{ x: 0.47, y: 0.7 }}>
             <Image
               source={require("../assets/car.png")}
               resizeMode="contain"
@@ -112,7 +112,7 @@ export default function Route() {
           </Marker>
         )}
         {route && (
-          <Polyline coordinates={route} strokeWidth={4} strokeColor="#00f" />
+          <Polyline coordinates={route} strokeWidth={8} strokeColor="#000" />
         )}
       </MapView>
     </View>
