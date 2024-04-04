@@ -22,11 +22,15 @@ export default function Route() {
     longitude: 73.0498,
   });
 
+  // ios simulator location destination
+  let destination = encodeURIComponent("N Blaney AveCupertino, CA 95014, USA");
+
   async function getRoute() {
     try {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/directions/json?origin=${loc1lat},${loc1lng}&destination=${l.latitude},${l.longitude}&key=${API_KEY}`
-      );
+        // `https://maps.googleapis.com/maps/api/directions/json?origin=${loc1lat},${loc1lng}&destination=${destination}&key=${API_KEY}`
+        );
       const data = await response.json();
       // Decode the polyline points
       const polylinePoints = polyline.decode(data.routes[0].overview_polyline.points);
@@ -87,7 +91,7 @@ export default function Route() {
       },
       pitch: 50,
       altitude: 500,
-      zoom: 17,
+      zoom: 18.3,
       heading: heading1, // You can optionally include heading
       duration: 7000, // Animation duration
     });
@@ -107,12 +111,13 @@ export default function Route() {
             <Image
               source={require("../assets/car.png")}
               resizeMode="contain"
-              style={{ width: 30, height: 30 }}
+              // style  with increase width and height
+              style={{ width: 45, height: 45 }}
             />
           </Marker>
         )}
         {route && (
-          <Polyline coordinates={route} strokeWidth={8} strokeColor="#000" />
+          <Polyline coordinates={route} strokeWidth={8} strokeColor="#000"/>
         )}
       </MapView>
     </View>

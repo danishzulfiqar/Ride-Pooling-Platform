@@ -90,7 +90,7 @@ export default function Nav() {
             // waypoints={[
             //     {latitude:33.651592,longitude:73.156456},
             //     ]}
-            destination={{ latitude: 33.7077, longitude: 73.0498 }}
+            destination={{ latitude: loc1lat+8, longitude: loc1lng+8 }}
             strokeWidth={5}
             strokeColor="black"
           />
