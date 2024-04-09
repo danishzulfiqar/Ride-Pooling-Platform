@@ -207,7 +207,7 @@ function SignInRider({ setUser, backbutton, role, sethaveaccount }) {
                 {currentScreen === ScreenStates.NUMBER_SCREEN && (
 
                   <View>
-                    <Text style={styles.below_img}>| PASSENGER LOGIN</Text>
+                    <Text style={styles.below_img}>| RIDER LOGIN</Text>
                     <Text style={styles.phn_text}>Enter Your Phone Number</Text>
                     <View style={styles.inputGroup}>
                       <PhoneInput

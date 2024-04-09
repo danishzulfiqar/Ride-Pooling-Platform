@@ -12,6 +12,7 @@ import {
   Image,
 } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import Toast from 'react-native-toast-message';
 import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Slider from "./BottomSheetCards";
@@ -368,7 +369,7 @@ export default function Go() {
 
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             {showSlider === 1 ? (
-              <Slider l1={A} l2={B} setRidersDistanceVal={setRidersDistanceVal} set={setShowSlider} riderCardData={ridersData} setRiderBooked={setRiderBooked} setRidersData={setRidersData}/>
+              <Slider l1={A} l2={B} setRidersDistanceVal={setRidersDistanceVal} set={setShowSlider} riderCardData={ridersData} setRiderBooked={setRiderBooked} setRidersData={setRidersData} loc1coords={loc1Coordinates} loc2coords={loc2Coordinates} uid={UID}/>
             ) : (
               <View style={styles.topCon}>
                 <View
@@ -455,7 +456,21 @@ export default function Go() {
                     </View>
                   </View>
 
-                  <TouchableOpacity style={styles.btn2} onPress={showingSlider}>
+                  <TouchableOpacity style={styles.btn2} 
+                  onPress={function(){
+                    if(A === "ENTER  PICK-UP LOCATION" || B === "ENTER  DROP-OFF  LOCATION"){
+                      Toast.show({
+                        type: 'error',
+                        text1: 'No locaton',
+                        text2: 'Please enter Pick-up and Drop-off locations.',
+                        text1Style: {
+                          fontSize: 18
+                          },
+                          });
+                          } else {
+                            showingSlider();
+                            }
+                            }}>
                     <Text
                       style={{
                         alignSelf: "center",
@@ -744,7 +759,7 @@ export default function Go() {
         </View>
       )
       ) : (
-        <RiderOnWay setRiderBooked={setRiderBooked} set={setShowSlider} setA={setA} setB={setB} ridersDistanceVal={ridersDistanceVal} loc1Coordinates={loc1Coordinates}/>
+        <RiderOnWay setloc1lat={setloc1lat} setloc2lat={setloc2lat} setloc1lng={setloc1lng} setloc2lng={setloc2lng} setAni1lat={setAni1lat} setAni2lat={setAni2lat} setAni1lng={setAni1lng} setAni2lng={setAni2lng}  setRiderBooked={setRiderBooked} set={setShowSlider} setA={setA} setB={setB} ridersDistanceVal={ridersDistanceVal} loc1Coordinates={loc1Coordinates} setLoc1Coordinates={setLoc1Coordinates} setLoc2Coordinates={setLoc2Coordinates}/>
       )}
     </View>
   );

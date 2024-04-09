@@ -2,6 +2,7 @@ import { React, useState, useMemo, useEffect, useRef } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import Toast from 'react-native-toast-message';
 import {
   View,
   TouchableOpacity,
@@ -22,6 +23,8 @@ const API_KEY = "YOUR_GOOGLE_API_KEY";
 export default function Home() {
   const mapRef = useRef(null);
   const [slider, setslider] = useState(1);
+  const [mode, setMode] = useState(null);
+  const [riderLocation, setRiderLocation] = useState();
   const snapPoints = useMemo(() => ['35%','70%'], []);
 
 
@@ -34,6 +37,18 @@ export default function Home() {
       }
   
       let currentLocation = await Location.getCurrentPositionAsync({});
+      const response = await fetch(
+                 `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation.coords.latitude},${currentLocation.coords.longitude}&key=${API_KEY}`
+              );
+      
+               if (!response.ok) {
+                 throw new Error("Failed to fetch address from coordinates");
+               }
+      
+               const data = await response.json();
+               const formattedAddress = data.results[0].formatted_address;
+               setRiderLocation(formattedAddress);
+               console.log(formattedAddress);
   
       if (mapRef.current) {
         mapRef.current.animateToRegion(
@@ -46,7 +61,6 @@ export default function Home() {
           1000
         );
       } else {
-        // In case mapRef.current is not available, ensure loading is also set to false
       }
     };
 
@@ -71,42 +85,69 @@ export default function Home() {
         userLocationPriority="high"
         onMapReady={async () => {
           await setUserLocation();
-        }}
-      >
+        }}>
       </MapView>
     </View>
+
     {slider === 0 ?(
-      <BottomSheet index={0} snapPoints={snapPoints}> 
-      <View style={styles.information}>
-        <Text style={{fontFamily:'CustomB', fontSize:20}}>RIDER INFORMATION</Text>
-      </View>
+      <BottomSheet index={0} snapPoints={snapPoints}>
+
       <View style={styles.buttonContainer}>
-      <TouchableOpacity style={styles.btnStart} onPress={function(){setslider(1)}}>
+      <Text style={styles.mode}>
+        {mode}
+      </Text>
+      <TouchableOpacity style={styles.btnStop} onPress={function(){setslider(1); setMode(null)}}>
         <Text style={styles.btnText}>
           Stop
         </Text>
       </TouchableOpacity>
     </View>
+
     <ScrollView>
       <Text style={{fontFamily:'Custom', fontSize:16, alignSelf:"center", margin:20 }}>
         searching for passengers.
       </Text>
     </ScrollView>
     </BottomSheet>
+
     ):(
+
       <View style={styles.viewContainer}>
       <View style={styles.options}>
-        <TouchableOpacity style={styles.optionBTn}>
+        <TouchableOpacity style={styles.optionBTn} onPress={()=>{setMode('GO')}}>
           <Text style={styles.optionText}>GO</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.optionBTn}>
+        <TouchableOpacity style={styles.optionBTn} onPress={()=>{setMode('Pooling')}}>
           <Text style={styles.optionText}>Pooling</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.optionBTn}>
+        <TouchableOpacity style={styles.optionBTn} onPress={()=>{setMode('Sharing')}}>
           <Text style={styles.optionText}>Sharing</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.btnStart} onPress={function(){setslider(0)}}>
+      
+      
+    <View style={styles.carCard}>
+      <Image style={styles.Carimage} source={require('../assets/car2.png')} resizeMode="contain"/>
+      <View>
+        <Text style={styles.text}>NAME</Text>
+        <Text style={styles.text}>CAR ID</Text>
+      </View>
+    </View>
+
+      <TouchableOpacity style={styles.btnStart}
+       onPress={function(){
+        if(mode === null){
+          Toast.show({
+            type: 'error',
+            text1: 'Please Select a mode',
+            text1Style: {
+              fontSize: 18
+            },
+          });
+        } else {
+          setslider(0);
+        }
+        }}>
         <Text style={styles.btnText}>
           START
         </Text>
@@ -141,19 +182,23 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0, 
     width: '100%',
-    alignItems: 'center',
     paddingTop:20,
     paddingBottom:20
   },
 
   options:{
     flexDirection:"row",
-    gap:5,
+    alignItems:"center",
+    justifyContent:"space-between",
+    marginLeft:25,
+    marginRight:25
   },
 
   optionBTn:{
-    backgroundColor: "#ECECEC",
-    padding:10,
+    backgroundColor: "black",
+    paddingLeft:10,
+    paddingRight:10,
+    height:40,
     width:'30%',
     marginBottom:10,
     borderRadius:10,
@@ -162,7 +207,8 @@ const styles = StyleSheet.create({
   },
 
   optionText:{
-    fontFamily: "CustomB",
+    fontFamily: "Custom",
+    color:'white',
     fontSize:18,
   },
 
@@ -176,16 +222,56 @@ const styles = StyleSheet.create({
     width:'90%',
     height:40,
     borderRadius:10,
+    alignSelf:"center",
     alignItems:"center",
     justifyContent:"center",
   },
 
-  buttonContainer:{
-    alignItems:"center"
+  btnStop:{
+    backgroundColor: "#FF6969",
+    width:'20%',
+    height:40,
+    borderRadius:10,
+    alignItems:"center",
+    justifyContent:"center",
   },
 
-  information:{
-    alignItems:"center",
-    margin:20
+  buttonContainer: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginLeft: 25,
+    marginRight: 25
   },
+  
+
+  mode:{
+    fontFamily: "Custom",
+    fontSize:20,
+  },
+
+  text:{
+    fontFamily: "Custom",
+    fontSize:16,
+    marginRight:15,
+    textAlign:"right"
+  },
+
+  Carimage:{
+    width:150,
+    height:80
+  },
+
+  carCard:{
+    flexDirection: "row",
+    marginLeft: 25,
+    marginRight: 25,
+    marginBottom:10,
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor:'#B4B4B8',
+    borderRadius:10,
+    paddingLeft:5,
+    paddingRight:5
+  }
 });

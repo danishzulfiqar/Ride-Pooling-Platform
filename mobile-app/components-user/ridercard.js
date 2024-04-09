@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
 import cardData from "./carddata";
+import { auth } from '../firebase';
 import { ProgressBar } from 'react-native-paper';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
-export default function RiderCard({ riderCardData, setRiderBooked, setRidersData, setRidersDistanceVal }) {
+export default function RiderCard({ riderCardData, setRiderBooked, setRidersData, setRidersDistanceVal, l1, l2, loc1coords, loc2coords, uid }) {
   const [timer, setTimer] = useState(0);
   const [progressTime, setProgressTime] = useState(1);
+
+  const functions = getFunctions(auth.app);
 
 
   function sendReq(geohash,lat,lng) {
@@ -16,6 +20,25 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
     console.log(geohash + ' h ' + lat)
     setRiderBooked(1);
   }
+
+
+  /////////////// SENDING RIDER REQUEST ///////////////////
+
+
+  const requestingRider = async () => {
+    console.log('2222222' + l1 + l2 + loc1coords.lat + loc2coords.lng, uid);
+    const sendRequestToRider = httpsCallable(functions, 'sendRequestToRider');
+    try {
+      const result = await sendRequestToRider(uid, l1, l2, loc1coords.lat, loc1coords.lng, loc2coords.lat, loc2coords.lng);
+      console.log(result.data);
+      setLoading(false);
+      sethaveaccount(result.data.status);
+    } catch (error) {
+      console.error("Error calling sendRequestToRider:", error);
+    }
+  };
+
+  ////////////////////////////////////////////////////////
 
   useEffect(() => {
     let interval;
@@ -65,6 +88,7 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
               style={styles.btn3}
               onPress={() => {
                 sendReq(card.geohash, card.lat, card.lng); // Pass the geohash value to the sendReq function
+                requestingRider()
               }}
             >
               <Text

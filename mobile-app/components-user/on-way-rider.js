@@ -24,6 +24,12 @@ export default function RiderOnWay({
   setB,
   ridersDistanceVal,
   loc1Coordinates,
+  setLoc1Coordinates,
+  setLoc2Coordinates,
+  setAni1lat, setAni1lng,
+  setAni2lat, setAni2lng,
+  setloc1lat, setloc1lng,
+  setloc2lat, setloc2lng
 }) {
   const mapRef = useRef(null);
   const [duration, setDuraton] = useState();
@@ -36,6 +42,12 @@ export default function RiderOnWay({
     set(0);
     setA("ENTER  PICK-UP  LOCATION");
     setB("ENTER  DROP-OFF  LOCATION");
+    setLoc1Coordinates(null);
+    setLoc2Coordinates(null);
+    setAni1lat(null); setAni1lng(null);
+    setAni2lat(null); setAni2lng(null);
+    setloc1lat(null); setloc1lng(null);
+    setloc2lat(null); setloc2lng(null);
   }
 
   useEffect(() => {
