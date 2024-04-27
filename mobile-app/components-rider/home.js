@@ -1,7 +1,5 @@
 import { React, useState, useMemo, useEffect, useRef } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import MapViewDirections from "react-native-maps-directions";
-import { getFunctions, httpsCallable } from 'firebase/functions';
 import Toast from 'react-native-toast-message';
 import {
   View,
@@ -10,18 +8,20 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
-  Image,
+  Image, 
 } from "react-native";
 import { ScrollView } from 'react-native-gesture-handler';
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import newstyle from "../styles/mapstyle";
+import UserRequestCard from "./userRequestCard";
+import Navigation from "../component re-useable/navigation";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
 export default function Home() {
   const mapRef = useRef(null);
+  const [navMode, setNavMode] = useState(false);
   const [slider, setslider] = useState(1);
   const [mode, setMode] = useState(null);
   const [riderLocation, setRiderLocation] = useState();
@@ -105,8 +105,9 @@ export default function Home() {
 
     <ScrollView>
       <Text style={{fontFamily:'Custom', fontSize:16, alignSelf:"center", margin:20 }}>
-        searching for passengers.
+        searching for passengers...
       </Text>
+      <UserRequestCard />
     </ScrollView>
     </BottomSheet>
 
@@ -115,7 +116,7 @@ export default function Home() {
       <View style={styles.viewContainer}>
       <View style={styles.options}>
         <TouchableOpacity style={styles.optionBTn} onPress={()=>{setMode('GO')}}>
-          <Text style={styles.optionText}>GO</Text>
+          <Text style={styles.optionText}>Go</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.optionBTn} onPress={()=>{setMode('Pooling')}}>
           <Text style={styles.optionText}>Pooling</Text>
@@ -183,7 +184,9 @@ const styles = StyleSheet.create({
     bottom: 0, 
     width: '100%',
     paddingTop:20,
-    paddingBottom:20
+    paddingBottom:20,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10 
   },
 
   options:{
@@ -195,31 +198,34 @@ const styles = StyleSheet.create({
   },
 
   optionBTn:{
-    backgroundColor: "black",
+    backgroundColor: "white",
     paddingLeft:10,
     paddingRight:10,
-    height:40,
+    height:38,
     width:'30%',
     marginBottom:10,
     borderRadius:10,
+    borderColor:"black",
+    borderWidth:2,
     alignItems:"center",
     justifyContent:"center",
   },
 
   optionText:{
     fontFamily: "Custom",
-    color:'white',
-    fontSize:18,
+    color:'black',
+    fontSize:16,
   },
 
   btnText:{
-    fontFamily: "Custom",
+    fontFamily: "CustomB",
+    color:'white',
     fontSize:18,
   },
 
   btnStart:{
     backgroundColor: "#FF6969",
-    width:'90%',
+    width:'88%',
     height:40,
     borderRadius:10,
     alignSelf:"center",
@@ -269,7 +275,7 @@ const styles = StyleSheet.create({
     marginBottom:10,
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor:'#B4B4B8',
+    backgroundColor:'#d9d9d9',
     borderRadius:10,
     paddingLeft:5,
     paddingRight:5

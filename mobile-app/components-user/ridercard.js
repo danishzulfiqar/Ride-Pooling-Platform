@@ -8,8 +8,9 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 export default function RiderCard({ riderCardData, setRiderBooked, setRidersData, setRidersDistanceVal, l1, l2, loc1coords, loc2coords, uid }) {
   const [timer, setTimer] = useState(0);
   const [progressTime, setProgressTime] = useState(1);
-
   const functions = getFunctions(auth.app);
+
+  console.log('this is riders data ' + JSON.stringify(riderCardData) );
 
 
   function sendReq(geohash,lat,lng) {
@@ -17,7 +18,6 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
       lat:lat,
       lng:lng,
     })
-    console.log(geohash + ' h ' + lat)
     setRiderBooked(1);
   }
 
@@ -25,14 +25,22 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
   /////////////// SENDING RIDER REQUEST ///////////////////
 
 
-  const requestingRider = async () => {
-    console.log('2222222' + l1 + l2 + loc1coords.lat + loc2coords.lng, uid);
+  const requestingRider = async ( userId ) => {
+    const data = {
+      uid:uid, 
+      pickup:l1,
+      dropoff:l2, 
+      pickup_lat:loc1coords.lat, 
+      pickup_lng:loc1coords.lng, 
+      dropoff_lat:loc2coords.lat, 
+      dropoff_lng:loc2coords.lng,
+      riderUID:userId
+    }
+    console.log(data);
     const sendRequestToRider = httpsCallable(functions, 'sendRequestToRider');
     try {
-      const result = await sendRequestToRider(uid, l1, l2, loc1coords.lat, loc1coords.lng, loc2coords.lat, loc2coords.lng);
+      const result = await sendRequestToRider(data);
       console.log(result.data);
-      setLoading(false);
-      sethaveaccount(result.data.status);
     } catch (error) {
       console.error("Error calling sendRequestToRider:", error);
     }
@@ -71,59 +79,53 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
   ) : (
     
     riderCardData.slice().reverse().map((card, index) => (
-      
-      <View style={styles.cardContainer} key={index}>
-      <ProgressBar  color='black' style={{height:5}} progress={progressTime}/>
-        <View style={styles.card}>
-          <View style={styles.leftCardSide}>
-            {/* <Text style={styles.cardHeadText}>{card.name}</Text>
-            <Text style={styles.cardText}>Bike: {card.bike}</Text>
-            <Text style={styles.cardText}>Rating: {card.rating}</Text> */}
-            <Text style={styles.cardHeadText}>CARD</Text>
-            <Text style={styles.cardText}>
-              availability: {card.availability}
-            </Text>
-            <Text style={styles.cardText}>latitude: {card.lat}</Text>
-            <TouchableOpacity
-              style={styles.btn3}
-              onPress={() => {
-                sendReq(card.geohash, card.lat, card.lng); // Pass the geohash value to the sendReq function
-                requestingRider()
-              }}
-            >
-              <Text
-                style={{
-                  fontFamily: "CustomB",
-                  color: "white",
-                  fontSize: 15,
-                }}
-              >
-                Request
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.rightCardSide}>
-            {/* <Text style={styles.cardHeadText}>Price: {card.price}</Text>
-            <Text style={styles.cardText}>Passengers: {card.passengers}</Text>
-            <Text style={styles.cardText}>Distance: {card.distance}</Text> */}
-            <Text style={styles.cardHeadText}>Price</Text>
-            <Text style={styles.cardText}>Geohash: {card.geohash}</Text>
-            <Text style={styles.cardText}>longitude: {card.lng}</Text>
-            <TouchableOpacity style={styles.btn31} >
-              <Text
-                style={{
-                  fontFamily: "CustomB",
-                  color: "white",
-                  fontSize: 15,
-                }}
-              >
-                Reject
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+  <View style={styles.cardContainer} key={index}>
+    <ProgressBar color='black' style={{height:5}} progress={progressTime}/>
+    <View style={styles.card}>
+      <View style={styles.leftCardSide}>
+        <Text style={styles.cardHeadText}>CARD</Text>
+        <Text style={styles.cardText}>
+          Availability: {card.crest.availability}
+        </Text>
+        <Text style={styles.cardText}>Latitude: {card.location.geopoint._latitude}</Text>
+        <TouchableOpacity
+          style={styles.btn3}
+          onPress={() => {
+            sendReq(card.location.geohash, card.location.geopoint._latitude, card.location.geopoint._longitude); // Pass the geohash value to the sendReq function
+            requestingRider(card.crest.UserData.user_id);
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: "CustomB",
+              color: "white",
+              fontSize: 15,
+            }}
+          >
+            Request
+          </Text>
+        </TouchableOpacity>
       </View>
-    ))
+      <View style={styles.rightCardSide}>
+        <Text style={styles.cardHeadText}>Price</Text>
+        <Text style={styles.cardText}>Geohash: {card.location.geohash}</Text>
+        <Text style={styles.cardText}>Longitude: {card.location.geopoint._longitude}</Text>
+        <TouchableOpacity style={styles.btn31} >
+          <Text
+            style={{
+              fontFamily: "CustomB",
+              color: "white",
+              fontSize: 15,
+            }}
+          >
+            Reject
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+))
+
   )}
 </View>
 
@@ -148,12 +150,11 @@ const styles = StyleSheet.create({
     color:'#A8A196',
   },
   cardContainer: {
-    width: 360,
+    width: "95%",
     backgroundColor: "white",
     borderRadius: 7,
     borderColor: "black",
-    height: 130,
-    marginTop: 20,
+    marginTop: 10,
     marginBottom: 10,
     alignSelf: "center",
     shadowColor: "#000",
@@ -169,12 +170,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   rightCardSide: {
-    width: 180,
+    width: "50%",
     alignItems: "flex-end",
     padding: 5,
   },
   leftCardSide: {
-    width: 180,
+    width: "50%",
     alignItems: "flex-start",
     padding: 5,
   },

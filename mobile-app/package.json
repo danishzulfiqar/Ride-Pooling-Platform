@@ -10,6 +10,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@firebase/firestore": "^4.6.1",
     "@firebase/functions": "^0.11.0",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-brands-svg-icons": "^6.5.1",
@@ -17,6 +18,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-native-fontawesome": "^0.3.0",
     "@gorhom/bottom-sheet": "^4",
+    "@mapbox/polyline": "^1.2.1",
     "@react-native-community/datetimepicker": "7.2.0",
     "@react-native-picker/picker": "2.4.10",
     "@react-navigation/bottom-tabs": "^6.5.11",
