@@ -10,7 +10,6 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
   const [progressTime, setProgressTime] = useState(1);
   const functions = getFunctions(auth.app);
 
-  console.log('this is riders data ' + JSON.stringify(riderCardData) );
 
 
   function sendReq(geohash,lat,lng) {

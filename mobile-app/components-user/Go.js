@@ -61,7 +61,7 @@ export default function Go() {
     uid:UID,
     lat:loc1lat,
     lng:loc1lng,
-    radius:17000,
+    radius:100000,
   }
 
   async function showingSlider() {
