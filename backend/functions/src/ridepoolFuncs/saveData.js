@@ -9,6 +9,7 @@ const {
     generateEmailVerificationLink,
     sendEmailVarificationLink,
 } = require('./validateData');
+const { user } = require('firebase-functions/v1/auth');
 
 
 // function for saving passenger(user) data
@@ -307,5 +308,171 @@ exports.sendRequestToRider = functions.https.onCall(async (data, context) => {
         })
 
     return result;
+
+});
+
+
+
+// function for making a new GO ride bid in rides collection
+
+exports.makeNewGoRideBid = functions.https.onCall(async (data, context) => {
+
+    console.log("makeNewRideBid called", data);
+
+
+    // checking valid arguments
+    if (!data.uid || !data.mode || !data.userId || !data.riderId || !data.pickup || !data.dropoff || !data.pickup_lat || !data.pickup_lng || !data.dropoff_lat || !data.dropoff_lng || !data.price) {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    // if data.mode is not GO then throw error
+    if (data.mode != "GO") {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called for GO mode only, see documentation for reference');
+    }
+
+    // checking auth state and if user sent request himself
+    if (!context.auth || (context.auth.uid != data.uid)) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Authentication required."
+        );
+    }
+
+    const UID = data.uid;
+    const RIDERID = data.riderId;
+    const USERID = data.userId;
+
+    // checking if user and rider both are available
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(USERID);
+    const riderRef = db.collection('riders').doc(RIDERID);
+
+    //  chacking if availability node is true for both user and rider
+    const userDoc = await userRef.get();
+    if (!userDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'User not found');
+    }
+
+    const riderDoc = await riderRef.get();
+    if (!riderDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'Rider not found');
+    }
+
+    const user_Data = userDoc.data();
+    const rider_Data = riderDoc.data();
+
+    if (!user_Data.availability) {
+        throw new functions.https.HttpsError('unavailable', 'User is not available for ride');
+    }
+
+    if (!rider_Data.availability) {
+        throw new functions.https.HttpsError('unavailable', 'Rider is not available for ride');
+    }
+
+    // user and rider reference documents if exists
+    const userRefDoc = db.collection('users').doc(USERID);
+    const riderRefDoc = db.collection('riders').doc(RIDERID);
+    
+    // retrieving user and rider data crest node
+    const userCrestDoc = await userRefDoc.get();
+    const riderCrestDoc = await riderRefDoc.get();
+
+    if (!userCrestDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'User reference not found');
+    }
+
+    if (!riderCrestDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'Rider reference not found');
+    }
+
+    const userCrest = userCrestDoc.data().crest;
+    const riderCrest = riderCrestDoc.data().crest;
+
+    // making user and rider data for ride bid
+    const userInfo = { 
+        name: userCrest.UserData.first_name + " " + userCrest.UserData.last_name,
+        phone: userCrest.UserData.phone_number,
+        gender: userCrest.UserData.gender,
+        rating: userCrest.rating.rating_value,
+        rides: userCrest.activities.rides_booked,
+    }
+
+    const riderInfo = {
+        name: riderCrest.UserData.first_name + " " + riderCrest.UserData.last_name,
+        phone: riderCrest.UserData.phone_number,
+        gender: riderCrest.UserData.gender,
+        rating: riderCrest.rating.rating_value,
+        rides: riderCrest.activities.rides_booked,
+    }
+
+    // console.log("User info :", userInfo );
+    // console.log("Rider info :", riderInfo);
+
+    // creating new ride bid data
+    const rideData = {
+        mode: "GO",
+        active_status: true,
+        riderData: {
+            rider_id: RIDERID,
+            riderRef: riderRefDoc,
+            riderInfo: riderInfo,
+        },
+        userData: {
+            user_id: USERID,
+            user_ref: userRefDoc,
+            userInfo: userInfo,
+            pickup: data.pickup,
+            dropoff: data.dropoff,
+            pickup_location: new firestore.GeoPoint(data.pickup_lat, data.pickup_lng),
+            dropoff_location: new firestore.GeoPoint(data.dropoff_lat, data.dropoff_lng),
+            pickup_status: false,
+        },
+        destination: {
+            destinationLoc: new firestore.GeoPoint(data.pickup_lat, data.pickup_lng),
+            destinationName: data.pickup,
+        },
+        bid_time: new Date().toISOString(),
+    }
+
+    // saving ride bid data to Rides collection
+    let result;
+
+    await db.collection('Rides').doc('Bids').collection('GO').add(rideData)
+        // returning success message and bid key to user ie the document id of the ride bid
+        .then((docRef) => {
+            result = { status: true, msg: "Ride bid made successfully!", bidKey: docRef.id };
+        }).catch((error) => {
+            console.error('Error making ride bid:', error);
+            throw new functions.https.HttpsError('unknown', error.message, error);
+        })
+
+    const bidRef = db.collection('Rides').doc('Bids').collection('GO').doc(result.bidKey);
+
+    // updating user and rider documents with ride bid key and ride status
+    await userRef.update({
+        current_ride:{
+            RidebidKey: result.bidKey,
+            bidRef: bidRef,
+        },
+        rideStatus: true,
+        availability: false,
+    }).catch((error) => {
+        throw new functions.https.HttpsError('unknown', error.message, error);
+    })
+
+    await riderRef.update({
+        current_ride:{
+            RidebidKey: result.bidKey,
+            bidRef: bidRef,
+        },
+        rideStatus: true,
+        availability: false,
+    }).catch((error) => {
+        throw new functions.https.HttpsError('unknown', error.message, error);
+    })
+
+    return result;
+
 
 });

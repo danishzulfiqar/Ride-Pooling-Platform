@@ -45,8 +45,10 @@ exports.saveRiderData = saveData.saveRiderData;
 exports.saveLocationData = saveData.saveLocationData;
 
 // function for sending request to get GO mode available riders
-
 exports.sendRequestToRider = saveData.sendRequestToRider;
+
+// function for making a new GO ride bid in rides collection
+exports.makeNewGoRideBid = saveData.makeNewGoRideBid;
 
 
 // --------------- getData funcs ---------------------------
