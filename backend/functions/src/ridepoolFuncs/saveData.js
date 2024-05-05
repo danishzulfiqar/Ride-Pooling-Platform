@@ -373,7 +373,7 @@ exports.makeNewGoRideBid = functions.https.onCall(async (data, context) => {
     // user and rider reference documents if exists
     const userRefDoc = db.collection('users').doc(USERID);
     const riderRefDoc = db.collection('riders').doc(RIDERID);
-    
+
     // retrieving user and rider data crest node
     const userCrestDoc = await userRefDoc.get();
     const riderCrestDoc = await riderRefDoc.get();
@@ -390,7 +390,7 @@ exports.makeNewGoRideBid = functions.https.onCall(async (data, context) => {
     const riderCrest = riderCrestDoc.data().crest;
 
     // making user and rider data for ride bid
-    const userInfo = { 
+    const userInfo = {
         name: userCrest.UserData.first_name + " " + userCrest.UserData.last_name,
         phone: userCrest.UserData.phone_number,
         gender: userCrest.UserData.gender,
@@ -451,22 +451,20 @@ exports.makeNewGoRideBid = functions.https.onCall(async (data, context) => {
 
     // updating user and rider documents with ride bid key and ride status
     await userRef.update({
-        current_ride:{
+        current_ride: {
             RidebidKey: result.bidKey,
-            bidRef: bidRef,
+            rideStatus: true,
         },
-        rideStatus: true,
         availability: false,
     }).catch((error) => {
         throw new functions.https.HttpsError('unknown', error.message, error);
     })
 
     await riderRef.update({
-        current_ride:{
+        current_ride: {
             RidebidKey: result.bidKey,
-            bidRef: bidRef,
+            rideStatus: true,
         },
-        rideStatus: true,
         availability: false,
     }).catch((error) => {
         throw new functions.https.HttpsError('unknown', error.message, error);
