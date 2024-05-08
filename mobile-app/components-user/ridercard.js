@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
-import cardData from "./carddata";
-import { auth } from '../firebase';
+import { auth, app } from "../firebase";
+import { getFirestore, collection, getDocs, doc, onSnapshot } from "firebase/firestore";
 import { ProgressBar } from 'react-native-paper';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
@@ -11,13 +11,37 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
   const functions = getFunctions(auth.app);
 
 
+  useEffect(() => {
+    const db = getFirestore(app);
+    let uid = auth.currentUser?.uid;
+    console.log("this is uid "+ uid);
+    if (uid) {
+      const usersRef = doc(db, "users/" + uid);
+
+      // Listen for changes to the users collection
+      const unsubscribe = onSnapshot(usersRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const userData = { uid: snapshot.id, ...snapshot.data() };
+          console.log("this is " + JSON.stringify(userData));
+        } else {
+          console.log("User document does not exist");
+        }
+      });
+
+      return () => {
+        // Unsubscribe from the snapshot listener when component unmounts
+        unsubscribe();
+      };
+    }
+  }, []);
+
+
 
   function sendReq(geohash,lat,lng) {
     setRidersDistanceVal({
       lat:lat,
       lng:lng,
     })
-    setRiderBooked(1);
   }
 
 

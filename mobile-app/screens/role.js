@@ -4,7 +4,6 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  Card,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import React, { useState } from 'react';
@@ -36,7 +35,7 @@ export default function Pickrole({ getvalue, backbutton }) {
             resizeMode="contain"
             source={require('../assets/rider.png')}
           />
-          <Text style={styles.text}>BECOME A RIDER</Text>
+          <Text style={styles.text}>RIDER</Text>
         </TouchableOpacity>
       </View>
 
@@ -47,7 +46,7 @@ export default function Pickrole({ getvalue, backbutton }) {
             resizeMode="contain"
             source={require('../assets/passenger.png')}
           />
-          <Text style={styles.text}>BECOME A PASSENGER</Text>
+          <Text style={styles.text}>PASSENGER</Text>
         </TouchableOpacity>
       </View>
     </View>

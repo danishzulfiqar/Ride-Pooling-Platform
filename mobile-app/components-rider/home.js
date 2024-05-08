@@ -15,6 +15,7 @@ import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import newstyle from "../styles/mapstyle";
 import UserRequestCard from "./userRequestCard";
+import Test from "../component re-useable/test"
 import Navigation from "../component re-useable/navigation";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
@@ -24,6 +25,8 @@ export default function Home() {
   const [navMode, setNavMode] = useState(false);
   const [slider, setslider] = useState(1);
   const [mode, setMode] = useState(null);
+  const [ridePhaseKey, setRidePhaseKey] = useState(null);
+  const [rideStatus, setRideStatus] = useState(false);
   const [riderLocation, setRiderLocation] = useState();
   const snapPoints = useMemo(() => ['35%','70%'], []);
 
@@ -66,7 +69,8 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1 }}>
-  <View style={styles.container}>
+  {rideStatus === false ? (
+    <View style={styles.container}>
     <View style={styles.mapsContainer}>
       <MapView
         provider={PROVIDER_GOOGLE}
@@ -107,7 +111,7 @@ export default function Home() {
       <Text style={{fontFamily:'Custom', fontSize:16, alignSelf:"center", margin:20 }}>
         searching for passengers...
       </Text>
-      <UserRequestCard />
+      <UserRequestCard mode={mode} setRidePhaseKey={setRidePhaseKey} setRideStatus={setRideStatus}/>
     </ScrollView>
     </BottomSheet>
 
@@ -156,10 +160,15 @@ export default function Home() {
     </View>)}
 
   </View>
+  ) : (
+    <Navigation />
+  )}
 </View>
 
   );
+
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -281,3 +290,4 @@ const styles = StyleSheet.create({
     paddingRight:5
   }
 });
+

@@ -18,7 +18,6 @@ import { faMessage, faPhone, faStar } from "@fortawesome/free-solid-svg-icons";
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
 export default function RiderOnWay({
-  setRiderBooked,
   set,
   setA,
   setB,
@@ -38,7 +37,6 @@ export default function RiderOnWay({
   console.log(loc1Coordinates);
 
   function backToMain() {
-    setRiderBooked(0);
     set(0);
     setA("ENTER  PICK-UP  LOCATION");
     setB("ENTER  DROP-OFF  LOCATION");

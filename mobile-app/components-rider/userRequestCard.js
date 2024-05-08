@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { getFirestore, collection, getDocs, doc, onSnapshot } from "firebase/firestore";
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { auth, app } from "../firebase";
 
-export default function UserRequestCard() {
+export default function UserRequestCard({mode, setRidePhaseKey, setRideStatus}) {
   const [requests, setRequests] = useState([]);
+  const functions = getFunctions(auth.app);
 
   useEffect(() => {
     const db = getFirestore(app);
@@ -29,18 +31,48 @@ export default function UserRequestCard() {
     };
   }, []);
 
+  const acceptingRide = async ( userId,pickup,dropoff,loc1,loc2,price ) => {
+    const data = {
+      uid:auth.currentUser.uid, 
+      mode:mode,
+      userId:userId,
+      riderId:auth.currentUser.uid,
+      pickup:pickup,
+      dropoff:dropoff,
+      pickup_lat:loc1.latitude,
+      pickup_lng:loc1.longitude,
+      dropoff_lat:loc2.latitude,
+      dropoff_lng:loc2.longitude,
+      price:price,
+    }
+    console.log("this is data" + data);
+    const makeNewGoRideBid = httpsCallable(functions, 'makeNewGoRideBid');
+    try {
+      const result = await makeNewGoRideBid(data);
+      console.log(result.data);
+      setRidePhaseKey(result.data.bidkey);
+      setRideStatus(result.data.status);
+    } catch (error) {
+      console.error("Error calling makeNewGoRideBid:", error);
+    }
+  };
+
+
   return (
     <View style={styles.container}>
-      <View style={styles.cardContainer}>
         {requests.map((data) => (
-          <View style={styles.card} key={data.id}>
+          <View style={styles.cardContainer} key={data.id}>
+          <View style={styles.card}>
             <View style={styles.leftCardSide}>
               <Text style={styles.cardHeadText}>Card</Text>
               <Text style={styles.cardText}>
                 Name: {data.basicInfo.first_name}
               </Text>
               <Text style={styles.cardText}>Latitude:</Text>
-              <TouchableOpacity style={styles.btn3}>
+              <TouchableOpacity style={styles.btn3} 
+              onPress={()=>{
+                acceptingRide(data.basicInfo.user_id,data.route.pickup,data.route.dropoff,data.route.pickup_location,data.route.dropoff_location,data.price);
+                }}>
                 <Text
                   style={{
                     fontFamily: "CustomB",
@@ -69,8 +101,8 @@ export default function UserRequestCard() {
               </TouchableOpacity>
             </View>
           </View>
+          </View>
         ))}
-      </View>
     </View>
   );
 }

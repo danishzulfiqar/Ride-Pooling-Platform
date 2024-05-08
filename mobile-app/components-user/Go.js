@@ -19,7 +19,6 @@ import Slider from "./BottomSheetCards";
 import newstyle from "../styles/mapstyle";
 import { auth } from '../firebase';
 import { UID } from '../screens/user/SignIn';
-import cardData from "./carddata";
 import RiderOnWay from "./on-way-rider";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
@@ -43,7 +42,7 @@ export default function Go() {
   const [ani2lng, setAni2lng] = useState();
   const [locSlider, setLocSlider] = useState(0);
   const [showSlider, setShowSlider] = useState(0);
-  const [riderBooked, setRiderBooked] = useState(0);
+  const [riderBooked, setRiderBooked] = useState(false);
   const [enterPickUp, setEnterPickUp] = useState(false);
   const [enterDropOff, setEnterDropOff] = useState(false);
   const [loc1Coordinates, setLoc1Coordinates] = useState();
@@ -78,7 +77,7 @@ export default function Go() {
     const getGoRiders = httpsCallable(functions, 'getGoRiders');
     try {
       const result = await getGoRiders(data);
-      console.log(result.data);
+      console.log(JSON.stringify(result.data));
       setRidersData(result.data);
     } catch (error) {
       console.error("Error calling Function:", error);
@@ -297,7 +296,7 @@ export default function Go() {
 
   return (
     <View style={{ flex: 1 }}>
-      { riderBooked === 0 ? (
+      { riderBooked === false ? (
         locSlider === 0 ? (
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
@@ -369,7 +368,16 @@ export default function Go() {
 
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             {showSlider === 1 ? (
-              <Slider l1={A} l2={B} setRidersDistanceVal={setRidersDistanceVal} set={setShowSlider} riderCardData={ridersData} setRiderBooked={setRiderBooked} setRidersData={setRidersData} loc1coords={loc1Coordinates} loc2coords={loc2Coordinates} uid={UID}/>
+              <Slider l1={A} l2={B} 
+              setRidersDistanceVal={setRidersDistanceVal} 
+              set={setShowSlider} 
+              riderCardData={ridersData} 
+              setRidersData={setRidersData} 
+              loc1coords={loc1Coordinates} 
+              loc2coords={loc2Coordinates} 
+              uid={UID}
+              setRiderBooked={setRiderBooked}
+              />
             ) : (
               <View style={styles.topCon}>
                 <View
@@ -759,7 +767,14 @@ export default function Go() {
         </View>
       )
       ) : (
-        <RiderOnWay setloc1lat={setloc1lat} setloc2lat={setloc2lat} setloc1lng={setloc1lng} setloc2lng={setloc2lng} setAni1lat={setAni1lat} setAni2lat={setAni2lat} setAni1lng={setAni1lng} setAni2lng={setAni2lng}  setRiderBooked={setRiderBooked} set={setShowSlider} setA={setA} setB={setB} ridersDistanceVal={ridersDistanceVal} loc1Coordinates={loc1Coordinates} setLoc1Coordinates={setLoc1Coordinates} setLoc2Coordinates={setLoc2Coordinates}/>
+        <RiderOnWay 
+        setloc1lat={setloc1lat} setloc2lat={setloc2lat} 
+        setloc1lng={setloc1lng} setloc2lng={setloc2lng} 
+        setAni1lat={setAni1lat} setAni2lat={setAni2lat} 
+        setAni1lng={setAni1lng} setAni2lng={setAni2lng}  
+        set={setShowSlider} setA={setA} setB={setB} ridersDistanceVal={ridersDistanceVal} 
+        loc1Coordinates={loc1Coordinates} setLoc1Coordinates={setLoc1Coordinates} 
+        setLoc2Coordinates={setLoc2Coordinates}/>
       )}
     </View>
   );

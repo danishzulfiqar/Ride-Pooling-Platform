@@ -21,8 +21,9 @@ import Home from "../../components-rider/home";
 
 const Drawer = createDrawerNavigator();
 
-export default function drawerNavRider() {
+export default function drawerNavRider({setrole}) {
   const handleSignOut = async () => {
+    setrole(0);
     try {
       await auth.signOut();
       Toast.show({

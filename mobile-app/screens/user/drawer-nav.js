@@ -13,9 +13,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const Drawer = createDrawerNavigator();
 
-export default function drawerNav() {
+export default function drawerNav({setrole}) {
 
     const handleSignOut = async () => {
+        setrole(0);
         try {
             await auth.signOut();
             Toast.show({
