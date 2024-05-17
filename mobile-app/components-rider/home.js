@@ -15,8 +15,10 @@ import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import newstyle from "../styles/mapstyle";
 import UserRequestCard from "./userRequestCard";
-import Test from "../component re-useable/test"
-import Navigation from "../component re-useable/navigation";
+import Navigation from "./navigation";
+import { getFirestore, collection, getDocs, doc, onSnapshot } from "firebase/firestore";
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { auth, app } from "../firebase";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -25,10 +27,33 @@ export default function Home() {
   const [navMode, setNavMode] = useState(false);
   const [slider, setslider] = useState(1);
   const [mode, setMode] = useState(null);
+  const [riderName, setRiderName] = useState(null);
+  const [rideBooked, setRideBooked] = useState(false);
+  const [rideCancelled, setRideCancelled] = useState(false);
   const [ridePhaseKey, setRidePhaseKey] = useState(null);
   const [rideStatus, setRideStatus] = useState(false);
   const [riderLocation, setRiderLocation] = useState();
   const snapPoints = useMemo(() => ['35%','70%'], []);
+  const functions = getFunctions(auth.app);
+
+  useEffect(() => {
+    const db = getFirestore(app);
+    let uid = auth.currentUser.uid;
+    const RiderRef = doc(db, "riders/" + uid);
+
+    const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
+      let updatedRiderData = snapshot.data();
+      console.log(updatedRiderData);
+      setRideBooked(updatedRiderData.crest.activities.rides_booked);
+      setRideBooked(updatedRiderData.crest.activities.rides_cancelled);
+      setRiderName(updatedRiderData.crest.UserData.first_name+updatedRiderData.crest.UserData.last_name);
+    });
+
+    return () => {
+      // Unsubscribe from the snapshot listener when component unmounts
+      unsubscribe();
+    };
+  }, []);
 
 
     ////////////////////////// Get users location /////////////////////////
@@ -134,8 +159,9 @@ export default function Home() {
     <View style={styles.carCard}>
       <Image style={styles.Carimage} source={require('../assets/car2.png')} resizeMode="contain"/>
       <View>
-        <Text style={styles.text}>NAME</Text>
-        <Text style={styles.text}>CAR ID</Text>
+        <Text style={styles.headText}>{riderName}</Text>
+        <Text style={styles.text}>Rides booked:{rideBooked}</Text>
+        <Text style={styles.text}>Rides cancelled:{rideCancelled}</Text>
       </View>
     </View>
 
@@ -161,7 +187,7 @@ export default function Home() {
 
   </View>
   ) : (
-    <Navigation />
+    <Navigation ridePhaseKey={ridePhaseKey}/>
   )}
 </View>
 
@@ -265,11 +291,18 @@ const styles = StyleSheet.create({
     fontSize:20,
   },
 
-  text:{
-    fontFamily: "Custom",
+  headText:{
+    fontFamily: "CustomB",
     fontSize:16,
     marginRight:15,
-    textAlign:"right"
+    textAlign:"left"
+  },
+
+  text:{
+    fontFamily: "Custom",
+    fontSize:14,
+    marginRight:15,
+    textAlign:"left"
   },
 
   Carimage:{

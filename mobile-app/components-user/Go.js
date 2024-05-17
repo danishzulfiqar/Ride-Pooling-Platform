@@ -44,6 +44,7 @@ export default function Go() {
   const [showSlider, setShowSlider] = useState(0);
   const [riderBooked, setRiderBooked] = useState(false);
   const [enterPickUp, setEnterPickUp] = useState(false);
+  const [ridePhaseKey, setRidePhaseKey] = useState(null);
   const [enterDropOff, setEnterDropOff] = useState(false);
   const [loc1Coordinates, setLoc1Coordinates] = useState();
   const [loc2Coordinates, setLoc2Coordinates] = useState();
@@ -77,7 +78,6 @@ export default function Go() {
     const getGoRiders = httpsCallable(functions, 'getGoRiders');
     try {
       const result = await getGoRiders(data);
-      console.log(JSON.stringify(result.data));
       setRidersData(result.data);
     } catch (error) {
       console.error("Error calling Function:", error);
@@ -369,7 +369,6 @@ export default function Go() {
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             {showSlider === 1 ? (
               <Slider l1={A} l2={B} 
-              setRidersDistanceVal={setRidersDistanceVal} 
               set={setShowSlider} 
               riderCardData={ridersData} 
               setRidersData={setRidersData} 
@@ -377,6 +376,7 @@ export default function Go() {
               loc2coords={loc2Coordinates} 
               uid={UID}
               setRiderBooked={setRiderBooked}
+              setRidePhaseKey={setRidePhaseKey}
               />
             ) : (
               <View style={styles.topCon}>
@@ -772,9 +772,11 @@ export default function Go() {
         setloc1lng={setloc1lng} setloc2lng={setloc2lng} 
         setAni1lat={setAni1lat} setAni2lat={setAni2lat} 
         setAni1lng={setAni1lng} setAni2lng={setAni2lng}  
-        set={setShowSlider} setA={setA} setB={setB} ridersDistanceVal={ridersDistanceVal} 
+        set={setShowSlider} setA={setA} setB={setB}
         loc1Coordinates={loc1Coordinates} setLoc1Coordinates={setLoc1Coordinates} 
-        setLoc2Coordinates={setLoc2Coordinates}/>
+        setLoc2Coordinates={setLoc2Coordinates}
+        ridePhaseKey={ridePhaseKey}
+        />
       )}
     </View>
   );

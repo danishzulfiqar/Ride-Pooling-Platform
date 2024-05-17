@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useRef } from "react";
+import { React, useState, useEffect, useRef, useMemo } from "react";
 import {
   View,
   TouchableOpacity,
@@ -8,35 +8,50 @@ import {
   Platform,
   Image,
 } from "react-native";
-import MapViewDirections from "react-native-maps-directions";
-import Icon from "react-native-vector-icons/FontAwesome";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import polyline from "@mapbox/polyline";
+import { auth, app } from "../firebase";
 import newstyle from "../styles/mapstyle";
-import { faMessage, faPhone, faStar } from "@fortawesome/free-solid-svg-icons";
+import Icon from "react-native-vector-icons/FontAwesome";
+import MapViewDirections from "react-native-maps-directions";
+import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faMessage, faPhone, faStar, faShieldHalved } from "@fortawesome/free-solid-svg-icons";
+import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
 export default function RiderOnWay({
+  setRiderBooked,
   set,
   setA,
   setB,
-  ridersDistanceVal,
   loc1Coordinates,
   setLoc1Coordinates,
   setLoc2Coordinates,
   setAni1lat, setAni1lng,
   setAni2lat, setAni2lng,
   setloc1lat, setloc1lng,
-  setloc2lat, setloc2lng
+  setloc2lat, setloc2lng,
+  ridePhaseKey,
 }) {
   const mapRef = useRef(null);
-  const [duration, setDuraton] = useState();
+  const [duration, setDuration] = useState();
   const [distance, setDistance] = useState();
-  console.log(ridersDistanceVal);
-  console.log(loc1Coordinates);
+  const [riderLocationLat, setRiderLocationLat] = useState(null);
+  const [riderLocationLng, setRiderLocationLng] = useState(null);
+  const [l1, setL1] = useState(0);
+  const [l2, setL2] = useState(0);
+  const [route, setRoute] = useState(null);
+  const [riderName, setRiderName] = useState(null);
+  const [riderRating, setRiderRating] = useState(null);
+  const [riderPhone, setRiderPhone] = useState(null);
+  const snapPoints = useMemo(() => ['22%', '60%'], []);
+
 
   function backToMain() {
+    setRiderBooked(0);
     set(0);
     setA("ENTER  PICK-UP  LOCATION");
     setB("ENTER  DROP-OFF  LOCATION");
@@ -48,13 +63,63 @@ export default function RiderOnWay({
     setloc2lat(null); setloc2lng(null);
   }
 
+///////////////// Reading from firestore //////////////////
   useEffect(() => {
+    const db = getFirestore(app);
+    const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
+  
+    // Listen for changes to the RiderRef
+    const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const updatedRequest = snapshot.data(); // Retrieve the data of the specific document
+        console.log("this is bidkey information " + JSON.stringify(updatedRequest));
+        setRiderLocationLat(updatedRequest.riderData.location.geopoint.latitude);
+        setRiderLocationLng(updatedRequest.riderData.location.geopoint.longitude);
+        setL1(updatedRequest.userData.pickup);
+        setL2(updatedRequest.userData.dropoff);
+        setRiderName(updatedRequest.riderData.riderInfo.name);
+        setRiderRating(updatedRequest.riderData.riderInfo.rating);
+        console.log("this is riderLocationLat " + riderLocationLat + riderLocationLng + l1 + l2); 
+        
+      } else {
+        console.log("No such document!");
+      }
+    });
+  
+    return () => {
+      // Unsubscribe from the snapshot listener when component unmounts
+      unsubscribe();
+    };
+  }, []);
+
+  ////////// get route ///////////////////
+
+  async function getRoute() {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/directions/json?origin=${loc1Coordinates.lat},${loc1Coordinates.lng}&destination=${riderLocationLat},${riderLocationLng}&key=${API_KEY}`
+      );
+      const data = await response.json();
+      // Decode the polyline points
+      const polylinePoints = polyline.decode(data.routes[0].overview_polyline.points);
+      // Convert the decoded polyline points into an array of {latitude, longitude} objects
+      const coordinates = polylinePoints.map(point => ({
+        latitude: point[0],
+        longitude: point[1]
+      }));
+      setRoute(coordinates);
+    } catch (error) {
+      console.error("Error fetching route:", error);
+    }
+  }
+
+////////////// getting distance ///////////////////
     const fetchDistanceData = async () => {
       try {
         const loc1Lat = loc1Coordinates.lat;
         const loc1Lng = loc1Coordinates.lng;
-        const ridersDistanceValLat = ridersDistanceVal.lat;
-        const ridersDistanceValLng = ridersDistanceVal.lng;
+        const ridersDistanceValLat = riderLocationLat;
+        const ridersDistanceValLng = riderLocationLng;
 
         const response = await fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${loc1Lat},${loc1Lng}&destinations=${ridersDistanceValLat},${ridersDistanceValLng}&key=${API_KEY}`);
         const data = await response.json();
@@ -63,16 +128,32 @@ export default function RiderOnWay({
         const durationValue = data.rows[0].elements[0].duration.text;
 
         setDistance(distInKm);
-        setDuraton(durationValue);
-        console.log(distInKm)
+        setDuration(durationValue);
+        console.log(distInKm);
+        console.log(durationValue);
 
       } catch (error) {
         console.error('Error fetching distance data:', error);
       }
     };
-  
-    fetchDistanceData();
-  }, [ridersDistanceVal]);
+
+    useEffect(() => {
+      if (riderLocationLat && riderLocationLng) {
+        fetchDistanceData();
+        getRoute();
+      }
+    }, [riderLocationLat, riderLocationLng]);
+    
+//////////// fit map to route /////////////////
+    useEffect(() => {
+      if (route && mapRef.current) {
+        // Fit the map to the coordinates of the polyline
+        mapRef.current.fitToCoordinates(route, {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true,
+        });
+      }
+    }, [route]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -90,47 +171,53 @@ export default function RiderOnWay({
           }}
           loadingEnabled={true}
           customMapStyle={newstyle}
-          showsUserLocation={true}
-          userLocationPriority="high"
-        >
+          userLocationPriority="high">
 
-          {ridersDistanceVal && (
-            <Marker
+            { riderLocationLat && riderLocationLng &&
+              (<Marker
               coordinate={{
-                latitude: ridersDistanceVal.lat,
-                longitude: ridersDistanceVal.lng,
+                latitude: riderLocationLat,
+                longitude: riderLocationLng,
               }}
-              title="Location 2"
-              description="Your drop-off location"
-            />
-          )}
+              title="Rider"
+              description="On its way">
+              <Image
+              source={require("../assets/motorcycle.png")}
+              resizeMode="contain"
+              style={{ width: 30, height: 30 }}/>
+            </Marker>)}
 
-          {loc1Coordinates && (
-            <Marker
+            { loc1Coordinates && (
+              <Marker
               coordinate={{
                 latitude: loc1Coordinates.lat,
                 longitude: loc1Coordinates.lng,
               }}
-              title="Location 2"
-              description="Your drop-off location"
-            />
-          )}
+              title="Me">
+                <Image
+              source={require("../assets/man.png")}
+              resizeMode="contain"
+              style={{ width: 30, height: 30 }}/>
+              </Marker>
+            )}
 
-          {loc1Coordinates.lat &&
-            loc1Coordinates.lng &&
-            ridersDistanceVal.lat &&
-            ridersDistanceVal.lng && (
+            {route && (
+          <Polyline coordinates={route} strokeWidth={4} strokeColor="#000" />
+        )}
+       {/* {loc1Coordinates.lat &&
+            loc1Coordinates.lng && 
+            riderLocationLat && riderLocationLng && (
               <MapViewDirections
                 origin={{
-                  latitude: ridersDistanceVal.lat,
-                  longitude: ridersDistanceVal.lng,
+                  latitude: riderLocationLat,
+                  longitude: riderLocationLng,
                 }}
                 destination={{
                   latitude: loc1Coordinates.lat,
                   longitude: loc1Coordinates.lng,
                 }}
                 apikey={API_KEY}
-                strokeWidth={3}
+                strokeWidth={0}
                 strokeColor="#000000"
                 precision="high"
                 onReady={(result) => {
@@ -141,36 +228,29 @@ export default function RiderOnWay({
                   });
                 }}
               />
-            )}
+            )}  */}
         </MapView>
       </View>
 
+
+      <BottomSheet index={0} snapPoints={snapPoints}>
       <View style={styles.boxContainer}>
         <View style={styles.timing}>
-          <Text
-            style={{
-              color: "grey",
-              fontFamily: "Custom",
-              fontSize: 24,
-              alignSelf: "flex-start",
-            }}
-          >
-            Arriving in ...{" "}
-          </Text>
+          <View style={styles.timeInfo}>
           <Text
             style={{
               color: "black",
               fontFamily: "CustomB",
-              fontSize: 24,
-              alignSelf: "flex-end",
+              fontSize: 20,
+              alignSelf: "flex-start",
             }}
           >
-            {duration}
+            {riderName} arriving in {duration}.
           </Text>
-        </View>
-        <View style={styles.hr} />
+          <Text style={styles.carNumber}>Car / KB-3</Text>
+          </View>
+          <View >
 
-        <View style={styles.info}>
           <View style={styles.rating}>
             <Image
               style={styles.driverImg}
@@ -178,7 +258,7 @@ export default function RiderOnWay({
               source={require("../assets/user.png")}
             />
             <View style={styles.ratingBox}>
-              <Text style={styles.ratingText}>5</Text>
+              <Text style={styles.ratingText}>{riderRating}</Text>
               <FontAwesomeIcon
                 style={styles.ratingLogo}
                 icon={faStar}
@@ -187,30 +267,68 @@ export default function RiderOnWay({
               />
             </View>
           </View>
-
-          <View style={styles.vehicleInfo}>
-            <Text style={styles.infoText}>Ali Khan</Text>
-            <Text style={styles.infoText1}>BMX-221 / Civic-X</Text>
-            <Text style={styles.infoText1}>{distance}</Text>
+          {/* <Text style={styles.carNumber}>Car / KB-3</Text> */}
           </View>
         </View>
 
-        <View style={styles.contact}>
+        <View style={styles.hr} />
+
+        <View style={styles.locationContaner} >
+
+        <Text style={{
+              color: "grey",
+              fontFamily: "Custom",
+              marginTop: 10,
+            }}>Payment</Text>
+
+        <View style={styles.location}>
+        <Image style={styles.imgstyle}
+              resizeMode="contain"
+              source={require('../assets/money.png')} />
+        <Text style={styles.locationText}>2000 PKR</Text>
+      </View>
+
+        <Text style={{
+              color: "grey",
+              fontFamily: "Custom",
+              marginTop: 10,
+            }}>Route</Text>
+            
+        <View style={styles.location}>
+        <Image style={styles.imgstyle}
+              resizeMode="contain"
+              source={require('../assets/a.png')} />
+        <Text style={styles.locationText}>{l1}</Text>
+      </View>
+      <View style={styles.location}>
+        <Image style={styles.imgstyle}
+              resizeMode="contain"
+              source={require('../assets/b.png')} />
+        <Text style={styles.locationText}>{l2}</Text>
+      </View>
+        </View>
+
+          <View style={styles.btnContacts}>
           <TouchableOpacity style={styles.contactBtn}>
             <FontAwesomeIcon icon={faPhone} size={25} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.contactBtn}>
             <FontAwesomeIcon icon={faMessage} size={25} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.contactBtn} onPress={backToMain}>
+          <TouchableOpacity style={styles.contactBtn}>
+            <FontAwesomeIcon icon={faShieldHalved} size={25} color="white" />
+          </TouchableOpacity>
+          </View>
+
+        <TouchableOpacity style={styles.cancelBtn} onPress={backToMain}>
             <Text
-              style={{ color: "white", fontFamily: "CustomB", fontSize: 16 }}
+              style={{ color: "black", fontFamily: "CustomB", fontSize: 16, alignSelf: "center" }}
             >
               Cancel Ride
             </Text>
           </TouchableOpacity>
-        </View>
-      </View>
+          </View>
+        </BottomSheet>
     </SafeAreaView>
   );
 }
@@ -233,73 +351,55 @@ const styles = StyleSheet.create({
   },
 
   boxContainer: {
-    position: "absolute",
-    bottom: 0,
     width: "100%",
-    backgroundColor: "#F0F0F0",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
   },
 
   hr: {
     backgroundColor: "grey",
-    height: 2,
-    width: "90%",
+    height: 1,
+    width: "100%",
     alignSelf: "center",
     marginTop: 5,
-    marginBottom: 10,
-  },
-
-  timing: {
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    padding: 10,
-  },
-
-  info: {
-    flexDirection: "row",
-    width: "50%",
-    marginBottom: 20,
-  },
-
-  contact: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 30,
-    padding: 10,
     marginBottom: 5,
   },
 
+  timing: {
+    flexDirection: "row",
+    justifyContent:'space-between',
+    alignSelf:'center',
+    alignItems:'center',
+    width: '85%',
+  },
+
+  timeInfo:{
+    width: '70%',
+  },
+
+  btnContacts:{
+    width: '60%',
+    alignSelf:'center',
+    marginTop: 10,
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent:'space-between',
+  },
+
   contactBtn: {
-    backgroundColor: "#141E46",
-    borderRadius: 15,
-    padding: 10,
-    paddingLeft: 20,
-    paddingRight: 20,
+    backgroundColor: "#FF6969",
+    borderRadius: 40,
+    padding: 16,
   },
 
-  vehicleInfo: {
-    alignItems: "center",
+  cancelBtn: {
+    backgroundColor: "#ECECEC",
+    height: 50,
+    borderRadius: 10,
     justifyContent: "center",
-    width: "100%",
-    textAlign: "left",
-  },
-
-  infoText: {
-    fontFamily: "Custom",
-    fontSize: 18,
-    right: 10,
-    marginBottom: 6,
-  },
-
-  infoText1: {
-    fontFamily: "Custom",
-    color: "grey",
-    fontSize: 18,
-    right: 10,
-    marginBottom: 6,
+    borderColor: "lightgrey",
+    borderWidth: 2,
+    borderRadius: 10,
+    width: "85%",
+    alignSelf: "center",
   },
 
   rating: {
@@ -308,25 +408,53 @@ const styles = StyleSheet.create({
   },
 
   ratingText: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: "Custom",
   },
 
-  ratingLogo: {},
-
   driverImg: {
     width: "auto",
-    height: 70,
+    height: 60,
   },
 
   ratingBox: {
     flexDirection: "row",
     gap: 5,
-    borderRadius: 20,
+    borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#FF6969",
-    width: "30%",
+    paddingLeft: 20,
+    paddingRight: 20,
     alignSelf: "center",
+  },
+
+  locationContaner:{
+    width:'85%',
+    alignSelf:'center',
+  },
+  
+  location:{
+    flexDirection:'row',
+    alignItems:'center',
+  },
+
+  locationText:{
+    width:'85%',
+    fontFamily:'Custom',
+  },
+
+  imgstyle:{
+    width:25,
+    height:25,
+    marginRight:6
+  },
+
+  carNumber: {
+    color: "grey",
+    fontSize:14,
+    borderRadius: 5,
+    fontFamily:'Custom',
+    alignSelf: "flex-start",
   },
 });

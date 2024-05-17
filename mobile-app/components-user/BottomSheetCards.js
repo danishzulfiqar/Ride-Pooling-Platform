@@ -4,7 +4,7 @@ import RiderCard from './ridercard';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
-export default function Slider({l1,l2, set, riderCardData, setRidersData, setRidersDistanceVal, loc1coords, loc2coords, uid, setRiderBooked }) {
+export default function Slider({l1,l2, set, riderCardData, setRidersData, loc1coords, loc2coords, uid, setRiderBooked, setRidePhaseKey }) {
   const snapPoints = useMemo(() => ['40%', '50%', '80%'], []);
 
   function back(){
@@ -35,7 +35,7 @@ export default function Slider({l1,l2, set, riderCardData, setRidersData, setRid
         </View>
         <View style={styles.hr}/>
         <ScrollView>
-          <RiderCard riderCardData={riderCardData} setRiderBooked={setRiderBooked} setRidersData={setRidersData} setRidersDistanceVal={setRidersDistanceVal} l1={l1} l2={l2} loc1coords={loc1coords} loc2coords={loc2coords} uid={uid}/>
+          <RiderCard riderCardData={riderCardData} setRiderBooked={setRiderBooked} setRidersData={setRidersData} l1={l1} l2={l2} loc1coords={loc1coords} loc2coords={loc2coords} uid={uid} setRidePhaseKey={setRidePhaseKey} />
         </ScrollView>
       </BottomSheet>
     </View>

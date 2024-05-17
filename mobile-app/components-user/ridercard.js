@@ -4,17 +4,18 @@ import { auth, app } from "../firebase";
 import { getFirestore, collection, getDocs, doc, onSnapshot } from "firebase/firestore";
 import { ProgressBar } from 'react-native-paper';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function RiderCard({ riderCardData, setRiderBooked, setRidersData, setRidersDistanceVal, l1, l2, loc1coords, loc2coords, uid }) {
+export default function RiderCard({ riderCardData, setRiderBooked, setRidersData, l1, l2, loc1coords, loc2coords, uid, setRidePhaseKey}) {
   const [timer, setTimer] = useState(0);
   const [progressTime, setProgressTime] = useState(1);
   const functions = getFunctions(auth.app);
+  // console.log("this is rider information" + JSON.stringify(riderCardData));
 
 
   useEffect(() => {
     const db = getFirestore(app);
     let uid = auth.currentUser?.uid;
-    console.log("this is uid "+ uid);
     if (uid) {
       const usersRef = doc(db, "users/" + uid);
 
@@ -23,6 +24,9 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
         if (snapshot.exists()) {
           const userData = { uid: snapshot.id, ...snapshot.data() };
           console.log("this is " + JSON.stringify(userData));
+          console.log("this is ride status " + userData.current_ride.rideStatus);
+          setRidePhaseKey(userData.current_ride.RidebidKey);
+          setRiderBooked(userData.current_ride.rideStatus);
         } else {
           console.log("User document does not exist");
         }
@@ -35,14 +39,6 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
     }
   }, []);
 
-
-
-  function sendReq(geohash,lat,lng) {
-    setRidersDistanceVal({
-      lat:lat,
-      lng:lng,
-    })
-  }
 
 
   /////////////// SENDING RIDER REQUEST ///////////////////
@@ -74,12 +70,12 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
   useEffect(() => {
     let interval;
     if (riderCardData !== null) {
-      setTimer(5); // TIME IN SEC
+      setTimer(10); // TIME IN SEC
       interval = setInterval(() => {
         setTimer(prevTimer => {
           if (prevTimer > 0) {
             let newTime = prevTimer - 1;
-            setProgressTime(newTime/5);
+            setProgressTime(newTime/10);
             return newTime;
           } else {
             clearInterval(interval); // Clear interval when timer reaches 0
@@ -106,15 +102,12 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
     <ProgressBar color='black' style={{height:5}} progress={progressTime}/>
     <View style={styles.card}>
       <View style={styles.leftCardSide}>
-        <Text style={styles.cardHeadText}>CARD</Text>
-        <Text style={styles.cardText}>
-          Availability: {card.crest.availability}
-        </Text>
-        <Text style={styles.cardText}>Latitude: {card.location.geopoint._latitude}</Text>
+        <Text style={styles.cardHeadText}>{card.crest.UserData.first_name}{card.crest.UserData.last_name}</Text>
+        <Text style={styles.cardText}>Availability:True</Text>
+        <Text style={styles.cardText}>{card.crest.UserData.phone_number}</Text>
         <TouchableOpacity
           style={styles.btn3}
           onPress={() => {
-            sendReq(card.location.geohash, card.location.geopoint._latitude, card.location.geopoint._longitude); // Pass the geohash value to the sendReq function
             requestingRider(card.crest.UserData.user_id);
           }}
         >
@@ -130,9 +123,9 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
         </TouchableOpacity>
       </View>
       <View style={styles.rightCardSide}>
-        <Text style={styles.cardHeadText}>Price</Text>
+        <Text style={styles.cardHeadText}> {card.crest.rating.rating_value} <Icon name="star" size={20} color="black" /></Text>
         <Text style={styles.cardText}>Geohash: {card.location.geohash}</Text>
-        <Text style={styles.cardText}>Longitude: {card.location.geopoint._longitude}</Text>
+        <Text style={styles.cardText}>{card.location.geopoint._longitude},{card.location.geopoint._latitude}</Text>
         <TouchableOpacity style={styles.btn31} >
           <Text
             style={{
@@ -204,7 +197,7 @@ const styles = StyleSheet.create({
   },
   cardHeadText: {
     fontFamily: "CustomB",
-    fontSize: 18,
+    fontSize: 16,
   },
   cardText: {
     fontFamily: "Custom",

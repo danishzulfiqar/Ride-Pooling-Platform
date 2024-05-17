@@ -3,9 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { getFirestore, collection, getDocs, doc, onSnapshot } from "firebase/firestore";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { auth, app } from "../firebase";
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { ProgressBar } from "react-native-paper";
 
 export default function UserRequestCard({mode, setRidePhaseKey, setRideStatus}) {
   const [requests, setRequests] = useState([]);
+  const [progressTime, setProgressTime] = useState(0);
+  const [timer, setTimer] = useState(0);
   const functions = getFunctions(auth.app);
 
   useEffect(() => {
@@ -21,7 +25,7 @@ export default function UserRequestCard({mode, setRidePhaseKey, setRideStatus}) 
       snapshot.docs.forEach((doc) => {
         updatedRequests.push({ ...doc.data(), id: doc.id });
       });
-      console.log(updatedRequests);
+      compareArray(updatedRequests);
       setRequests(updatedRequests);
     });
 
@@ -50,26 +54,59 @@ export default function UserRequestCard({mode, setRidePhaseKey, setRideStatus}) 
     try {
       const result = await makeNewGoRideBid(data);
       console.log(result.data);
-      setRidePhaseKey(result.data.bidkey);
+      setRidePhaseKey(result.data.bidKey);
       setRideStatus(result.data.status);
     } catch (error) {
       console.error("Error calling makeNewGoRideBid:", error);
     }
   };
 
+  useEffect(() => {
+    let interval;
+    if (requests !== null) {
+      setTimer(10); // TIME IN SEC
+      interval = setInterval(() => {
+        setTimer(prevTimer => {
+          if (prevTimer > 0) {
+            let newTime = prevTimer - 1;
+            setProgressTime(newTime/10);
+            return newTime;
+          } else {
+            clearInterval(interval); // Clear interval when timer reaches 0
+            return 0;
+          }
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval); // Cleanup function
+  }, [requests]);
+
+  function compareArray(array){
+    let newArray = array;
+    console.log("this is new array" + newArray);
+
+  }
+
 
   return (
     <View style={styles.container}>
         {requests.map((data) => (
           <View style={styles.cardContainer} key={data.id}>
+          <ProgressBar color='black' style={{height:5}} progress={progressTime}/>
           <View style={styles.card}>
             <View style={styles.leftCardSide}>
-              <Text style={styles.cardHeadText}>Card</Text>
-              <Text style={styles.cardText}>
-                Name: {data.basicInfo.first_name}
-              </Text>
-              <Text style={styles.cardText}>Latitude:</Text>
-              <TouchableOpacity style={styles.btn3} 
+              <Text style={styles.cardHeadText}>{data.basicInfo.first_name} {data.basicInfo.last_name}</Text>
+              <Text style={styles.cardText}>{data.basicInfo.phone_number}</Text>
+              <Text style={styles.cardText2}><Text style={{ fontFamily: "CustomB", fontSize:12 }}>Pickup: </Text>{data.route.pickup}</Text>
+            </View>
+            <View style={styles.rightCardSide}>
+            <Text style={styles.cardHeadText}>{data.price} PKR</Text>
+              <Text style={styles.cardText}>{data.rating.value}<Icon name="star" size={14} color="black" /></Text>
+              <Text style={styles.cardText2}><Text style={{ fontFamily: "CustomB", fontSize:12 }}>Dropoff: </Text>{data.route.dropoff}</Text>
+            </View>
+          </View>
+          <View style={styles.btnContainer}>
+            <TouchableOpacity style={styles.btn3} 
               onPress={()=>{
                 acceptingRide(data.basicInfo.user_id,data.route.pickup,data.route.dropoff,data.route.pickup_location,data.route.dropoff_location,data.price);
                 }}>
@@ -83,11 +120,6 @@ export default function UserRequestCard({mode, setRidePhaseKey, setRideStatus}) 
                   Accept
                 </Text>
               </TouchableOpacity>
-            </View>
-            <View style={styles.rightCardSide}>
-            <Text style={styles.cardHeadText}>Info</Text>
-              <Text style={styles.cardText}>Price: {data.price}</Text>
-              <Text style={styles.cardText}>Longitude:</Text>
               <TouchableOpacity style={styles.btn31}>
                 <Text
                   style={{
@@ -100,7 +132,6 @@ export default function UserRequestCard({mode, setRidePhaseKey, setRideStatus}) 
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
           </View>
         ))}
     </View>
@@ -132,6 +163,13 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
   },
+  btnContainer:{
+    flexDirection: "row",
+    width: "95%",
+    alignSelf: "center",
+    paddingBottom:10,
+    justifyContent:"space-between",
+  },
   rightCardSide: {
     width: "50%",
     alignItems: "flex-end",
@@ -150,11 +188,14 @@ const styles = StyleSheet.create({
     fontFamily: "Custom",
     fontSize: 14,
   },
+  cardText2: {
+    fontFamily: "Custom",
+    fontSize: 10,
+  },
   btn3: {
     backgroundColor: "#FF6969",
     height: 35,
     width: 100,
-    marginTop: 10,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -163,7 +204,6 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     height: 35,
     width: 100,
-    marginTop: 10,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
