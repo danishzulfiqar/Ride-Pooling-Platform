@@ -18,6 +18,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faMessage, faPhone, faStar, faShieldHalved } from "@fortawesome/free-solid-svg-icons";
 import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import ChatBox from "../component-Chatbox/chatBox";
 
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
@@ -35,6 +36,7 @@ export default function RiderOnWay({
   setloc1lat, setloc1lng,
   setloc2lat, setloc2lng,
   ridePhaseKey,
+  role
 }) {
   const mapRef = useRef(null);
   const [duration, setDuration] = useState();
@@ -47,7 +49,8 @@ export default function RiderOnWay({
   const [riderName, setRiderName] = useState(null);
   const [riderRating, setRiderRating] = useState(null);
   const [riderPhone, setRiderPhone] = useState(null);
-  const snapPoints = useMemo(() => ['22%', '60%'], []);
+  const [chatBox, setChatBox] = useState(false);
+  const snapPoints = useMemo(() => ['22%', chatBox ? '100%' : '60%'], [chatBox]);
 
 
   function backToMain() {
@@ -234,7 +237,10 @@ export default function RiderOnWay({
 
 
       <BottomSheet index={0} snapPoints={snapPoints}>
-      <View style={styles.boxContainer}>
+      { chatBox === true ? (
+        <ChatBox  setChatBox={setChatBox} ridePhaseKey={ridePhaseKey} role={role}/>
+      ) : (
+        <View style={styles.boxContainer}>
         <View style={styles.timing}>
           <View style={styles.timeInfo}>
           <Text
@@ -312,7 +318,7 @@ export default function RiderOnWay({
           <TouchableOpacity style={styles.contactBtn}>
             <FontAwesomeIcon icon={faPhone} size={25} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.contactBtn}>
+          <TouchableOpacity style={styles.contactBtn} onPress={()=>{setChatBox(true)}}>
             <FontAwesomeIcon icon={faMessage} size={25} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.contactBtn}>
@@ -328,7 +334,8 @@ export default function RiderOnWay({
             </Text>
           </TouchableOpacity>
           </View>
-        </BottomSheet>
+      )}
+      </BottomSheet>
     </SafeAreaView>
   );
 }

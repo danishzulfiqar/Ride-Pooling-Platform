@@ -8,11 +8,12 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from "react-native-maps";
 import { faMessage, faPhone, faStar, faShieldHalved } from "@fortawesome/free-solid-svg-icons";
 import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import ChatBox from "../component-Chatbox/chatBox";
 
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
-export default function Route({ridePhaseKey}) {
+export default function Route({ridePhaseKey, role}) {
   const mapRef = useRef(null);
   const [heading, setHeading] = useState();
   const [location, setLocation] = useState(null);
@@ -26,6 +27,7 @@ export default function Route({ridePhaseKey}) {
   const [fairPrice, setFairPrice] = useState(null);
   const [distance, setDistance] = useState(null);
   const [duration, setDuration] = useState(null);
+  const [chatBox, setChatBox] = useState(false);
   const [markerPosition, setMarkerPosition] = useState({
     latitude: 33.6844,
     longitude: 73.0479,
@@ -34,7 +36,7 @@ export default function Route({ridePhaseKey}) {
     latitude: 33.7077,
     longitude: 73.0498,
   });
-  const snapPoints = useMemo(() => ['20%', '55%'], []);
+  const snapPoints = useMemo(() => ['20%', chatBox ? '100%' : '55%'], [chatBox]);
   const db = getFirestore(app);
 
 ////////////////// reading bids->go->rideBidKey from firestore /////////////////////
@@ -218,7 +220,10 @@ useEffect(() => {
 
 
       <BottomSheet index={0} snapPoints={snapPoints}>
-      <View style={styles.boxContainer}>
+      {chatBox === true ? (
+        <ChatBox setChatBox={setChatBox} ridePhaseKey={ridePhaseKey} role={role}/>
+      ) : (
+        <View style={styles.boxContainer}>
         <View style={styles.timing}>
           <View style={styles.timeInfo}>
           <Text
@@ -298,7 +303,7 @@ useEffect(() => {
           <TouchableOpacity style={styles.contactBtn}>
             <FontAwesomeIcon icon={faPhone} size={25} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.contactBtn}>
+          <TouchableOpacity style={styles.contactBtn} onPress={() => setChatBox(true)}>
             <FontAwesomeIcon icon={faMessage} size={25} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.contactBtn}>
@@ -314,6 +319,7 @@ useEffect(() => {
             </Text>
           </TouchableOpacity>
           </View>
+      )}
         </BottomSheet>
     </View>
   );

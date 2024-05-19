@@ -13,7 +13,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const Drawer = createDrawerNavigator();
 
-export default function drawerNav({setrole}) {
+export default function drawerNav({setrole, role}) {
 
     const handleSignOut = async () => {
         setrole(0);
@@ -84,6 +84,7 @@ export default function drawerNav({setrole}) {
                         drawerLabel: 'Go',
                         title: 'Go',
                     }}
+                    initialParams={{ role: role }}
                     component={Go}
                 />
                 <Drawer.Screen

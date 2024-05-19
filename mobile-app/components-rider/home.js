@@ -10,6 +10,7 @@ import {
   Keyboard,
   Image, 
 } from "react-native";
+import { useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -23,6 +24,8 @@ import { auth, app } from "../firebase";
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
 export default function Home() {
+  const route = useRoute();
+  const { role } = route.params;
   const mapRef = useRef(null);
   const [navMode, setNavMode] = useState(false);
   const [slider, setslider] = useState(1);
@@ -187,7 +190,7 @@ export default function Home() {
 
   </View>
   ) : (
-    <Navigation ridePhaseKey={ridePhaseKey}/>
+    <Navigation ridePhaseKey={ridePhaseKey} role={role}/>
   )}
 </View>
 

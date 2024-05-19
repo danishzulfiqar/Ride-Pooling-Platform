@@ -21,6 +21,7 @@ import Toast from 'react-native-toast-message';
 import RiderOnWay from './components-user/on-way-rider';
 import Home from './components-rider/home';
 import DrawerNavRider from './screens/rider/drawerNavRider';
+import ChatBox from './component-Chatbox/chatBox';
 
 
 
@@ -73,9 +74,9 @@ export default function App() {
       <View style={styles.container}>
         {getstarted ? (
           role === 0 ? (<Pickrole getvalue={setrole} backbutton={setgetstarted} />)
-            : role === 'rider' ? (haveaccount ? (currentUser ? (<DrawerNavRider setrole={setrole}/>) : (<SignInRider user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount={sethaveaccount} />))
+            : role === 'rider' ? (haveaccount ? (currentUser ? (<DrawerNavRider setrole={setrole} role={role}/>) : (<SignInRider user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount={sethaveaccount} />))
               : (<FormRider backbutton={sethaveaccount} currentUser={currentUser} sethaveaccount={sethaveaccount} />))
-              : role === 'user' ? (haveaccount ? (currentUser ? (<DrawerNav setrole={setrole}/>) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount={sethaveaccount} />))
+              : role === 'user' ? (haveaccount ? (currentUser ? (<DrawerNav setrole={setrole} role={role}/>) : (<SignIn user={currentUser} setUser={setCurrentUser} backbutton={setrole} role={role} sethaveaccount={sethaveaccount} />))
                 : (<Form backbutton={setrole} currentUser={currentUser} sethaveaccount={sethaveaccount} />))
                 : null)
           : (<Intropage begin={setgetstarted} />)}

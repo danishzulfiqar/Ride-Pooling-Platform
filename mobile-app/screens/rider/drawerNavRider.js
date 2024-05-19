@@ -21,7 +21,7 @@ import Home from "../../components-rider/home";
 
 const Drawer = createDrawerNavigator();
 
-export default function drawerNavRider({setrole}) {
+export default function drawerNavRider({setrole, role}) {
   const handleSignOut = async () => {
     setrole(0);
     try {
@@ -94,6 +94,7 @@ export default function drawerNavRider({setrole}) {
             drawerLabel: "Home",
             title: "Home",
           }}
+          initialParams={{ role: role }}
           component={Home}
         />
         {/* <Drawer.Screen

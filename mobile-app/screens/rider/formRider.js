@@ -81,7 +81,7 @@ export default function formRider({ backbutton, currentUser, sethaveaccount }) {
   };
 
   const callSaveRiderDataFunction = async (data) => {
-    const saveRiderData  = httpsCallable(functions, 'saveRiderData ');
+    const saveRiderData  = httpsCallable(functions, 'saveRiderData');
     try {
       const result = await saveRiderData (data);
       console.log(result.data);

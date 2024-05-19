@@ -20,10 +20,13 @@ import newstyle from "../styles/mapstyle";
 import { auth } from '../firebase';
 import { UID } from '../screens/user/SignIn';
 import RiderOnWay from "./on-way-rider";
+import { useRoute } from '@react-navigation/native';
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
 export default function Go() {
+  const route = useRoute();
+  const { role } = route.params;
   const mapRef = useRef(null);
   const mapRef2 = useRef(null);
   const mapRef3 = useRef(null);
@@ -776,6 +779,7 @@ export default function Go() {
         loc1Coordinates={loc1Coordinates} setLoc1Coordinates={setLoc1Coordinates} 
         setLoc2Coordinates={setLoc2Coordinates}
         ridePhaseKey={ridePhaseKey}
+        role={role} 
         />
       )}
     </View>
