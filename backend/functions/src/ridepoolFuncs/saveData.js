@@ -70,7 +70,11 @@ exports.savePassengerData = functions.https.onCall(async (data, context) => {
             rating: {
                 rating_factor: 2,
                 rating_value: 5
-            }
+            },
+        },
+        current_ride: {
+            RidebidKey: "",
+            rideStatus: false,
         },
         availability: false
 
@@ -157,6 +161,10 @@ exports.saveRiderData = functions.https.onCall(async (data, context) => {
                 vehicle_photo: false
             },
             varified: false,
+        },
+        current_ride: {
+            RidebidKey: "",
+            rideStatus: false,
         },
         availability: false,
 
@@ -406,6 +414,8 @@ exports.makeNewGoRideBid = functions.https.onCall(async (data, context) => {
         rides: riderCrest.activities.rides_booked,
     }
 
+    const riderLocation = riderCrestDoc.data().location;
+
     // console.log("User info :", userInfo );
     // console.log("Rider info :", riderInfo);
 
@@ -415,12 +425,11 @@ exports.makeNewGoRideBid = functions.https.onCall(async (data, context) => {
         active_status: true,
         riderData: {
             rider_id: RIDERID,
-            riderRef: riderRefDoc,
             riderInfo: riderInfo,
+            location: riderLocation,
         },
         userData: {
             user_id: USERID,
-            user_ref: userRefDoc,
             userInfo: userInfo,
             pickup: data.pickup,
             dropoff: data.dropoff,
@@ -474,3 +483,105 @@ exports.makeNewGoRideBid = functions.https.onCall(async (data, context) => {
 
 
 });
+
+
+// function for sending msg in the chatbox of a specific ride bid
+
+exports.sendMsgInChat = functions.https.onCall(async (data, context) => {
+
+    console.log("sendMsgInChat called", data);
+
+    // checking valid arguments
+    if (!data.uid || !data.ridebidKey || !data.role || !data.mode || !data.msg) {
+        console.log("input data is invalid");
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }else{
+        console.log("input data is valid");
+    }
+
+    // checking auth state and if user sent request himself
+    if (!context.auth || (context.auth.uid != data.uid)) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Authentication required."
+        );
+    }
+
+    const UID = data.uid;
+    const RIDEBIDKEY = data.ridebidKey;
+    const ROLE = data.role;
+    const MSG = data.msg;
+    const MODE = data.mode;
+
+    // checking if user exists in the given role
+
+    const db = admin.firestore();
+    let ref;
+
+    if (ROLE == "user") {
+        ref = db.collection('users').doc(UID);
+    } else if (ROLE == "rider") {
+        ref = db.collection('riders').doc(UID);
+    } else {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    const doc = await ref.get();
+    if (!doc.exists) {
+        throw new functions.https.HttpsError('not-found', 'User not found for the given role');
+    }
+
+    if (MODE == "GO") {
+
+        // checking if ride bid exists for the given mode
+        const rideRef = db.collection('Rides').doc('Bids').collection("GO").doc(RIDEBIDKEY);
+
+        const rideDoc = await rideRef.get();
+        if (!rideDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Ride bid not found in the given mode');
+        }
+
+        // checking if ride bid is active
+        const rideData = rideDoc.data();
+        if (!rideData.active_status) {
+            throw new functions.https.HttpsError('unavailable', 'Ride bid is not active');
+        }
+
+        // checking if user is part of the ride bid for GO mode
+
+       if (ROLE == "user") {
+            if (rideData.userData.user_id != UID) {
+                throw new functions.https.HttpsError('unauthorized', 'User is not part of the ride bid');
+            }
+        } else if (ROLE == "rider") {
+            if (rideData.riderData.rider_id != UID) {
+                throw new functions.https.HttpsError('unauthorized', 'Rider is not part of the ride bid');
+            }
+        }
+
+        // adding message to the chatbox of the ride bid
+        // adding new doc to the chat collection of the ride bid
+
+        let result;
+
+        await rideRef.collection('chat').doc().set({
+            sender: UID,
+            ROLE : ROLE,
+            message: MSG,
+            time: new Date().toISOString(),
+        }).then(() => {
+            result = { status: true, msg: "Message sent successfully!" };
+        }).catch((error) => {
+            console.error('Error sending message:', error);
+            throw new functions.https.HttpsError('unknown', error.message, error);
+        })
+
+        return result;
+
+
+    } else {
+        throw new functions.https.HttpsError('invalid-argument', 'Only GO mode is supported for now');
+    }
+
+})
+

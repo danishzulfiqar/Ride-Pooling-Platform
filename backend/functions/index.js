@@ -50,6 +50,9 @@ exports.sendRequestToRider = saveData.sendRequestToRider;
 // function for making a new GO ride bid in rides collection
 exports.makeNewGoRideBid = saveData.makeNewGoRideBid;
 
+// function for sending msg in the chatbox of a specific ride bid
+exports.sendMsgInChat = saveData.sendMsgInChat;
+
 
 // --------------- getData funcs ---------------------------
 

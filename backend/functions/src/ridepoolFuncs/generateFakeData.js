@@ -39,11 +39,24 @@ exports.generateFakeRiderData = functions.https.onCall(async (data, context) => 
             rating: {
                 rating_factor: 2,
                 rating_value: 5
-            }
+            },
+            varification: {
+                driving_license: false,
+                vehicle_registration: false,
+                vehicle_insurance: false,
+                vehicle_inspection: false,
+                vehicle_photo: false
+            },
+        },
+        current_ride: {
+            RidebidKey: "",
+            rideStatus: false,
         },
         availability: false,
-        location: new firestore.GeoPoint(24.8607, 67.0011),
-        geohash: geofire.geohashForLocation([24.8607, 67.0011])
+        location:{
+            geopoint: new firestore.GeoPoint(24.8607, 67.0011),
+            geohash: geofire.geohashForLocation([24.8607, 67.0011])
+        }
     });
 
     return { result: "Fake Rider Data Generated" };
