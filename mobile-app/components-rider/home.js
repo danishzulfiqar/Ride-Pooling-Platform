@@ -16,8 +16,8 @@ import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import newstyle from "../styles/mapstyle";
 import UserRequestCard from "./userRequestCard";
-import Navigation from "./navigation";
-import { getFirestore, collection, getDocs, doc, onSnapshot } from "firebase/firestore";
+import NavigationToUser from "./navigationToUser";
+import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { auth, app } from "../firebase";
 
@@ -38,10 +38,11 @@ export default function Home() {
   const [riderLocation, setRiderLocation] = useState();
   const snapPoints = useMemo(() => ['35%','70%'], []);
   const functions = getFunctions(auth.app);
+  const db = getFirestore(app);
+  const uid = auth.currentUser.uid;
 
   useEffect(() => {
-    const db = getFirestore(app);
-    let uid = auth.currentUser.uid;
+    
     const RiderRef = doc(db, "riders/" + uid);
 
     const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
@@ -57,6 +58,24 @@ export default function Home() {
       unsubscribe();
     };
   }, []);
+
+  /////////////////// Set Rider Availability //////////////////////
+
+  const setAvailability = async (available) => {
+
+    const availabilityRef = doc(db, "riders", uid);
+    const updateData = {
+      "availability": available,
+    };
+  
+    try {
+      await updateDoc(availabilityRef, updateData);
+       console.log("Availability updated successfully!");
+    } catch (error) {
+      console.error("Error updating availability: ", error);
+    }
+    
+  };
 
 
     ////////////////////////// Get users location /////////////////////////
@@ -128,7 +147,12 @@ export default function Home() {
       <Text style={styles.mode}>
         {mode}
       </Text>
-      <TouchableOpacity style={styles.btnStop} onPress={function(){setslider(1); setMode(null)}}>
+      <TouchableOpacity style={styles.btnStop} 
+      onPress={function(){
+        setAvailability(false);
+        setslider(1); 
+        setMode(null)
+        }}>
         <Text style={styles.btnText}>
           Stop
         </Text>
@@ -179,6 +203,7 @@ export default function Home() {
             },
           });
         } else {
+          setAvailability(true);
           setslider(0);
         }
         }}>
@@ -190,7 +215,7 @@ export default function Home() {
 
   </View>
   ) : (
-    <Navigation ridePhaseKey={ridePhaseKey} role={role}/>
+    <NavigationToUser ridePhaseKey={ridePhaseKey} role={role}/>
   )}
 </View>
 

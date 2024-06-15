@@ -17,10 +17,12 @@ import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Slider from "./BottomSheetCards";
 import newstyle from "../styles/mapstyle";
-import { auth } from '../firebase';
+import { auth, app } from '../firebase';
 import { UID } from '../screens/user/SignIn';
 import RiderOnWay from "./on-way-rider";
 import { useRoute } from '@react-navigation/native';
+import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
+
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -57,7 +59,8 @@ export default function Go() {
   const [B, setB] = useState("ENTER  DROP-OFF  LOCATION");
   const snapPoints1 = useMemo(() => ["20%", "100%"], []);
   const [loading, setLoading] = useState(false);
-
+  const db = getFirestore(app);
+  const uid = auth.currentUser.uid;
   const functions = getFunctions(auth.app);
 
   const data = {
@@ -295,7 +298,26 @@ export default function Go() {
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////////////////////
+
+    /////////////////// Set Rider Availability //////////////////////
+
+    const setAvailability = async (available) => {
+
+      const availabilityRef = doc(db, "users", uid);
+      const updateData = {
+        "availability": available,
+      };
+    
+      try {
+        await updateDoc(availabilityRef, updateData);
+         console.log("Availability updated successfully!");
+      } catch (error) {
+        console.error("Error updating availability: ", error);
+      }
+      
+    };
+
+  ////////////////////////////////////////////////////////////////////
 
   return (
     <View style={{ flex: 1 }}>
@@ -479,6 +501,7 @@ export default function Go() {
                           },
                           });
                           } else {
+                            setAvailability(true);
                             showingSlider();
                             }
                             }}>

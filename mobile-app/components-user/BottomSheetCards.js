@@ -3,13 +3,35 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import RiderCard from './ridercard';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { auth, app } from "../firebase";
 
 export default function Slider({l1,l2, set, riderCardData, setRidersData, loc1coords, loc2coords, uid, setRiderBooked, setRidePhaseKey }) {
   const snapPoints = useMemo(() => ['40%', '50%', '80%'], []);
+  const db = getFirestore(app);
 
   function back(){
     set(0)
   }
+
+
+  /////////////////// Set Rider Availability //////////////////////
+
+  const setAvailability = async (available) => {
+
+    const availabilityRef = doc(db, "users", uid);
+    const updateData = {
+      "availability": available,
+    };
+  
+    try {
+      await updateDoc(availabilityRef, updateData);
+       console.log("Availability updated successfully!");
+    } catch (error) {
+      console.error("Error updating availability: ", error);
+    }
+    
+  };
 
   return (
     
@@ -29,7 +51,11 @@ export default function Slider({l1,l2, set, riderCardData, setRidersData, loc1co
       </View>
         <View style={styles.headingContainer}>
           <Text style={styles.sliderHeading}>Searching For Rider...</Text>
-          <TouchableOpacity style={styles.btn3} onPress={back}>
+          <TouchableOpacity style={styles.btn3} 
+          onPress={()=>{
+            setAvailability(false);
+            back();
+          }}>
             <Text style={{    fontFamily: 'Custom', color:'white'}} >Cancel</Text>
           </TouchableOpacity>
         </View>
