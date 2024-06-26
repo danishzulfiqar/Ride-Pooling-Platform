@@ -53,6 +53,9 @@ exports.makeNewGoRideBid = saveData.makeNewGoRideBid;
 // function for sending msg in the chatbox of a specific ride bid
 exports.sendMsgInChat = saveData.sendMsgInChat;
 
+// function for updating GO ride bid status to pickup status
+exports.updateGoRideBidPickupStatus = saveData.updateGoRideBidPickupStatus;
+
 
 // --------------- getData funcs ---------------------------
 
