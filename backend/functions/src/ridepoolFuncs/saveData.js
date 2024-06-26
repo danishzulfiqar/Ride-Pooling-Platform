@@ -651,7 +651,7 @@ exports.updateGoRideBidPickupStatus = functions.https.onCall(async (data, contex
 
         // console.log ("rideData", rideData);
 
-        //     // checking if user is part of the ride bid for GO mode
+        // checking if user is part of the ride bid for GO mode
 
         if (ROLE == "user") {
             if (rideData.userData.user_id != UID) {
