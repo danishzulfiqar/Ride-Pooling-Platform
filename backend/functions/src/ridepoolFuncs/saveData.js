@@ -422,7 +422,12 @@ exports.makeNewGoRideBid = functions.https.onCall(async (data, context) => {
     const rideData = {
         mode: "GO",
         active_status: true,
-        cancel_status: false,
+        cancel_status: {
+            status: false,
+            canceledBy: "",
+            reason: "",
+            cancelTime: "",
+        },
         price: data.price,
         review_status: {
             user: false,
@@ -442,12 +447,14 @@ exports.makeNewGoRideBid = functions.https.onCall(async (data, context) => {
             pickup_location: new firestore.GeoPoint(data.pickup_lat, data.pickup_lng),
             dropoff_location: new firestore.GeoPoint(data.dropoff_lat, data.dropoff_lng),
             pickup_status: false,
+            dropoff_status: false,
         },
         destination: {
             destinationLoc: new firestore.GeoPoint(data.pickup_lat, data.pickup_lng),
             destinationName: data.pickup,
         },
-        bid_time: new Date().toISOString(),
+        bid_start_time: new Date().toISOString(),
+        bid_end_time: "",
     }
 
     // saving ride bid data to Rides collection
@@ -687,5 +694,108 @@ exports.updateGoRideBidPickupStatus = functions.https.onCall(async (data, contex
         throw new functions.https.HttpsError('invalid-argument', 'Only GO mode is supported for now');
     }
 
+})
+
+
+// function for canceling GO ride bid
+exports.cancelGoRideBid = functions.https.onCall(async (data, context) => {
+
+    console.log("cancelGoRideBid called", data);
+
+    // checking valid arguments
+    if (!data.uid || !data.ridebidKey || !data.role || !data.mode || !data.reason) {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    // checking auth state and if user sent request himself
+    if (!context.auth || (context.auth.uid != data.uid)) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Authentication required."
+        );
+    }
+
+    const UID = data.uid;
+    const RIDEBIDKEY = data.ridebidKey;
+    const ROLE = data.role;
+    const MODE = data.mode;
+    const REASON = data.reason;
+
+    // checking if user exists in the given role
+
+    const db = admin.firestore();
+    let ref;
+
+    if (ROLE == "user") {
+        ref = db.collection('users').doc(UID);
+    } else if (ROLE == "rider") {
+        ref = db.collection('riders').doc(UID);
+    } else {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    const doc = await ref.get();
+    if (!doc.exists) {
+        throw new functions.https.HttpsError('not-found', 'User not found for the given role');
+    }
+
+    if (MODE == "GO") {
+
+        // checking if ride bid exists for the given mode
+        const rideRef = db.collection('Rides').doc('Bids').collection("GO").doc(RIDEBIDKEY);
+
+        const rideDoc = await rideRef.get();
+        if (!rideDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Ride bid not found in the given mode');
+        }
+
+        // checking if ride bid is active
+        const rideData = rideDoc.data();
+        if (!rideData.active_status) {
+            throw new functions.https.HttpsError('unavailable', 'Ride bid is not active');
+        }
+
+        // checking if user is part of the ride bid for GO mode
+
+        if (ROLE == "user") {
+            if (rideData.userData.user_id != UID) {
+                throw new functions.https.HttpsError('unauthorized', 'User is not part of the ride bid');
+            }
+        }
+
+        else if (ROLE == "rider") {
+            if (rideData.riderData.rider_id != UID) {
+                throw new functions.https.HttpsError('unauthorized', 'Rider is not part of the ride bid');
+            }
+        }
+
+        // canceling ride bid and updating status to canceled
+
+        let result;
+
+        await rideRef.update({
+            // active status is updated to false
+            "active_status": false,
+            // cancel status is updated with reason and time
+            "cancel_status.status": true,
+            "cancel_status.canceledBy": ROLE,
+            "cancel_status.reason": REASON,
+            "cancel_status.cancelTime": new Date().toISOString(),
+            // bid end time is updated to current time
+            "bid_end_time": new Date().toISOString(),
+
+        }).then(() => {
+            result = { status: true, msg: "Ride bid canceled successfully!" };
+        }).catch((error) => {
+            console.error('Error canceling ride bid:', error);
+            throw new functions.https.HttpsError('unknown', error.message, error);
+        })
+
+        return result;
+
+    } else {
+
+        throw new functions.https.HttpsError('invalid-argument', 'Only GO mode is supported for now');
+    }
 
 })

@@ -56,6 +56,9 @@ exports.sendMsgInChat = saveData.sendMsgInChat;
 // function for updating GO ride bid status to pickup status
 exports.updateGoRideBidPickupStatus = saveData.updateGoRideBidPickupStatus;
 
+// function for canceling GO ride bid
+exports.cancelGoRideBid = saveData.cancelGoRideBid;
+
 
 // --------------- getData funcs ---------------------------
 
