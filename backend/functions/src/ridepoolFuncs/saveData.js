@@ -799,3 +799,360 @@ exports.cancelGoRideBid = functions.https.onCall(async (data, context) => {
     }
 
 })
+
+
+
+// function for ending GO ride bid and updating dropoff status
+exports.endGoRideBid = functions.https.onCall(async (data, context) => {
+
+    console.log("endGoRideBid called", data);
+
+    // checking valid arguments
+    if (!data.uid || !data.ridebidKey || !data.role || !data.mode) {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    // checking auth state and if user sent request himself
+    if (!context.auth || (context.auth.uid != data.uid)) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Authentication required."
+        );
+    }
+
+    const UID = data.uid;
+    const RIDEBIDKEY = data.ridebidKey;
+    const ROLE = data.role;
+    const MODE = data.mode;
+
+    // checking if user exists in the given role
+
+    const db = admin.firestore();
+    let ref;
+
+    if (ROLE == "user") {
+        ref = db.collection('users').doc(UID);
+    } else if (ROLE == "rider") {
+        ref = db.collection('riders').doc(UID);
+    } else {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    const doc = await ref.get();
+    if (!doc.exists) {
+        throw new functions.https.HttpsError('not-found', 'User not found for the given role');
+    }
+
+    if (MODE == "GO") {
+
+        // checking if ride bid exists for the given mode
+        const rideRef = db.collection('Rides').doc('Bids').collection("GO").doc(RIDEBIDKEY);
+
+        const rideDoc = await rideRef.get();
+        if (!rideDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Ride bid not found in the given mode');
+        }
+
+        // checking if ride bid is active
+        const rideData = rideDoc.data();
+        if (!rideData.active_status) {
+            throw new functions.https.HttpsError('unavailable', 'Ride bid is not active');
+        }
+
+        // checking if user is part of the ride bid for GO mode
+
+        if (ROLE == "user") {
+
+            if (rideData.userData.user_id != UID) {
+                throw new functions.https.HttpsError('unauthorized', 'User is not part of the ride bid');
+            }
+        }
+
+        else if (ROLE == "rider") {
+            if (rideData.riderData.rider_id != UID) {
+                throw new functions.https.HttpsError('unauthorized', 'Rider is not part of the ride bid');
+            }
+        }
+
+        // updating ride bid status to dropoff status
+        // updating user and rider documents with ride history collection , current ride node  and rating increment 
+
+        let result;
+        let time = new Date().toISOString();
+
+        await rideRef.update({
+            "userData.dropoff_status": true,
+            "bid_end_time": time,
+            "active_status": false,
+        }).then(async () => {
+
+            // updating user and rider documents with ride history collection , current ride node  and rating increment 
+            // updating user and rider documents with ride history collection , current ride node  and rating increment 
+
+            const userRef = db.collection('users').doc(rideData.userData.user_id);
+            const riderRef = db.collection('riders').doc(rideData.riderData.rider_id);
+
+            // retrieving user and rider data crest node
+            const userCrestDoc = await userRef.get();
+            const riderCrestDoc = await riderRef.get();
+
+            if (!userCrestDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'User reference not found');
+            }
+
+            if (!riderCrestDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Rider reference not found');
+            }
+
+            const userCrest = userCrestDoc.data().crest;
+            const riderCrest = riderCrestDoc.data().crest;
+
+            // updating user and rider documents with ride bid key and ride status
+            await userRef.update({
+                "current_ride.RidebidKey": "",
+                "current_ride.rideStatus": false,
+                "crest.activities.rides_booked": userCrest.activities.rides_booked + 1,
+            }).catch((error) => {
+                throw new functions.https.HttpsError('unknown', error.message, error);
+            })
+
+            // updating collection of rides history for user 
+            // ie adding new doc with key of ride bid key and data as booking time, pickup and dropoff location and time of start and end of ride
+
+            await userRef.collection('rides_history').doc(RIDEBIDKEY).set({
+                pickup_location: rideData.userData.pickup_location,
+                dropoff_location: rideData.userData.dropoff_location,
+                pickup: rideData.userData.pickup,
+                dropoff: rideData.userData.dropoff,
+                start_time: rideData.bid_start_time,
+                end_time: time,
+            }).catch((error) => {
+                throw new functions.https.HttpsError('unknown', error.message, error);
+            })
+
+            await riderRef.update({
+                "current_ride.RidebidKey": "",
+                "current_ride.rideStatus": false,
+                "crest.activities.rides_booked": riderCrest.activities.rides_booked + 1,
+            }).catch((error) => {
+                throw new functions.https.HttpsError('unknown', error.message, error);
+            })
+
+            // updating collection of rides history for rider
+            // ie adding new doc with key of ride bid key and data as booking time, pickup and dropoff location and time of start and end of ride
+
+            await riderRef.collection('rides_history').doc(RIDEBIDKEY).set({
+                pickup_location: rideData.userData.pickup_location,
+                dropoff_location: rideData.userData.dropoff_location,
+                pickup: rideData.userData.pickup,
+                dropoff: rideData.userData.dropoff,
+                start_time: rideData.bid_start_time,
+                end_time: time,
+            }).catch((error) => {
+                throw new functions.https.HttpsError('unknown', error.message, error);
+            })
+
+            result = { status: true, msg: "Dropoff status updated successfully!" };
+
+        }).catch((error) => {
+            console.error('Error updating dropoff status:', error);
+            throw new functions.https.HttpsError('unknown', error.message, error);
+        })
+
+        return result;
+
+    } else {
+
+        throw new functions.https.HttpsError('invalid-argument', 'Only GO mode is supported for now');
+    }
+
+})
+
+
+// add review and rating for user or rider in GO mode
+exports.addReviewAndRating = functions.https.onCall(async (data, context) => {
+
+    console.log("addReviewAndRating called", data);
+
+    // checking valid arguments
+    if (!data.uid || !data.ridebidKey || !data.role || !data.mode || !data.rating || !data.review) {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    // checking auth state and if user sent request himself
+    if (!context.auth || (context.auth.uid != data.uid)) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Authentication required."
+        );
+    }
+
+    const UID = data.uid;
+    const RIDEBIDKEY = data.ridebidKey;
+    const ROLE = data.role;
+    const MODE = data.mode;
+    const RATING = data.rating;
+    const REVIEW = data.review;
+
+    // checking if user exists in the given role
+
+    const db = admin.firestore();
+    let ref;
+
+    if (ROLE == "user") {
+        ref = db.collection('users').doc(UID);
+    } else if (ROLE == "rider") {
+        ref = db.collection('riders').doc(UID);
+    } else {
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with valid arguments, see documentation for reference');
+    }
+
+    const doc = await ref.get();
+    if (!doc.exists) {
+        throw new functions.https.HttpsError('not-found', 'User not found for the given role');
+    }
+
+    if (MODE == "GO") {
+
+        // checking if ride bid exists for the given mode
+        const rideRef = db.collection('Rides').doc('Bids').collection("GO").doc(RIDEBIDKEY);
+
+        const rideDoc = await rideRef.get();
+        if (!rideDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Ride bid not found in the given mode');
+        }
+
+        // checking if ride bid is active, if active then throw error
+        const rideData = rideDoc.data();
+        if (rideData.active_status) {
+            throw new functions.https.HttpsError('unavailable', 'Ride bid is still active');
+        }
+
+        // checking if user is part of the ride bid for GO mode
+
+        if (ROLE == "user") {
+
+            if (rideData.userData.user_id != UID) {
+                throw new functions.https.HttpsError('unauthorized', 'User is not part of the ride bid');
+            }
+
+            // checking if review status is false
+
+            if (rideData.review_status.user) {
+
+                throw new functions.https.HttpsError('unauthorized', 'User has already reviewed the ride');
+            }
+
+            // updating review status and rating for user in ride bid
+            // also updating rating factor and value in rider crest node
+
+            let result;
+
+            await rideRef.update({
+
+                "review_status.user": true,
+                "review.byUser.rating": RATING,
+                "review.byUser.review": REVIEW,
+            }).then(async () => {
+
+                const riderRef = db.collection('riders').doc(rideData.riderData.rider_id);
+                const riderDoc = await riderRef.get();
+                if (!riderDoc.exists) {
+                    throw new functions.https.HttpsError('not-found', 'Rider not found');
+                }
+
+                const riderCrest = riderDoc.data().crest;
+
+                let ratingFactor = riderCrest.rating.rating_factor;
+                let ratingValue = riderCrest.rating.rating_value;
+
+
+                // calculating new rating value and factor
+                let newRatingValue = (ratingValue * ratingFactor + RATING) / (ratingFactor + 1);
+                let newRatingFactor = ratingFactor + 1;
+
+                await riderRef.update({
+                    "crest.rating.rating_factor": newRatingFactor,
+                    "crest.rating.rating_value": newRatingValue,
+                }).catch((error) => {
+                    throw new functions.https.HttpsError('unknown', error.message, error);
+                })
+
+                result = { status: true, msg: "Review and rating added successfully!" };
+
+            }).catch((error) => {
+                console.error('Error adding review and rating:', error);
+                throw new functions.https.HttpsError('unknown', error.message, error);
+            })
+
+            return result;
+
+        }
+
+        else if (ROLE == "rider") {
+
+            if (rideData.riderData.rider_id != UID) {
+                throw new functions.https.HttpsError('unauthorized', 'Rider is not part of the ride bid');
+            }
+
+            // checking if review status is false
+
+            if (rideData.review_status.rider) {
+
+                throw new functions.https.HttpsError('unauthorized', 'Rider has already reviewed the ride');
+            }
+
+            // updating review status and rating for rider in ride bid
+            // also updating rating factor and value in user crest node
+
+            let result;
+
+            await rideRef.update({
+
+                "review_status.rider": true,
+                "review.byRider.rating": RATING,
+                "review.byRider.review": REVIEW,
+            }).then(async () => {
+
+                const userRef = db.collection('users').doc(rideData.userData.user_id);
+                const userDoc = await userRef.get();
+                if (!userDoc.exists) {
+                    throw new functions.https.HttpsError('not-found', 'User not found');
+                }
+
+                const userCrest = userDoc.data().crest;
+
+                let ratingFactor = userCrest.rating.rating_factor;
+                let ratingValue = userCrest.rating.rating_value;
+
+
+                // calculating new rating value and factor
+                let newRatingValue = (ratingValue * ratingFactor + RATING) / (ratingFactor + 1);
+                let newRatingFactor = ratingFactor + 1;
+
+                await userRef.update({
+                    "crest.rating.rating_factor": newRatingFactor,
+                    "crest.rating.rating_value": newRatingValue,
+                }).catch((error) => {
+                    throw new functions.https.HttpsError('unknown', error.message, error);
+                })
+
+                result = { status: true, msg: "Review and rating added successfully!" };
+
+            }).catch((error) => {
+                console.error('Error adding review and rating:', error);
+                throw new functions.https.HttpsError('unknown', error.message, error);
+            })
+
+            return result;
+
+        }
+
+    }
+
+    else {
+
+        throw new functions.https.HttpsError('invalid-argument', 'Only GO mode is supported for now');
+    }
+
+})

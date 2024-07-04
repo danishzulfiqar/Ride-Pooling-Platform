@@ -59,6 +59,12 @@ exports.updateGoRideBidPickupStatus = saveData.updateGoRideBidPickupStatus;
 // function for canceling GO ride bid
 exports.cancelGoRideBid = saveData.cancelGoRideBid;
 
+// function for ending GO ride bid and updating dropoff status
+exports.endGoRideBid = saveData.endGoRideBid;
+
+// add review and rating for user or rider in GO mode
+exports.addReviewAndRating = saveData.addReviewAndRating;
+
 
 // --------------- getData funcs ---------------------------
 
