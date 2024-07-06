@@ -36,7 +36,8 @@ export default function RiderOnWay({
   setloc1lat, setloc1lng,
   setloc2lat, setloc2lng,
   ridePhaseKey,
-  role
+  role,
+  setNavigationPhase,
 }) {
   const mapRef = useRef(null);
   const [duration, setDuration] = useState();
@@ -130,6 +131,7 @@ export default function RiderOnWay({
         const distInKm = ((distanceValue / 1000).toFixed(1)) + ' Km' ;
         const durationValue = data.rows[0].elements[0].duration.text;
 
+        checkDistance(distanceValue);
         setDistance(distInKm);
         setDuration(durationValue);
         console.log(distInKm);
@@ -146,6 +148,15 @@ export default function RiderOnWay({
         getRoute();
       }
     }, [riderLocationLat, riderLocationLng]);
+
+//////////////////// Checking distance between user and rider ///////////////////
+
+const checkDistance = (distanceValue) => {
+  if(distanceValue < 20){
+    console.log("Rider is close");
+    setNavigationPhase(true);
+  }
+}
     
 //////////// fit map to route /////////////////
     useEffect(() => {

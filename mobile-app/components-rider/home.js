@@ -1,6 +1,6 @@
 import { React, useState, useMemo, useEffect, useRef } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 import {
   View,
   TouchableOpacity,
@@ -8,17 +8,26 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
-  Image, 
+  Image,
 } from "react-native";
-import { useRoute } from '@react-navigation/native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { useRoute } from "@react-navigation/native";
+import { ScrollView } from "react-native-gesture-handler";
 import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import newstyle from "../styles/mapstyle";
 import UserRequestCard from "./userRequestCard";
 import NavigationToUser from "./navigationToUser";
-import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import Navigation from "../component-Chatbox/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { auth, app } from "../firebase";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
@@ -32,17 +41,17 @@ export default function Home() {
   const [mode, setMode] = useState(null);
   const [riderName, setRiderName] = useState(null);
   const [rideBooked, setRideBooked] = useState(false);
+  const [navigationPhase, setNavigationPhase] = useState(true);
   const [rideCancelled, setRideCancelled] = useState(false);
   const [ridePhaseKey, setRidePhaseKey] = useState(null);
   const [rideStatus, setRideStatus] = useState(false);
   const [riderLocation, setRiderLocation] = useState();
-  const snapPoints = useMemo(() => ['35%','70%'], []);
+  const snapPoints = useMemo(() => ["35%", "70%"], []);
   const functions = getFunctions(auth.app);
   const db = getFirestore(app);
   const uid = auth.currentUser.uid;
 
   useEffect(() => {
-    
     const RiderRef = doc(db, "riders/" + uid);
 
     const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
@@ -50,7 +59,10 @@ export default function Home() {
       console.log(updatedRiderData);
       setRideBooked(updatedRiderData.crest.activities.rides_booked);
       setRideBooked(updatedRiderData.crest.activities.rides_cancelled);
-      setRiderName(updatedRiderData.crest.UserData.first_name+updatedRiderData.crest.UserData.last_name);
+      setRiderName(
+        updatedRiderData.crest.UserData.first_name +
+          updatedRiderData.crest.UserData.last_name
+      );
     });
 
     return () => {
@@ -62,172 +74,196 @@ export default function Home() {
   /////////////////// Set Rider Availability //////////////////////
 
   const setAvailability = async (available) => {
-
     const availabilityRef = doc(db, "riders", uid);
     const updateData = {
-      "availability": available,
+      availability: available,
     };
-  
+
     try {
       await updateDoc(availabilityRef, updateData);
-       console.log("Availability updated successfully!");
+      console.log("Availability updated successfully!");
     } catch (error) {
       console.error("Error updating availability: ", error);
     }
-    
   };
 
+  ////////////////////////// Get users location /////////////////////////
+  const setUserLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      console.log("Permission to access location was denied");
+      return;
+    }
 
-    ////////////////////////// Get users location /////////////////////////
-    const setUserLocation = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.log("Permission to access location was denied");
-        return;
-      }
-  
-      let currentLocation = await Location.getCurrentPositionAsync({});
-      const response = await fetch(
-                 `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation.coords.latitude},${currentLocation.coords.longitude}&key=${API_KEY}`
-              );
-      
-               if (!response.ok) {
-                 throw new Error("Failed to fetch address from coordinates");
-               }
-      
-               const data = await response.json();
-               const formattedAddress = data.results[0].formatted_address;
-               setRiderLocation(formattedAddress);
-               console.log(formattedAddress);
-  
-      if (mapRef.current) {
-        mapRef.current.animateToRegion(
-          {
-            latitude: currentLocation.coords.latitude,
-            longitude: currentLocation.coords.longitude,
-            latitudeDelta: 0.015,
-            longitudeDelta: 0.0121,
-          },
-          1000
-        );
-      } else {
-      }
-    };
+    let currentLocation = await Location.getCurrentPositionAsync({});
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation.coords.latitude},${currentLocation.coords.longitude}&key=${API_KEY}`
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch address from coordinates");
+    }
+
+    const data = await response.json();
+    const formattedAddress = data.results[0].formatted_address;
+    setRiderLocation(formattedAddress);
+    console.log(formattedAddress);
+
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+          latitudeDelta: 0.015,
+          longitudeDelta: 0.0121,
+        },
+        1000
+      );
+    } else {
+    }
+  };
 
   return (
     <View style={{ flex: 1 }}>
-  {rideStatus === false ? (
-    <View style={styles.container}>
-    <View style={styles.mapsContainer}>
-      <MapView
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        ref={mapRef}
-        camera={{
-          center: { latitude: 33.6844, longitude: 73.0479 },
-          pitch: 0,
-          heading: 0,
-          altitude: 500,
-          zoom: 10,
-        }}
-        loadingEnabled={true}
-        customMapStyle={newstyle}
-        showsUserLocation={true}
-        userLocationPriority="high"
-        onMapReady={async () => {
-          await setUserLocation();
-        }}>
-      </MapView>
+      {navigationPhase === false ? (
+        rideStatus === false ? (
+          <View style={styles.container}>
+            <View style={styles.mapsContainer}>
+              <MapView
+                provider={PROVIDER_GOOGLE}
+                style={styles.map}
+                ref={mapRef}
+                camera={{
+                  center: { latitude: 33.6844, longitude: 73.0479 },
+                  pitch: 0,
+                  heading: 0,
+                  altitude: 500,
+                  zoom: 10,
+                }}
+                loadingEnabled={true}
+                customMapStyle={newstyle}
+                showsUserLocation={true}
+                userLocationPriority="high"
+                onMapReady={async () => {
+                  await setUserLocation();
+                }}
+              ></MapView>
+            </View>
+
+            {slider === 0 ? (
+              <BottomSheet index={0} snapPoints={snapPoints}>
+                <View style={styles.buttonContainer}>
+                  <Text style={styles.mode}>{mode}</Text>
+                  <TouchableOpacity
+                    style={styles.btnStop}
+                    onPress={function () {
+                      setAvailability(false);
+                      setslider(1);
+                      setMode(null);
+                    }}
+                  >
+                    <Text style={styles.btnText}>Stop</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView>
+                  <Text
+                    style={{
+                      fontFamily: "Custom",
+                      fontSize: 16,
+                      alignSelf: "center",
+                      margin: 20,
+                    }}
+                  >
+                    searching for passengers...
+                  </Text>
+                  <UserRequestCard
+                    mode={mode}
+                    setRidePhaseKey={setRidePhaseKey}
+                    setRideStatus={setRideStatus}
+                  />
+                </ScrollView>
+              </BottomSheet>
+            ) : (
+              <View style={styles.viewContainer}>
+                <View style={styles.options}>
+                  <TouchableOpacity
+                    style={styles.optionBTn}
+                    onPress={() => {
+                      setMode("GO");
+                    }}
+                  >
+                    <Text style={styles.optionText}>Go</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.optionBTn}
+                    onPress={() => {
+                      setMode("Pooling");
+                    }}
+                  >
+                    <Text style={styles.optionText}>Pooling</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.optionBTn}
+                    onPress={() => {
+                      setMode("Sharing");
+                    }}
+                  >
+                    <Text style={styles.optionText}>Sharing</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.carCard}>
+                  <Image
+                    style={styles.Carimage}
+                    source={require("../assets/car2.png")}
+                    resizeMode="contain"
+                  />
+                  <View>
+                    <Text style={styles.headText}>{riderName}</Text>
+                    <Text style={styles.text}>Rides booked:{rideBooked}</Text>
+                    <Text style={styles.text}>
+                      Rides cancelled:{rideCancelled}
+                    </Text>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.btnStart}
+                  onPress={function () {
+                    if (mode === null) {
+                      Toast.show({
+                        type: "error",
+                        text1: "Please Select a mode",
+                        text1Style: {
+                          fontSize: 18,
+                        },
+                      });
+                    } else {
+                      setAvailability(true);
+                      setslider(0);
+                    }
+                  }}
+                >
+                  <Text style={styles.btnText}>START</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        ) : (
+          <NavigationToUser ridePhaseKey={ridePhaseKey} role={role} setNavigationPhase={setNavigationPhase}/>
+        )
+      ) : (
+        <Navigation ridePhaseKey={ridePhaseKey} role={role}/>
+      )}
     </View>
-
-    {slider === 0 ?(
-      <BottomSheet index={0} snapPoints={snapPoints}>
-
-      <View style={styles.buttonContainer}>
-      <Text style={styles.mode}>
-        {mode}
-      </Text>
-      <TouchableOpacity style={styles.btnStop} 
-      onPress={function(){
-        setAvailability(false);
-        setslider(1); 
-        setMode(null)
-        }}>
-        <Text style={styles.btnText}>
-          Stop
-        </Text>
-      </TouchableOpacity>
-    </View>
-
-    <ScrollView>
-      <Text style={{fontFamily:'Custom', fontSize:16, alignSelf:"center", margin:20 }}>
-        searching for passengers...
-      </Text>
-      <UserRequestCard mode={mode} setRidePhaseKey={setRidePhaseKey} setRideStatus={setRideStatus}/>
-    </ScrollView>
-    </BottomSheet>
-
-    ):(
-
-      <View style={styles.viewContainer}>
-      <View style={styles.options}>
-        <TouchableOpacity style={styles.optionBTn} onPress={()=>{setMode('GO')}}>
-          <Text style={styles.optionText}>Go</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.optionBTn} onPress={()=>{setMode('Pooling')}}>
-          <Text style={styles.optionText}>Pooling</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.optionBTn} onPress={()=>{setMode('Sharing')}}>
-          <Text style={styles.optionText}>Sharing</Text>
-        </TouchableOpacity>
-      </View>
-      
-      
-    <View style={styles.carCard}>
-      <Image style={styles.Carimage} source={require('../assets/car2.png')} resizeMode="contain"/>
-      <View>
-        <Text style={styles.headText}>{riderName}</Text>
-        <Text style={styles.text}>Rides booked:{rideBooked}</Text>
-        <Text style={styles.text}>Rides cancelled:{rideCancelled}</Text>
-      </View>
-    </View>
-
-      <TouchableOpacity style={styles.btnStart}
-       onPress={function(){
-        if(mode === null){
-          Toast.show({
-            type: 'error',
-            text1: 'Please Select a mode',
-            text1Style: {
-              fontSize: 18
-            },
-          });
-        } else {
-          setAvailability(true);
-          setslider(0);
-        }
-        }}>
-        <Text style={styles.btnText}>
-          START
-        </Text>
-      </TouchableOpacity>
-    </View>)}
-
-  </View>
-  ) : (
-    <NavigationToUser ridePhaseKey={ridePhaseKey} role={role}/>
-  )}
-</View>
-
   );
-
 }
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: 'relative',
+    position: "relative",
   },
 
   mapsContainer: {
@@ -242,67 +278,67 @@ const styles = StyleSheet.create({
   },
 
   viewContainer: {
-    backgroundColor:'white',
-    position: 'absolute',
-    bottom: 0, 
-    width: '100%',
-    paddingTop:20,
-    paddingBottom:20,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10 
-  },
-
-  options:{
-    flexDirection:"row",
-    alignItems:"center",
-    justifyContent:"space-between",
-    marginLeft:25,
-    marginRight:25
-  },
-
-  optionBTn:{
     backgroundColor: "white",
-    paddingLeft:10,
-    paddingRight:10,
-    height:38,
-    width:'30%',
-    marginBottom:10,
-    borderRadius:10,
-    borderColor:"black",
-    borderWidth:2,
-    alignItems:"center",
-    justifyContent:"center",
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    paddingTop: 20,
+    paddingBottom: 20,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
 
-  optionText:{
+  options: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginLeft: 25,
+    marginRight: 25,
+  },
+
+  optionBTn: {
+    backgroundColor: "white",
+    paddingLeft: 10,
+    paddingRight: 10,
+    height: 38,
+    width: "30%",
+    marginBottom: 10,
+    borderRadius: 10,
+    borderColor: "black",
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  optionText: {
     fontFamily: "Custom",
-    color:'black',
-    fontSize:16,
+    color: "black",
+    fontSize: 16,
   },
 
-  btnText:{
+  btnText: {
     fontFamily: "CustomB",
-    color:'white',
-    fontSize:18,
+    color: "white",
+    fontSize: 18,
   },
 
-  btnStart:{
+  btnStart: {
     backgroundColor: "#FF6969",
-    width:'88%',
-    height:40,
-    borderRadius:10,
-    alignSelf:"center",
-    alignItems:"center",
-    justifyContent:"center",
+    width: "88%",
+    height: 40,
+    borderRadius: 10,
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  btnStop:{
+  btnStop: {
     backgroundColor: "#FF6969",
-    width:'20%',
-    height:40,
-    borderRadius:10,
-    alignItems:"center",
-    justifyContent:"center",
+    width: "20%",
+    height: 40,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   buttonContainer: {
@@ -310,45 +346,43 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginLeft: 25,
-    marginRight: 25
+    marginRight: 25,
   },
-  
 
-  mode:{
+  mode: {
     fontFamily: "Custom",
-    fontSize:20,
+    fontSize: 20,
   },
 
-  headText:{
+  headText: {
     fontFamily: "CustomB",
-    fontSize:16,
-    marginRight:15,
-    textAlign:"left"
+    fontSize: 16,
+    marginRight: 15,
+    textAlign: "left",
   },
 
-  text:{
+  text: {
     fontFamily: "Custom",
-    fontSize:14,
-    marginRight:15,
-    textAlign:"left"
+    fontSize: 14,
+    marginRight: 15,
+    textAlign: "left",
   },
 
-  Carimage:{
-    width:150,
-    height:80
+  Carimage: {
+    width: 150,
+    height: 80,
   },
 
-  carCard:{
+  carCard: {
     flexDirection: "row",
     marginLeft: 25,
     marginRight: 25,
-    marginBottom:10,
+    marginBottom: 10,
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor:'#d9d9d9',
-    borderRadius:10,
-    paddingLeft:5,
-    paddingRight:5
-  }
+    backgroundColor: "#d9d9d9",
+    borderRadius: 10,
+    paddingLeft: 5,
+    paddingRight: 5,
+  },
 });
-

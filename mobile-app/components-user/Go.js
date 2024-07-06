@@ -21,6 +21,7 @@ import { auth, app } from '../firebase';
 import { UID } from '../screens/user/SignIn';
 import RiderOnWay from "./on-way-rider";
 import { useRoute } from '@react-navigation/native';
+import Navigation from '../component-Chatbox/navigation';
 import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 
 
@@ -54,6 +55,7 @@ export default function Go() {
   const [loc1Coordinates, setLoc1Coordinates] = useState();
   const [loc2Coordinates, setLoc2Coordinates] = useState();
   const [ridersDistanceVal, setRidersDistanceVal] = useState();
+  const [navigationPhase, setNavigationPhase] = useState(false);
   const [ridersData, setRidersData] = useState(null);
   const [A, setA] = useState("ENTER  PICK-UP LOCATION");
   const [B, setB] = useState("ENTER  DROP-OFF  LOCATION");
@@ -321,7 +323,8 @@ export default function Go() {
 
   return (
     <View style={{ flex: 1 }}>
-      { riderBooked === false ? (
+      {navigationPhase === false ? (
+         riderBooked === false ? (
         locSlider === 0 ? (
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
@@ -803,7 +806,11 @@ export default function Go() {
         setLoc2Coordinates={setLoc2Coordinates}
         ridePhaseKey={ridePhaseKey}
         role={role} 
+        setNavigationPhase={setNavigationPhase}
         />
+      )
+      ) : (
+        <Navigation ridePhaseKey={ridePhaseKey} role={role}/>
       )}
     </View>
   );

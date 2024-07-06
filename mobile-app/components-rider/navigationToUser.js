@@ -13,7 +13,7 @@ import ChatBox from "../component-Chatbox/chatBox";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
-export default function Route({ridePhaseKey, role}) {
+export default function Route({ridePhaseKey, role, setNavigationPhase}) {
   const mapRef = useRef(null);
   const [heading, setHeading] = useState();
   const [location, setLocation] = useState(null);
@@ -79,10 +79,11 @@ const fetchDistanceData = async () => {
 
     const response = await fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${loc1Lat},${loc1Lng}&destinations=${ridersDistanceValLat},${ridersDistanceValLng}&key=${API_KEY}`);
     const data = await response.json();
-    const distanceValue = data.rows[0].elements[0].distance.value;
-    const distInKm = ((distanceValue / 1000).toFixed(1)) + ' Km' ;
+    const distanceValue = data.rows[0].elements[0].distance.value; // Meters
+    const distInKm = ((distanceValue / 1000).toFixed(1)) + ' Km' ; // Kilo meters
     const durationValue = data.rows[0].elements[0].duration.text;
 
+    checkDistance(distanceValue);
     setDistance(distInKm);
     setDuration(durationValue);
     console.log(distInKm);
@@ -98,6 +99,16 @@ useEffect(() => {
     fetchDistanceData();
   }
 }, [loc1lat, loc1lng]);
+
+
+//////////////////// Checking distance between user and rider ///////////////////
+
+const checkDistance = (distanceValue) => {
+  if(distanceValue < 20){
+    console.log("You are close to the user");
+    setNavigationPhase(true);
+  }
+}
 
 /////////////////// getting users location ////////////////////
   async function getUserLocation() {
