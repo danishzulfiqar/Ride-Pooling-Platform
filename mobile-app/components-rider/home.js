@@ -9,6 +9,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Image,
+  Modal,
+  TextInput
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
@@ -29,6 +31,7 @@ import {
 } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { auth, app } from "../firebase";
+import { set } from "firebase/database";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -41,10 +44,11 @@ export default function Home() {
   const [mode, setMode] = useState(null);
   const [riderName, setRiderName] = useState(null);
   const [rideBooked, setRideBooked] = useState(false);
-  const [navigationPhase, setNavigationPhase] = useState(true);
+  const [navigationPhase, setNavigationPhase] = useState(false);
   const [rideCancelled, setRideCancelled] = useState(false);
   const [ridePhaseKey, setRidePhaseKey] = useState(null);
   const [rideStatus, setRideStatus] = useState(false);
+  const [reviewBox, setReviewBox] = useState(false);
   const [riderLocation, setRiderLocation] = useState();
   const snapPoints = useMemo(() => ["35%", "70%"], []);
   const functions = getFunctions(auth.app);
@@ -128,6 +132,30 @@ export default function Home() {
       {navigationPhase === false ? (
         rideStatus === false ? (
           <View style={styles.container}>
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={reviewBox}
+              onRequestClose={() => {
+                setReviewBox(!reviewBox);
+              }}
+            >
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Text style={styles.modalText}>Submit Review</Text>
+                  <Text style={{fontSize:50,color:'#FF6969'}}>* * * * *</Text>
+                  <TextInput 
+                  style={styles.modalInput} 
+                  placeholder='Comment' 
+                  />
+                  <TouchableOpacity
+                    style={styles.submitbtn}
+                    onPress={() => setReviewBox(!reviewBox)}>
+                    <Text style={styles.textStyle}>Submit</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
             <View style={styles.mapsContainer}>
               <MapView
                 provider={PROVIDER_GOOGLE}
@@ -251,10 +279,21 @@ export default function Home() {
             )}
           </View>
         ) : (
-          <NavigationToUser ridePhaseKey={ridePhaseKey} role={role} setNavigationPhase={setNavigationPhase}/>
+          <NavigationToUser
+            ridePhaseKey={ridePhaseKey}
+            role={role}
+            setNavigationPhase={setNavigationPhase}
+          />
         )
       ) : (
-        <Navigation ridePhaseKey={ridePhaseKey} role={role}/>
+        <Navigation 
+        ridePhaseKey={ridePhaseKey} 
+        role={role} 
+        setReviewBox={setReviewBox} 
+        setNavigationPhase={setNavigationPhase}
+        setRideStatus={setRideStatus}
+        setMode={setMode}
+        />
       )}
     </View>
   );
@@ -385,4 +424,56 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
     paddingRight: 5,
   },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+
+  modalView: {
+    margin: 20,
+    width: "70%",
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
+  modalText: {
+    fontSize: 18,
+    fontFamily: "CustomB",
+  },
+
+  modalInput:{
+    padding:5,
+    height: 40,
+    width: "100%",
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+
+  submitbtn: {
+    backgroundColor: "#ECECEC",
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "lightgrey",
+    borderWidth: 2,
+    borderRadius: 5,
+    width: "100%",
+    marginTop: 10,
+  },
+
 });

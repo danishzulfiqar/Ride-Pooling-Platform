@@ -14,7 +14,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
-export default function Navigation({ridePhaseKey, role}) {
+export default function Navigation({ridePhaseKey, role, setReviewBox, setNavigationPhase, setRideStatus, setMode}) {
   const mapRef = useRef(null);
   const [heading, setHeading] = useState();
   const [location, setLocation] = useState(null);
@@ -53,12 +53,13 @@ useEffect(() => {
   const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
     if (snapshot.exists()) {
       const updatedRequest = snapshot.data(); // Retrieve the data of the specific document
-      console.log('this is data ' + JSON.stringify(updatedRequest));
+      console.log('this is data from backend' + JSON.stringify(updatedRequest));
         setL({
           latitude: updatedRequest.destination.destinationLoc.latitude,
           longitude: updatedRequest.destination.destinationLoc.longitude,
         });
         setDestinationlocation(updatedRequest.destination.destinationName);
+        setStartRideStatus(updatedRequest.active_status);
     } else {
       console.log("No such document!");
     }
@@ -107,7 +108,7 @@ const startRide = async ()=> {
   const data = {
     uid: auth.currentUser.uid,
     mode: 'GO',
-    ridebidKey: 'jUaMEO6kMYI5VtSAzAPw',
+    ridebidKey: ridePhaseKey,
     role: role,
   }
 
@@ -117,10 +118,30 @@ const startRide = async ()=> {
         try {
           const result = await updateGoRideBidPickupStatus(data);
           console.log(result.data);
-          setStartRideStatus(result.data.status);
-          console.log()
         } catch (error) {
           console.error("Error calling updateGoRideBidPickupStatus:", error);
+        }
+}
+
+const endRide = async ()=> {
+  const data = {
+    uid: auth.currentUser.uid,
+    ridebidKey: 'jUaMEO6kMYI5VtSAzAPw',
+    role: role,
+    mode: 'GO',
+  }
+
+  console.log("this is data for end ride " + JSON.stringify(data));
+
+        const endGoRideBid = httpsCallable(functions, "endGoRideBid");
+        try {
+          const result = await endGoRideBid(data);
+          setReviewBox(result.data.status);
+          setNavigationPhase(false);
+          setRideStatus(false);
+          setMode(null);
+        } catch (error) {
+          console.error("Error calling endGoRideBid:", error);
         }
 
 }
@@ -230,7 +251,7 @@ const startRide = async ()=> {
             {chatBox === true ? (
               <ChatBox setChatBox={setChatBox} ridePhaseKey={ridePhaseKey} role={role}/>
             ) : (
-              startRideStatus === null ? (
+              startRideStatus === false ? (
               role === 'rider'? (
                 <View style={styles.boxContainer}>
                 <Text style={{ color: "gray", fontFamily: "Custom", fontSize: 16, alignSelf: "center", padding:10 }}>waiting for Passenger...</Text>
@@ -274,7 +295,7 @@ const startRide = async ()=> {
                 </View>
               </View>
               )
-            ) : startRideStatus === true ? (
+            ) : (
               <View style={styles.boxContainer}>
               <View style={styles.infoBox1}>
               <View style={styles.infoBox2}>
@@ -285,12 +306,11 @@ const startRide = async ()=> {
             </View>
             <Text style={styles.text1}>away from</Text>
             <Text style={styles.text2}>{destinationlocation}</Text>
+            <TouchableOpacity style={styles.endBtn} onPress={endRide}>
+              <Text style={{ color: "black", fontFamily: "CustomB", fontSize: 16, alignSelf: "center" }}>End Ride</Text>
+            </TouchableOpacity>
               </View>
-            ) : (
-              <View style={styles.boxContainer}>
-                <Text>Ride is ended</Text>
-              </View>
-            )
+            ) 
             )}
         </BottomSheet>
     </View>
@@ -386,6 +406,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: "85%",
     alignSelf: "center",
+  },
+
+  endBtn: {
+    backgroundColor: "#ECECEC",
+    height: 50,
+    borderRadius: 10,
+    justifyContent: "center",
+    borderColor: "lightgrey",
+    borderWidth: 2,
+    borderRadius: 10,
+    width: "85%",
+    alignSelf: "center",
+    marginTop: 10,
   },
 
 });
