@@ -2,6 +2,7 @@ import { React, useState, useMemo, useEffect, useRef } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { AirbnbRating } from 'react-native-ratings'
 import {
   View,
   TouchableOpacity,
@@ -10,6 +11,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Image,
+  Modal,
+  TextInput
 } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import Toast from 'react-native-toast-message';
@@ -46,6 +49,9 @@ export default function Go() {
   const [ani1lng, setAni1lng] = useState();
   const [ani2lat, setAni2lat] = useState();
   const [ani2lng, setAni2lng] = useState();
+  const [review, setReview] = useState(null);
+  const [rating, setRating] = useState(5);
+  const [reviewBox, setReviewBox] = useState(false);
   const [locSlider, setLocSlider] = useState(0);
   const [showSlider, setShowSlider] = useState(0);
   const [riderBooked, setRiderBooked] = useState(false);
@@ -55,7 +61,7 @@ export default function Go() {
   const [loc1Coordinates, setLoc1Coordinates] = useState();
   const [loc2Coordinates, setLoc2Coordinates] = useState();
   const [ridersDistanceVal, setRidersDistanceVal] = useState();
-  const [navigationPhase, setNavigationPhase] = useState(false);
+  const [navigationPhase, setNavigationPhase] = useState(true);
   const [ridersData, setRidersData] = useState(null);
   const [A, setA] = useState("ENTER  PICK-UP LOCATION");
   const [B, setB] = useState("ENTER  DROP-OFF  LOCATION");
@@ -71,6 +77,35 @@ export default function Go() {
     lng:loc1lng,
     radius:100000,
   }
+
+  const ratingCompleted = (rating) => {
+    setRating(rating);
+
+  }
+
+  const ratingFunc = async ()=> {
+    const data = {
+      uid: auth.currentUser.uid,
+      ridebidKey: 'jUaMEO6kMYI5VtSAzAPw',
+      role: role,
+      mode: 'GO',
+      rating: rating,
+      review:review,
+    }
+  
+    console.log("this is data for end ride " + JSON.stringify(data));
+  
+          const addReviewAndRating  = httpsCallable(functions, "addReviewAndRating");
+          try {
+            const result = await addReviewAndRating (data);
+            console.log("this is result " + JSON.stringify(result));
+            setReviewBox(!reviewBox);
+          } catch (error) {
+            console.error("Error calling endGoRideBid:", error);
+          }
+  
+  }
+
 
   async function showingSlider() {
     setShowSlider(1);
@@ -327,6 +362,38 @@ export default function Go() {
          riderBooked === false ? (
         locSlider === 0 ? (
         <View style={styles.container}>
+        <Modal
+              animationType="slide"
+              transparent={true}
+              visible={reviewBox}
+              onRequestClose={() => {
+                setReviewBox(!reviewBox);
+              }}
+            >
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Text style={styles.modalheading}>How was your journey?</Text>
+                  <Text style={styles.modalText}>Rate Rider</Text>
+                  <View style={styles.rating}>
+                  <AirbnbRating
+                    count={5}
+                    defaultRating={rating}
+                    selectedColor="#FF6969"
+                    size={40}
+                    showRating={false}  
+                    onFinishRating={ratingCompleted}
+                  />
+                  </View>
+                  <TextInput style={styles.modalInput} placeholder="Comment" onChangeText={(text) => setReview(text)} />
+                  <TouchableOpacity
+                    style={styles.submitbtn}
+                    onPress={() => {ratingFunc();}}
+                  >
+                    <Text style={styles.textStyle}>Submit</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
           <View style={styles.mapsContainer}>
             <MapView
               provider={PROVIDER_GOOGLE}
@@ -801,8 +868,10 @@ export default function Go() {
         setloc1lng={setloc1lng} setloc2lng={setloc2lng} 
         setAni1lat={setAni1lat} setAni2lat={setAni2lat} 
         setAni1lng={setAni1lng} setAni2lng={setAni2lng}  
-        set={setShowSlider} setA={setA} setB={setB}
-        loc1Coordinates={loc1Coordinates} setLoc1Coordinates={setLoc1Coordinates} 
+        setRiderBooked={setRiderBooked}
+        set={setShowSlider} 
+        setA={setA} setB={setB}
+        setLoc1Coordinates={setLoc1Coordinates} 
         setLoc2Coordinates={setLoc2Coordinates}
         ridePhaseKey={ridePhaseKey}
         role={role} 
@@ -810,7 +879,21 @@ export default function Go() {
         />
       )
       ) : (
-        <Navigation ridePhaseKey={ridePhaseKey} role={role}/>
+        <Navigation 
+        ridePhaseKey={ridePhaseKey} 
+        role={role}
+        setRiderBooked={setRiderBooked}
+        setNavigationPhase={setNavigationPhase} 
+        setReviewBox={setReviewBox}
+        set1lat={setloc1lat} setloc2lat={setloc2lat} 
+        set1lng={setloc1lng} setloc2lng={setloc2lng} 
+        setAni1lat={setAni1lat} setAni2lat={setAni2lat} 
+        setAni1lng={setAni1lng} setAni2lng={setAni2lng}  
+        set={setShowSlider} setA={setA} setB={setB}
+        loc1Coordinates={loc1Coordinates} 
+        setLoc1Coordinates={setLoc1Coordinates} 
+        setLoc2Coordinates={setLoc2Coordinates}
+        />
       )}
     </View>
   );
@@ -1012,5 +1095,68 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
     position: "absolute",
+  },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+
+  modalView: {
+    margin: 20,
+    width: "70%",
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
+  modalheading: {
+    fontSize: 18,
+    fontFamily: "CustomB",
+  },
+
+  modalText: {
+    fontSize: 16,
+    color: "gray",
+    fontFamily: "Custom",
+  },
+
+  modalInput:{
+    padding:5,
+    height: 40,
+    width: "100%",
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+
+  submitbtn: {
+    backgroundColor: "#ECECEC",
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "lightgrey",
+    borderWidth: 2,
+    borderRadius: 5,
+    width: "100%",
+    marginTop: 10,
+  },
+
+  rating:{
+    marginTop: 10,
+    marginBottom: 10,
+    alignSelf: "center",
   },
 });

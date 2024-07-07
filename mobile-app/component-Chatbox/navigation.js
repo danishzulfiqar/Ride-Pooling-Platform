@@ -14,7 +14,22 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
-export default function Navigation({ridePhaseKey, role, setReviewBox, setNavigationPhase, setRideStatus, setMode}) {
+export default function Navigation({
+  ridePhaseKey, 
+  role, 
+  setReviewBox, 
+  setNavigationPhase, 
+  setRideStatus,
+  setRiderBooked,
+  set,
+  setA,
+  setB,
+  setLoc1Coordinates,
+  setLoc2Coordinates,
+  setAni1lat, setAni1lng,
+  setAni2lat, setAni2lng,
+  set1lat, set1lng,
+  setloc2lat, setloc2lng, }) {
   const mapRef = useRef(null);
   const [heading, setHeading] = useState();
   const [location, setLocation] = useState(null);
@@ -26,6 +41,7 @@ export default function Navigation({ridePhaseKey, role, setReviewBox, setNavigat
   const [userPhone, setUserPhone] = useState(null);
   const [pickupLocation, setPickupLocation] = useState(null);
   const [startRideStatus, setStartRideStatus] = useState(null);
+  const [dropoffStatus, setDropoffStatus] = useState(null);
   const [fairPrice, setFairPrice] = useState(null);
   const [distance, setDistance] = useState(null);
   const [duration, setDuration] = useState(null);
@@ -46,7 +62,7 @@ export default function Navigation({ridePhaseKey, role, setReviewBox, setNavigat
 ////////////////// reading bids->go->rideBidKey from firestore /////////////////////
 
 useEffect(() => {
-  const RiderRef = doc(db, "Rides/Bids/GO/" + ridePhaseKey);
+  const RiderRef = doc(db, "Rides/Bids/GO/jUaMEO6kMYI5VtSAzAPw");
   console.log('this is ridePhaseKey'+ ridePhaseKey);
 
   // Listen for changes to the RiderRef
@@ -60,6 +76,12 @@ useEffect(() => {
         });
         setDestinationlocation(updatedRequest.destination.destinationName);
         setStartRideStatus(updatedRequest.active_status);
+        setDropoffStatus(updatedRequest.userData.dropoff_status);
+        if (updatedRequest.userData.dropoff_status === true) {
+          endUserRide();
+        } else {
+          console.log('else ' + updatedRequest.userData.dropoff_status);
+        }
     } else {
       console.log("No such document!");
     }
@@ -123,10 +145,10 @@ const startRide = async ()=> {
         }
 }
 
-const endRide = async ()=> {
+const endRide = async ()=> { // Rider End Ride
   const data = {
     uid: auth.currentUser.uid,
-    ridebidKey: 'jUaMEO6kMYI5VtSAzAPw',
+    ridebidKey: ridePhaseKey,
     role: role,
     mode: 'GO',
   }
@@ -139,11 +161,25 @@ const endRide = async ()=> {
           setReviewBox(result.data.status);
           setNavigationPhase(false);
           setRideStatus(false);
-          setMode(null);
         } catch (error) {
           console.error("Error calling endGoRideBid:", error);
         }
 
+}
+
+const endUserRide = ()=> { // User End Ride
+    setNavigationPhase(false);
+    setReviewBox(true);
+    setRiderBooked(false);
+    set(0);
+    setA("ENTER  PICK-UP  LOCATION");
+    setB("ENTER  DROP-OFF  LOCATION");
+    setLoc1Coordinates(null);
+    setLoc2Coordinates(null);
+    setAni1lat(null); setAni1lng(null);
+    setAni2lat(null); setAni2lng(null);
+    set1lat(null); set1lng(null);
+    setloc2lat(null); setloc2lng(null);
 }
 
 
@@ -306,9 +342,11 @@ const endRide = async ()=> {
             </View>
             <Text style={styles.text1}>away from</Text>
             <Text style={styles.text2}>{destinationlocation}</Text>
-            <TouchableOpacity style={styles.endBtn} onPress={endRide}>
+            { role === 'rider'? (
+              <TouchableOpacity style={styles.endBtn} onPress={endRide}>
               <Text style={{ color: "black", fontFamily: "CustomB", fontSize: 16, alignSelf: "center" }}>End Ride</Text>
             </TouchableOpacity>
+            ) : null }
               </View>
             ) 
             )}

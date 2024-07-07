@@ -21,6 +21,7 @@ import UserRequestCard from "./userRequestCard";
 import NavigationToUser from "./navigationToUser";
 import Navigation from "../component-Chatbox/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { AirbnbRating } from 'react-native-ratings'
 import {
   getFirestore,
   collection,
@@ -48,12 +49,45 @@ export default function Home() {
   const [rideCancelled, setRideCancelled] = useState(false);
   const [ridePhaseKey, setRidePhaseKey] = useState(null);
   const [rideStatus, setRideStatus] = useState(false);
+  const [review, setReview] = useState(null);
+  const [rating, setRating] = useState(5);
   const [reviewBox, setReviewBox] = useState(false);
   const [riderLocation, setRiderLocation] = useState();
   const snapPoints = useMemo(() => ["35%", "70%"], []);
   const functions = getFunctions(auth.app);
   const db = getFirestore(app);
   const uid = auth.currentUser.uid;
+
+  const ratingCompleted = (rating) => {
+    setRating(rating);
+
+  }
+
+  const ratingFunc = async ()=> {
+    const data = {
+      uid: auth.currentUser.uid,
+      ridebidKey: ridePhaseKey,
+      role: role,
+      mode: 'GO',
+      rating: rating,
+      review:review,
+    }
+  
+    console.log("this is data for end ride " + JSON.stringify(data));
+  
+          const addReviewAndRating  = httpsCallable(functions, "addReviewAndRating");
+          try {
+            const result = await addReviewAndRating (data);
+            console.log("this is result " + JSON.stringify(result));
+            setReviewBox(!reviewBox);
+          } catch (error) {
+            console.error("Error calling endGoRideBid:", error);
+          }
+  
+  }
+  
+  
+
 
   useEffect(() => {
     const RiderRef = doc(db, "riders/" + uid);
@@ -142,15 +176,23 @@ export default function Home() {
             >
               <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                  <Text style={styles.modalText}>Submit Review</Text>
-                  <Text style={{fontSize:50,color:'#FF6969'}}>* * * * *</Text>
-                  <TextInput 
-                  style={styles.modalInput} 
-                  placeholder='Comment' 
+                  <Text style={styles.modalheading}>How was your journey?</Text>
+                  <Text style={styles.modalText}>Rate User</Text>
+                  <View style={styles.rating}>
+                  <AirbnbRating
+                    count={5}
+                    defaultRating={rating}
+                    selectedColor="#FF6969"
+                    size={40}
+                    showRating={false}  
+                    onFinishRating={ratingCompleted}
                   />
+                  </View>
+                  <TextInput style={styles.modalInput} placeholder="Comment" onChangeText={(text) => setReview(text)} />
                   <TouchableOpacity
                     style={styles.submitbtn}
-                    onPress={() => setReviewBox(!reviewBox)}>
+                    onPress={() => {ratingFunc();}}
+                  >
                     <Text style={styles.textStyle}>Submit</Text>
                   </TouchableOpacity>
                 </View>
@@ -286,13 +328,12 @@ export default function Home() {
           />
         )
       ) : (
-        <Navigation 
-        ridePhaseKey={ridePhaseKey} 
-        role={role} 
-        setReviewBox={setReviewBox} 
-        setNavigationPhase={setNavigationPhase}
-        setRideStatus={setRideStatus}
-        setMode={setMode}
+        <Navigation
+          ridePhaseKey={ridePhaseKey}
+          role={role}
+          setReviewBox={setReviewBox}
+          setNavigationPhase={setNavigationPhase}
+          setRideStatus={setRideStatus}
         />
       )}
     </View>
@@ -450,9 +491,15 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
-  modalText: {
+  modalheading: {
     fontSize: 18,
     fontFamily: "CustomB",
+  },
+
+  modalText: {
+    fontSize: 16,
+    color: "gray",
+    fontFamily: "Custom",
   },
 
   modalInput:{
@@ -474,6 +521,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: "100%",
     marginTop: 10,
+  },
+
+  rating:{
+    marginTop: 10,
+    marginBottom: 10,
+    alignSelf: "center",
   },
 
 });
