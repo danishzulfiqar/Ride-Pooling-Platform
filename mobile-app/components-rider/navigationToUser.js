@@ -9,6 +9,7 @@ import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from "react-native-maps";
 import { faMessage, faPhone, faStar, faShieldHalved } from "@fortawesome/free-solid-svg-icons";
 import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import ChatBox from "../component-Chatbox/chatBox";
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
@@ -38,6 +39,7 @@ export default function Route({ridePhaseKey, role, setNavigationPhase, setRideSt
     latitude: 33.7077,
     longitude: 73.0498,
   });
+  const functions = getFunctions(auth.app);
   const snapPoints = useMemo(() => ['20%', chatBox ? '100%' : '55%'], [chatBox]);
   const db = getFirestore(app);
 

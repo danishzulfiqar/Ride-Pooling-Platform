@@ -68,7 +68,7 @@ export default function RiderOnWay({
 ///////////////// Reading from firestore //////////////////
   useEffect(() => {
     const db = getFirestore(app);
-    const RiderRef = doc(db, "Rides/Bids/GO" + ridePhaseKey);
+    const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
   
     // Listen for changes to the RiderRef
     const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
@@ -131,9 +131,13 @@ export default function RiderOnWay({
   ////////// get route ///////////////////
 
   async function getRoute() {
+        const loc1Lat = loc1Coordinates.lat;
+        const loc1Lng = loc1Coordinates.lng;
+        const ridersDistanceValLat = riderLocationLat;
+        const ridersDistanceValLng = riderLocationLng;
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${loc1Coordinates.lat},${loc1Coordinates.lng}&destination=${riderLocationLat},${riderLocationLng}&key=${API_KEY}`
+        `https://maps.googleapis.com/maps/api/directions/json?origin=${loc1Lat},${loc1Lng}&destination=${ridersDistanceValLat},${ridersDistanceValLng}&key=${API_KEY}`
       );
       const data = await response.json();
       // Decode the polyline points

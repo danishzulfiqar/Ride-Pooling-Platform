@@ -54,7 +54,7 @@ export default function Go() {
   const [reviewBox, setReviewBox] = useState(false);
   const [locSlider, setLocSlider] = useState(0);
   const [showSlider, setShowSlider] = useState(0);
-  const [riderBooked, setRiderBooked] = useState(true);
+  const [riderBooked, setRiderBooked] = useState(false);
   const [enterPickUp, setEnterPickUp] = useState(false);
   const [ridePhaseKey, setRidePhaseKey] = useState(null);
   const [enterDropOff, setEnterDropOff] = useState(false);

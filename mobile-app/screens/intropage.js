@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, Text, StyleSheet, Platform } from 'react-native';
+import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
 
 export default function Intropage({ begin }) {
   const handlechange = () => {
@@ -57,9 +57,9 @@ const styles = StyleSheet.create({
   },
 
   text: {
-    fontSize: Platform.OS === 'ios' ? 16 : 15,
+    fontSize: 12,
     fontFamily: 'Custom',
-    lineHeight: Platform.OS === 'ios' ? 22 : 18,
+    lineHeight:18,
     textAlign: 'center',
     lineHeight:30
   },
