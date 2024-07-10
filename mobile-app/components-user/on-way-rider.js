@@ -68,7 +68,8 @@ export default function RiderOnWay({
 ///////////////// Reading from firestore //////////////////
   useEffect(() => {
     const db = getFirestore(app);
-    const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
+    // const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
+    const RiderRef = doc(db, "Rides/Bids/GO/C2kDLqwcUDxCvQ2Za54u");
   
     // Listen for changes to the RiderRef
     const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
@@ -81,7 +82,6 @@ export default function RiderOnWay({
         setL2(updatedRequest.userData.dropoff);
         setRiderName(updatedRequest.riderData.riderInfo.name);
         setRiderRating(updatedRequest.riderData.riderInfo.rating);
-        console.log("this is riderLocationLat " + riderLocationLat + riderLocationLng + l1 + l2); 
         
       } else {
         console.log("No such document!");

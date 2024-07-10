@@ -864,6 +864,7 @@ export default function Go() {
       )
       ) : (
         <RiderOnWay 
+        loc1Coordinates={loc1Coordinates}
         setloc1lat={setloc1lat} setloc2lat={setloc2lat} 
         setloc1lng={setloc1lng} setloc2lng={setloc2lng} 
         setAni1lat={setAni1lat} setAni2lat={setAni2lat} 
