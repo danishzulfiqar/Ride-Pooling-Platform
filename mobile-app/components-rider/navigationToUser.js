@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import { View, StyleSheet, Image, Text, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Image, Text, TouchableOpacity, Modal, TextInput } from "react-native";
 import polyline from "@mapbox/polyline";
 import { auth, app } from "../firebase";
 import * as Location from "expo-location";
@@ -13,7 +13,7 @@ import ChatBox from "../component-Chatbox/chatBox";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
-export default function Route({ridePhaseKey, role, setNavigationPhase}) {
+export default function Route({ridePhaseKey, role, setNavigationPhase, setRideStatus}) {
   const mapRef = useRef(null);
   const [heading, setHeading] = useState();
   const [location, setLocation] = useState(null);
@@ -28,6 +28,8 @@ export default function Route({ridePhaseKey, role, setNavigationPhase}) {
   const [distance, setDistance] = useState(null);
   const [duration, setDuration] = useState(null);
   const [chatBox, setChatBox] = useState(false);
+  const [cancelComment, setCancelComment] = useState(null);
+  const [reviewBox, setReviewBox] = useState(false);
   const [markerPosition, setMarkerPosition] = useState({
     latitude: 33.6844,
     longitude: 73.0479,
@@ -38,6 +40,30 @@ export default function Route({ridePhaseKey, role, setNavigationPhase}) {
   });
   const snapPoints = useMemo(() => ['20%', chatBox ? '100%' : '55%'], [chatBox]);
   const db = getFirestore(app);
+
+  const cancelRide = async ()=> {
+    const data = {
+      uid: auth.currentUser.uid,
+      mode: 'GO',
+      ridebidKey: ridePhaseKey,
+      role: role,
+      reason:cancelComment,
+    }
+  
+    console.log("this is data for end ride " + JSON.stringify(data));
+  
+          const cancelGoRideBid  = httpsCallable(functions, "cancelGoRideBid");
+          try {
+            const result = await cancelGoRideBid (data);
+            console.log("this is result " + JSON.stringify(result));
+            setReviewBox(result.data.status);
+            setNavigationPhase(false);
+            setRideStatus(false);
+          } catch (error) {
+            console.error("Error calling cancelGoRideBid:", error);
+          }
+  
+  }
 
 ////////////////// reading bids->go->rideBidKey from firestore /////////////////////
 
@@ -208,6 +234,33 @@ const checkDistance = (distanceValue) => {
 
   return (
     <View style={styles.container}>
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={reviewBox}
+              onRequestClose={() => {
+                setReviewBox(!reviewBox);
+              }}
+            >
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Text style={styles.modalheading}>Tell us what's the problem?</Text>
+                  {/* <Text style={styles.modalText}></Text> */}  
+                  <TextInput style={styles.modalInput} placeholder="Reason" onChangeText={(text) => setCancelComment(text)} />
+                  <TouchableOpacity
+                    style={styles.submitbtn}
+                    onPress={() => {cancelRide();}}
+                  >
+                    <Text style={styles.textStyle}>Confirm</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.cancelbtn}
+                    onPress={() => {setReviewBox(!reviewBox);}}>
+                    <Text style={styles.textStyle}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
       <MapView
         ref={mapRef}
         style={{ flex: 1 }}
@@ -322,7 +375,7 @@ const checkDistance = (distanceValue) => {
           </TouchableOpacity>
           </View>
 
-        <TouchableOpacity style={styles.cancelBtn}>
+        <TouchableOpacity style={styles.cancelBtn} onPress={() => setReviewBox(!reviewBox)}>
             <Text
               style={{ color: "black", fontFamily: "CustomB", fontSize: 16, alignSelf: "center" }}
             >
@@ -449,4 +502,80 @@ const styles = StyleSheet.create({
     paddingLeft:10,
     paddingRight:10,
   },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+
+  modalView: {
+    margin: 20,
+    width: "70%",
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
+  modalheading: {
+    fontSize: 18,
+    fontFamily: "CustomB",
+  },
+
+  modalText: {
+    fontSize: 16,
+    color: "gray",
+    fontFamily: "Custom",
+  },
+
+  modalInput:{
+    padding:5,
+    height: 40,
+    width: "100%",
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+
+  submitbtn: {
+    backgroundColor: "#ECECEC",
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "lightgrey",
+    borderWidth: 2,
+    borderRadius: 5,
+    width: "100%",
+    marginTop: 10,
+  },
+
+  cancelbtn: {
+    backgroundColor: "#FF6969",
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "#FF6969",
+    borderWidth: 2,
+    borderRadius: 5,
+    width: "100%",
+    marginTop: 10,
+  },
+
+  rating:{
+    marginTop: 10,
+    marginBottom: 10,
+    alignSelf: "center",
+  },
+
 });

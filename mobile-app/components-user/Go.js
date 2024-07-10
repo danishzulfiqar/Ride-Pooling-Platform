@@ -54,14 +54,14 @@ export default function Go() {
   const [reviewBox, setReviewBox] = useState(false);
   const [locSlider, setLocSlider] = useState(0);
   const [showSlider, setShowSlider] = useState(0);
-  const [riderBooked, setRiderBooked] = useState(false);
+  const [riderBooked, setRiderBooked] = useState(true);
   const [enterPickUp, setEnterPickUp] = useState(false);
   const [ridePhaseKey, setRidePhaseKey] = useState(null);
   const [enterDropOff, setEnterDropOff] = useState(false);
   const [loc1Coordinates, setLoc1Coordinates] = useState();
   const [loc2Coordinates, setLoc2Coordinates] = useState();
   const [ridersDistanceVal, setRidersDistanceVal] = useState();
-  const [navigationPhase, setNavigationPhase] = useState(true);
+  const [navigationPhase, setNavigationPhase] = useState(false);
   const [ridersData, setRidersData] = useState(null);
   const [A, setA] = useState("ENTER  PICK-UP LOCATION");
   const [B, setB] = useState("ENTER  DROP-OFF  LOCATION");

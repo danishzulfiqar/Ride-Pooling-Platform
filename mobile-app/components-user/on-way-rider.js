@@ -7,6 +7,8 @@ import {
   SafeAreaView,
   Platform,
   Image,
+  Modal,
+  TextInput,
 } from "react-native";
 import polyline from "@mapbox/polyline";
 import { auth, app } from "../firebase";
@@ -19,6 +21,9 @@ import { faMessage, faPhone, faStar, faShieldHalved } from "@fortawesome/free-so
 import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import ChatBox from "../component-Chatbox/chatBox";
+import { getFunctions, httpsCallable } from "firebase/functions";
+
+
 
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
@@ -51,26 +56,19 @@ export default function RiderOnWay({
   const [riderRating, setRiderRating] = useState(null);
   const [riderPhone, setRiderPhone] = useState(null);
   const [chatBox, setChatBox] = useState(false);
+  const [cancelComment, setCancelComment] = useState(null);
+  const [reviewBox, setReviewBox] = useState(false);
   const snapPoints = useMemo(() => ['22%', chatBox ? '100%' : '60%'], [chatBox]);
-
+  const functions = getFunctions(auth.app);
 
   function backToMain() {
-    setRiderBooked(0);
-    set(0);
-    setA("ENTER  PICK-UP  LOCATION");
-    setB("ENTER  DROP-OFF  LOCATION");
-    setLoc1Coordinates(null);
-    setLoc2Coordinates(null);
-    setAni1lat(null); setAni1lng(null);
-    setAni2lat(null); setAni2lng(null);
-    setloc1lat(null); setloc1lng(null);
-    setloc2lat(null); setloc2lng(null);
+    
   }
 
 ///////////////// Reading from firestore //////////////////
   useEffect(() => {
     const db = getFirestore(app);
-    const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
+    const RiderRef = doc(db, "Rides/Bids/GO" + ridePhaseKey);
   
     // Listen for changes to the RiderRef
     const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
@@ -95,6 +93,40 @@ export default function RiderOnWay({
       unsubscribe();
     };
   }, []);
+
+  //////////////////////////////////////
+
+  const cancelRide = async ()=> {
+    const data = {
+      uid: auth.currentUser.uid,
+      mode: 'GO',
+      ridebidKey: ridePhaseKey,
+      role: role,
+      reason:cancelComment,
+    }
+  
+    console.log("this is data for end ride " + JSON.stringify(data));
+  
+          const cancelGoRideBid  = httpsCallable(functions, "cancelGoRideBid");
+          try {
+            const result = await cancelGoRideBid (data);
+            console.log("this is result " + JSON.stringify(result));
+            setReviewBox(result.data.status);
+            setRiderBooked(0);
+            set(0);
+            setA("ENTER  PICK-UP  LOCATION");
+            setB("ENTER  DROP-OFF  LOCATION");
+            setLoc1Coordinates(null);
+            setLoc2Coordinates(null);
+            setAni1lat(null); setAni1lng(null);
+            setAni2lat(null); setAni2lng(null);
+            setloc1lat(null); setloc1lng(null);
+            setloc2lat(null); setloc2lng(null);
+          } catch (error) {
+            console.error("Error calling cancelGoRideBid:", error);
+          }
+  
+  }
 
   ////////// get route ///////////////////
 
@@ -171,6 +203,32 @@ const checkDistance = (distanceValue) => {
 
   return (
     <SafeAreaView style={styles.container}>
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={reviewBox}
+              onRequestClose={() => {
+                setReviewBox(!reviewBox);
+              }}
+            >
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Text style={styles.modalheading}>Tell us what's the problem?</Text>
+                  {/* <Text style={styles.modalText}></Text> */}  
+                  <TextInput style={styles.modalInput} placeholder="Reason" onChangeText={(text) => setCancelComment(text)} />
+                  <TouchableOpacity
+                    style={styles.submitbtn}
+                    onPress={() => {cancelRide();}}>
+                    <Text style={styles.textStyle}>Confirm</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.cancelbtn}
+                    onPress={() => {setReviewBox(!reviewBox);}}>
+                    <Text style={styles.textStyle}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
       <View style={styles.mapsContainer}>
         <MapView
           ref={mapRef}
@@ -245,7 +303,6 @@ const checkDistance = (distanceValue) => {
             )}  */}
         </MapView>
       </View>
-
 
       <BottomSheet index={0} snapPoints={snapPoints}>
       { chatBox === true ? (
@@ -337,7 +394,7 @@ const checkDistance = (distanceValue) => {
           </TouchableOpacity>
           </View>
 
-        <TouchableOpacity style={styles.cancelBtn} onPress={backToMain}>
+        <TouchableOpacity style={styles.cancelBtn} onPress={() => setReviewBox(!reviewBox)}>
             <Text
               style={{ color: "black", fontFamily: "CustomB", fontSize: 16, alignSelf: "center" }}
             >
@@ -474,5 +531,80 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     fontFamily:'Custom',
     alignSelf: "flex-start",
+  },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+
+  modalView: {
+    margin: 20,
+    width: "70%",
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
+  modalheading: {
+    fontSize: 18,
+    fontFamily: "CustomB",
+  },
+
+  modalText: {
+    fontSize: 16,
+    color: "gray",
+    fontFamily: "Custom",
+  },
+
+  modalInput:{
+    padding:5,
+    height: 40,
+    width: "100%",
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+
+  submitbtn: {
+    backgroundColor: "#ECECEC",
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "lightgrey",
+    borderWidth: 2,
+    borderRadius: 5,
+    width: "100%",
+    marginTop: 10,
+  },
+
+  cancelbtn: {
+    backgroundColor: "#FF6969",
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "#FF6969",
+    borderWidth: 2,
+    borderRadius: 5,
+    width: "100%",
+    marginTop: 10,
+  },
+
+  rating:{
+    marginTop: 10,
+    marginBottom: 10,
+    alignSelf: "center",
   },
 });

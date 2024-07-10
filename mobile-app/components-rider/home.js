@@ -81,7 +81,7 @@ export default function Home() {
             console.log("this is result " + JSON.stringify(result));
             setReviewBox(!reviewBox);
           } catch (error) {
-            console.error("Error calling endGoRideBid:", error);
+            console.error("Error calling addReviewAndRating:", error);
           }
   
   }
@@ -325,6 +325,7 @@ export default function Home() {
             ridePhaseKey={ridePhaseKey}
             role={role}
             setNavigationPhase={setNavigationPhase}
+            setRideStatus={setRideStatus}
           />
         )
       ) : (
