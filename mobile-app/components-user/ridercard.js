@@ -6,9 +6,10 @@ import { ProgressBar } from 'react-native-paper';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function RiderCard({ riderCardData, setRiderBooked, setRidersData, l1, l2, loc1coords, loc2coords, uid, setRidePhaseKey}) {
+export default function RiderCard({ setRiderBooked, l1, l2, loc1coords, loc2coords, uid, setRidePhaseKey, loc1lat, loc1lng}) {
   const [timer, setTimer] = useState(0);
   const [progressTime, setProgressTime] = useState(1);
+  const [riderCardData, setRiderCardData] = useState(null);
   const functions = getFunctions(auth.app);
   // console.log("this is rider information" + JSON.stringify(riderCardData));
 
@@ -39,7 +40,38 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
     }
   }, []);
 
+//////////////////////// Getting Rider Card ////////////////////////// 
+const data = {
+  uid:auth.currentUser?.uid,
+  lat:loc1lat,
+  lng:loc1lng,
+  radius:100000,
+}
 
+useEffect(() => {
+  const fetchData = () => {
+    console.log('called rider card');
+    getGoRidersDataFunction(data)
+      .catch((error) => {
+        console.error("Error in senddata:", error);
+      });
+  };
+
+  fetchData();
+  const interval = setInterval(fetchData, 5000);
+  return () => clearInterval(interval);
+}, []);
+
+const getGoRidersDataFunction = async (data) => {
+  const getGoRiders = httpsCallable(functions, 'getGoRiders');
+  try {
+    const result = await getGoRiders(data);
+    setRiderCardData(result.data);
+    console.log("available rider " + JSON.stringify(result.data));
+  } catch (error) {
+    console.error("Error calling Function:", error);
+  }
+};
 
   /////////////// SENDING RIDER REQUEST ///////////////////
 
@@ -79,7 +111,6 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
             return newTime;
           } else {
             clearInterval(interval); // Clear interval when timer reaches 0
-            setRidersData(null);
             return 0;
           }
         });
@@ -91,8 +122,8 @@ export default function RiderCard({ riderCardData, setRiderBooked, setRidersData
 
   return (
     <View style={styles.container}>
-  {timer === 0 ? (
-    <View style={styles.search}>
+    {!riderCardData ? (
+    <View style={styles.search}> 
       <Text style={styles.searchTxt}>searching...</Text>
     </View>
   ) : (

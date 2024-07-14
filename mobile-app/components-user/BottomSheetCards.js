@@ -6,7 +6,12 @@ import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { auth, app } from "../firebase";
 
-export default function Slider({l1,l2, set, riderCardData, setRidersData, loc1coords, loc2coords, uid, setRiderBooked, setRidePhaseKey }) {
+export default function Slider({
+  l1,l2, 
+  set,
+  loc1coords, loc2coords, 
+  uid, setRiderBooked, setRidePhaseKey, 
+  loc1lat, loc1lng }) {
   const snapPoints = useMemo(() => ['40%', '50%', '80%'], []);
   const db = getFirestore(app);
 
@@ -61,7 +66,13 @@ export default function Slider({l1,l2, set, riderCardData, setRidersData, loc1co
         </View>
         <View style={styles.hr}/>
         <ScrollView>
-          <RiderCard riderCardData={riderCardData} setRiderBooked={setRiderBooked} setRidersData={setRidersData} l1={l1} l2={l2} loc1coords={loc1coords} loc2coords={loc2coords} uid={uid} setRidePhaseKey={setRidePhaseKey} />
+          <RiderCard 
+          setRiderBooked={setRiderBooked} 
+          l1={l1} l2={l2} 
+          loc1coords={loc1coords} loc2coords={loc2coords} 
+          uid={uid} 
+          setRidePhaseKey={setRidePhaseKey}
+          loc1lat={loc1lat} loc1lng={loc1lng}/>
         </ScrollView>
       </BottomSheet>
     </View>

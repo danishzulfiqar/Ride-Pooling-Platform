@@ -68,8 +68,7 @@ export default function RiderOnWay({
 ///////////////// Reading from firestore //////////////////
   useEffect(() => {
     const db = getFirestore(app);
-    // const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
-    const RiderRef = doc(db, "Rides/Bids/GO/C2kDLqwcUDxCvQ2Za54u");
+    const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
   
     // Listen for changes to the RiderRef
     const unsubscribe = onSnapshot(RiderRef, (snapshot) => {

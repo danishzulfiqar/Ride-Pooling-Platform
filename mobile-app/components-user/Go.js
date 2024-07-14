@@ -62,7 +62,6 @@ export default function Go() {
   const [loc2Coordinates, setLoc2Coordinates] = useState();
   const [ridersDistanceVal, setRidersDistanceVal] = useState();
   const [navigationPhase, setNavigationPhase] = useState(false);
-  const [ridersData, setRidersData] = useState(null);
   const [A, setA] = useState("ENTER  PICK-UP LOCATION");
   const [B, setB] = useState("ENTER  DROP-OFF  LOCATION");
   const snapPoints1 = useMemo(() => ["20%", "100%"], []);
@@ -71,12 +70,7 @@ export default function Go() {
   const uid = auth.currentUser.uid;
   const functions = getFunctions(auth.app);
 
-  const data = {
-    uid:UID,
-    lat:loc1lat,
-    lng:loc1lng,
-    radius:100000,
-  }
+
 
   const ratingCompleted = (rating) => {
     setRating(rating);
@@ -107,26 +101,9 @@ export default function Go() {
   }
 
 
-  async function showingSlider() {
+  function showingSlider() {
     setShowSlider(1);
-    await getGoRidersDataFunction(data)
-      .catch((error) => {
-        console.error("Error in senddata:", error);
-      })
   }
-
-
-
-  const getGoRidersDataFunction = async (data) => {
-    const getGoRiders = httpsCallable(functions, 'getGoRiders');
-    try {
-      const result = await getGoRiders(data);
-      setRidersData(result.data);
-    } catch (error) {
-      console.error("Error calling Function:", error);
-    }
-  };
-
 
   ////////////////////////// Get users location /////////////////////////
 
@@ -336,23 +313,23 @@ export default function Go() {
   }
 
 
-    /////////////////// Set Rider Availability //////////////////////
+    /////////////////// Set user Availability //////////////////////
 
     const setAvailability = async (available) => {
-
       const availabilityRef = doc(db, "users", uid);
+      console.log(availabilityRef);
       const updateData = {
-        "availability": available,
+        availability: available,
       };
-    
+  
       try {
         await updateDoc(availabilityRef, updateData);
-         console.log("Availability updated successfully!");
+        console.log("Availability updated successfully!");
       } catch (error) {
         console.error("Error updating availability: ", error);
       }
-      
     };
+  
 
   ////////////////////////////////////////////////////////////////////
 
@@ -465,8 +442,8 @@ export default function Go() {
             {showSlider === 1 ? (
               <Slider l1={A} l2={B} 
               set={setShowSlider} 
-              riderCardData={ridersData} 
-              setRidersData={setRidersData} 
+              loc1lat={loc1lat}
+              loc1lng={loc1lng}
               loc1coords={loc1Coordinates} 
               loc2coords={loc2Coordinates} 
               uid={UID}

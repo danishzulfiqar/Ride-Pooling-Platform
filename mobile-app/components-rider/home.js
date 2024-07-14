@@ -53,6 +53,8 @@ export default function Home() {
   const [rating, setRating] = useState(5);
   const [reviewBox, setReviewBox] = useState(false);
   const [riderLocation, setRiderLocation] = useState();
+  const [riderLatitude, setRiderLatitude] = useState();
+  const [riderLongitude, setRiderLongitude] = useState();
   const snapPoints = useMemo(() => ["35%", "70%"], []);
   const functions = getFunctions(auth.app);
   const db = getFirestore(app);
@@ -60,7 +62,6 @@ export default function Home() {
 
   const ratingCompleted = (rating) => {
     setRating(rating);
-
   }
 
   const ratingFunc = async ()=> {
@@ -113,6 +114,7 @@ export default function Home() {
 
   const setAvailability = async (available) => {
     const availabilityRef = doc(db, "riders", uid);
+    console.log(availabilityRef);
     const updateData = {
       availability: available,
     };
@@ -125,6 +127,27 @@ export default function Home() {
     }
   };
 
+  const updateRiderLocation = async (available) => {
+    const availabilityRef = doc(db, "riders", uid);
+    console.log(availabilityRef);
+    const updateData = {
+      location: {
+        geohash: "ttgyvx3m1p",
+        geopoint: {
+          latitude: 12.9715987,
+          longitude: 77.5945627,
+        }
+      }
+    };
+
+    try {
+      await updateDoc(availabilityRef, updateData);
+      console.log("rider location updated successfully!");
+    } catch (error) {
+      console.error("Error updating rider location: ", error);
+    }
+  };
+
   ////////////////////////// Get users location /////////////////////////
   const setUserLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -134,6 +157,9 @@ export default function Home() {
     }
 
     let currentLocation = await Location.getCurrentPositionAsync({});
+    setRiderLatitude(currentLocation.coords.latitude);
+    setRiderLongitude(currentLocation.coords.longitude);
+    console.log(riderLatitude, riderLongitude);
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation.coords.latitude},${currentLocation.coords.longitude}&key=${API_KEY}`
     );
@@ -310,6 +336,7 @@ export default function Home() {
                         },
                       });
                     } else {
+                      updateRiderLocation();
                       setAvailability(true);
                       setslider(0);
                     }
