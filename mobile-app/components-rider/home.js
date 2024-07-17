@@ -134,8 +134,8 @@ export default function Home() {
       location: {
         geohash: "ttgyvx3m1p",
         geopoint: {
-          latitude: 12.9715987,
-          longitude: 77.5945627,
+          latitude: riderLatitude,
+          longitude: riderLongitude,
         }
       }
     };
@@ -360,6 +360,7 @@ export default function Home() {
           ridePhaseKey={ridePhaseKey}
           role={role}
           setReviewBox={setReviewBox}
+          setslider={setslider}
           setNavigationPhase={setNavigationPhase}
           setRideStatus={setRideStatus}
         />

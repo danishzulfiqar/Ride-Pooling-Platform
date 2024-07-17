@@ -64,7 +64,6 @@ export default function Route({ridePhaseKey, role, setNavigationPhase, setRideSt
           } catch (error) {
             console.error("Error calling cancelGoRideBid:", error);
           }
-  
   }
 
 ////////////////// reading bids->go->rideBidKey from firestore /////////////////////

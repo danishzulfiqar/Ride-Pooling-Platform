@@ -29,6 +29,7 @@ export default function Navigation({
   setAni1lat, setAni1lng,
   setAni2lat, setAni2lng,
   set1lat, set1lng,
+  setslider,
   setloc2lat, setloc2lng, }) {
   const mapRef = useRef(null);
   const [heading, setHeading] = useState();
@@ -40,7 +41,7 @@ export default function Navigation({
   const [userRating, setUserRating] = useState(null);
   const [userPhone, setUserPhone] = useState(null);
   const [pickupLocation, setPickupLocation] = useState(null);
-  const [startRideStatus, setStartRideStatus] = useState(null);
+  const [startRideStatus, setStartRideStatus] = useState(false);
   const [dropoffStatus, setDropoffStatus] = useState(null);
   const [fairPrice, setFairPrice] = useState(null);
   const [distance, setDistance] = useState(null);
@@ -62,7 +63,7 @@ export default function Navigation({
 ////////////////// reading bids->go->rideBidKey from firestore /////////////////////
 
 useEffect(() => {
-  const RiderRef = doc(db, "Rides/Bids/GO/jUaMEO6kMYI5VtSAzAPw");
+  const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
   console.log('this is ridePhaseKey'+ ridePhaseKey);
 
   // Listen for changes to the RiderRef
@@ -71,11 +72,12 @@ useEffect(() => {
       const updatedRequest = snapshot.data(); // Retrieve the data of the specific document
       console.log('this is data from backend' + JSON.stringify(updatedRequest));
         setL({
-          latitude: updatedRequest.destination.destinationLoc.latitude,
-          longitude: updatedRequest.destination.destinationLoc.longitude,
+          latitude: updatedRequest.userData.dropoff_location.latitude,
+          longitude: updatedRequest.userData.dropoff_location.longitude,
         });
-        setDestinationlocation(updatedRequest.destination.destinationName);
-        setStartRideStatus(updatedRequest.active_status);
+        setDestinationlocation(updatedRequest.userData.dropoff);
+        console.log('this is destination location'+ updatedRequest.destination.destinationName);
+        setStartRideStatus(updatedRequest.userData.pickup_status);
         setDropoffStatus(updatedRequest.userData.dropoff_status);
         if (updatedRequest.userData.dropoff_status === true) {
           endUserRide();
@@ -160,6 +162,7 @@ const endRide = async ()=> { // Rider End Ride
           const result = await endGoRideBid(data);
           setReviewBox(result.data.status);
           setNavigationPhase(false);
+          setslider(1);
           setRideStatus(false);
         } catch (error) {
           console.error("Error calling endGoRideBid:", error);

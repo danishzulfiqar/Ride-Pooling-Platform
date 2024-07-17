@@ -80,7 +80,7 @@ export default function Go() {
   const ratingFunc = async ()=> {
     const data = {
       uid: auth.currentUser.uid,
-      ridebidKey: 'jUaMEO6kMYI5VtSAzAPw',
+      ridebidKey: ridePhaseKey,
       role: role,
       mode: 'GO',
       rating: rating,

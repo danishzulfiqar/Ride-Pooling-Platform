@@ -55,7 +55,7 @@ export default function UserRequestCard({mode, setRidePhaseKey, setRideStatus}) 
       const result = await makeNewGoRideBid(data);
       console.log('new ride bid document ' + JSON.stringify(result.data));
       setRidePhaseKey(result.data.bidKey);
-      console.log("this is ridekey " + result.data.bidKey );
+      console.log("this is rideBidKey Rider side " + result.data.bidKey );
       setRideStatus(result.data.status);
     } catch (error) {
       console.error("Error calling makeNewGoRideBid:", error);
