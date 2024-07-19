@@ -1,13 +1,11 @@
 import { React, useState, useMemo, useEffect, useRef } from "react";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import Toast from "react-native-toast-message";
 import {
   View,
   TouchableOpacity,
   Text,
   StyleSheet,
-  TouchableWithoutFeedback,
-  Keyboard,
   Image,
   Modal,
   TextInput
@@ -226,7 +224,6 @@ export default function Home() {
             </Modal>
             <View style={styles.mapsContainer}>
               <MapView
-                provider={PROVIDER_GOOGLE}
                 style={styles.map}
                 ref={mapRef}
                 camera={{
@@ -465,7 +462,8 @@ const styles = StyleSheet.create({
 
   headText: {
     fontFamily: "CustomB",
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight: "bold",
     marginRight: 15,
     textAlign: "left",
   },

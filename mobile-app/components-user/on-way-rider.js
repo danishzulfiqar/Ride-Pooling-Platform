@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   SafeAreaView,
-  Platform,
   Image,
   Modal,
   TextInput,
@@ -13,9 +12,7 @@ import {
 import polyline from "@mapbox/polyline";
 import { auth, app } from "../firebase";
 import newstyle from "../styles/mapstyle";
-import Icon from "react-native-vector-icons/FontAwesome";
-import MapViewDirections from "react-native-maps-directions";
-import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faMessage, faPhone, faStar, faShieldHalved } from "@fortawesome/free-solid-svg-icons";
 import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
@@ -235,7 +232,6 @@ const checkDistance = (distanceValue) => {
       <View style={styles.mapsContainer}>
         <MapView
           ref={mapRef}
-          provider={PROVIDER_GOOGLE}
           style={styles.map}
           camera={{
             center: { latitude: 33.6844, longitude: 73.0479 },

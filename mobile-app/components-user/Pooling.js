@@ -1,6 +1,5 @@
 import { React, useState, useMemo, useEffect, useRef } from "react";
 import MapView, {
-  PROVIDER_DEFAULT,
   Marker,
 } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
@@ -486,7 +485,6 @@ export default function Go() {
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
             <MapView
-              provider={PROVIDER_DEFAULT}
               style={styles.map}
               ref={mapRef}
               Region={{
@@ -659,7 +657,6 @@ export default function Go() {
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
             <MapView
-              provider={PROVIDER_DEFAULT}
               style={styles.map}
               ref={mapRef}
               initialRegion={{
@@ -728,7 +725,6 @@ export default function Go() {
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
             <MapView
-              provider={PROVIDER_DEFAULT}
               style={styles.map}
               ref={mapRef}
               initialRegion={{

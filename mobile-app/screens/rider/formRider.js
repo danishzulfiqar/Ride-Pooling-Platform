@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
 
   ddcontainer: {
     alignItems: 'center',
-    marginBottom: Platform.OS === 'ios' ? 10 : 30,
+    marginBottom: 30,
   },
 
   name: {
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginRight: 4,
     padding: 5,
-    marginBottom: Platform.OS === 'ios' ? 18 : 24,
+    marginBottom: 24,
     backgroundColor: 'white',
     fontFamily: 'Custom',
     borderRadius: 5,
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
 
   inputStyles2: {
     height: 10,
-    marginBottom: Platform.OS === 'ios' ? 18 : 24,
+    marginBottom: 24,
     backgroundColor: 'white',
     fontFamily: 'Custom',
     borderRadius: 5,
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   inputStyles: {
     height: 35,
     fontSize: 16,
-    marginBottom: Platform.OS === 'ios' ? 18 : 24,
+    marginBottom: 24,
     backgroundColor: 'white',
     padding: 5,
     fontFamily: 'Custom',

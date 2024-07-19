@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     // borderColor:"black",
     // borderWidth:2,
-    marginBottom: Platform.OS === 'ios' ? 30 : 30,
+    marginBottom: 30,
   },
 
   backbtn: {

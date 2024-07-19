@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 15,
     borderBottomColor: "#FF6969",
     borderRadius: 4.84,
-    marginTop: Platform.OS === 'ios' ? 18 : 40,
+    marginTop: 40,
     alignItems: 'center',
     width: 300,
     alignSelf: "center",

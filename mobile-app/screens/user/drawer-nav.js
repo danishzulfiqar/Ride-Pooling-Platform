@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput, Platform } from 'react-native';
+import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { DrawerItemList, createDrawerNavigator } from '@react-navigation/drawer';
 import Homescreen1 from '../homescreen1';

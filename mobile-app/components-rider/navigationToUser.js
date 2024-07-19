@@ -5,7 +5,7 @@ import { auth, app } from "../firebase";
 import * as Location from "expo-location";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps";
 import { faMessage, faPhone, faStar, faShieldHalved } from "@fortawesome/free-solid-svg-icons";
 import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import ChatBox from "../component-Chatbox/chatBox";
@@ -265,7 +265,6 @@ const checkDistance = (distanceValue) => {
       <MapView
         ref={mapRef}
         style={{ flex: 1 }}
-        provider={PROVIDER_GOOGLE}
         // showsUserLocation={true}
         showsCompass={true}
       >

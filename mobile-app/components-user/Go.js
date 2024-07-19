@@ -1,5 +1,5 @@
 import { React, useState, useMemo, useEffect, useRef } from "react";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { AirbnbRating } from 'react-native-ratings'
@@ -373,7 +373,6 @@ export default function Go() {
             </Modal>
           <View style={styles.mapsContainer}>
             <MapView
-              provider={PROVIDER_GOOGLE}
               style={styles.map}
               ref={mapRef}
               camera={{
@@ -719,7 +718,6 @@ export default function Go() {
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
             <MapView
-              provider={PROVIDER_GOOGLE}
               style={styles.map1}
               ref={mapRef2}
               initialCamera={{
@@ -783,7 +781,6 @@ export default function Go() {
         <View style={styles.container}>
           <View style={styles.mapsContainer}>
             <MapView
-              provider={PROVIDER_GOOGLE}
               style={styles.map1}
               ref={mapRef3}
               initialCamera={{

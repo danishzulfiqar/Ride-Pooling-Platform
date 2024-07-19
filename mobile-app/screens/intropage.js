@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
-
 export default function Intropage({ begin }) {
   const handlechange = () => {
     begin(true);
@@ -66,7 +65,7 @@ const styles = StyleSheet.create({
 
   buttonstyle: {
     justifyContent: 'center',
-    marginTop: Platform.OS === 'ios' ? 25 : 40,
+    marginTop: 40,
     alignSelf: 'center',
     height: 40,
     width: 260,
