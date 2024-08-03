@@ -10,15 +10,15 @@ import {
   TextInput,
 } from "react-native";
 import polyline from "@mapbox/polyline";
-import { auth, app } from "../firebase";
 import newstyle from "../styles/mapstyle";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faMessage, faPhone, faStar, faShieldHalved } from "@fortawesome/free-solid-svg-icons";
-import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import ChatBox from "../component-Chatbox/chatBox";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import firestore from  '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
 
 
 
@@ -56,73 +56,72 @@ export default function RiderOnWay({
   const [cancelComment, setCancelComment] = useState(null);
   const [reviewBox, setReviewBox] = useState(false);
   const snapPoints = useMemo(() => ['22%', chatBox ? '100%' : '60%'], [chatBox]);
-  const functions = getFunctions(auth.app);
 
   function backToMain() {
     
   }
 
 ///////////////// Reading from firestore //////////////////
-  useEffect(() => {
-    const db = getFirestore(app);
-    const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
-  
-    // Listen for changes to the RiderRef
-    const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const updatedRequest = snapshot.data(); // Retrieve the data of the specific document
-        console.log("this is bidkey information " + JSON.stringify(updatedRequest));
-        setRiderLocationLat(updatedRequest.riderData.location.geopoint.latitude);
-        setRiderLocationLng(updatedRequest.riderData.location.geopoint.longitude);
-        setL1(updatedRequest.userData.pickup);
-        setL2(updatedRequest.userData.dropoff);
-        setRiderName(updatedRequest.riderData.riderInfo.name);
-        setRiderRating(updatedRequest.riderData.riderInfo.rating);
-        
-      } else {
-        console.log("No such document!");
-      }
-    });
-  
-    return () => {
-      // Unsubscribe from the snapshot listener when component unmounts
-      unsubscribe();
-    };
-  }, []);
+useEffect(() => {
+  const RiderRef = firestore().collection('Rides').doc('Bids').collection('GO').doc(ridePhaseKey);
 
+  // Listen for changes to the RiderRef
+  const unsubscribe = RiderRef.onSnapshot((snapshot) => {
+    if (snapshot.exists) {
+      const updatedRequest = snapshot.data(); // Retrieve the data of the specific document
+      console.log("this is bidkey information " + JSON.stringify(updatedRequest));
+      setRiderLocationLat(updatedRequest.riderData.location.geopoint.latitude);
+      setRiderLocationLng(updatedRequest.riderData.location.geopoint.longitude);
+      setL1(updatedRequest.userData.pickup);
+      setL2(updatedRequest.userData.dropoff);
+      setRiderName(updatedRequest.riderData.riderInfo.name);
+      setRiderRating(updatedRequest.riderData.riderInfo.rating);
+    } else {
+      console.log("No such document!");
+    }
+  });
+
+  return () => {
+    // Unsubscribe from the snapshot listener when component unmounts
+    unsubscribe();
+  };
+}, [ridePhaseKey]);
   //////////////////////////////////////
 
-  const cancelRide = async ()=> {
+  const cancelRide = async () => {
     const data = {
-      uid: auth.currentUser.uid,
+      uid: auth().currentUser.uid,
       mode: 'GO',
       ridebidKey: ridePhaseKey,
       role: role,
-      reason:cancelComment,
-    }
+      reason: cancelComment,
+    };
   
     console.log("this is data for end ride " + JSON.stringify(data));
   
-          const cancelGoRideBid  = httpsCallable(functions, "cancelGoRideBid");
-          try {
-            const result = await cancelGoRideBid (data);
-            console.log("this is result " + JSON.stringify(result));
-            setReviewBox(result.data.status);
-            setRiderBooked(0);
-            set(0);
-            setA("ENTER  PICK-UP  LOCATION");
-            setB("ENTER  DROP-OFF  LOCATION");
-            setLoc1Coordinates(null);
-            setLoc2Coordinates(null);
-            setAni1lat(null); setAni1lng(null);
-            setAni2lat(null); setAni2lng(null);
-            setloc1lat(null); setloc1lng(null);
-            setloc2lat(null); setloc2lng(null);
-          } catch (error) {
-            console.error("Error calling cancelGoRideBid:", error);
-          }
-  
-  }
+    const cancelGoRideBid = functions().httpsCallable('cancelGoRideBid');
+    try {
+      const result = await cancelGoRideBid(data);
+      console.log("this is result " + JSON.stringify(result));
+      setReviewBox(result.data.status);
+      setRiderBooked(0);
+      set(0);
+      setA("ENTER  PICK-UP  LOCATION");
+      setB("ENTER  DROP-OFF  LOCATION");
+      setLoc1Coordinates(null);
+      setLoc2Coordinates(null);
+      setAni1lat(null);
+      setAni1lng(null);
+      setAni2lat(null);
+      setAni2lng(null);
+      setloc1lat(null);
+      setloc1lng(null);
+      setloc2lat(null);
+      setloc2lng(null);
+    } catch (error) {
+      console.error("Error calling cancelGoRideBid:", error);
+    }
+  };
 
   ////////// get route ///////////////////
 

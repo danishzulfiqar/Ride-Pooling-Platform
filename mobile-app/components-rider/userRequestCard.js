@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { getFirestore, collection, getDocs, doc, onSnapshot } from "firebase/firestore";
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { auth, app } from "../firebase";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { ProgressBar } from "react-native-paper";
+import firestore from  '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
+
 
 export default function UserRequestCard({mode, setRidePhaseKey, setRideStatus}) {
   const [requests, setRequests] = useState([]);
   const [progressTime, setProgressTime] = useState(0);
   const [timer, setTimer] = useState(0);
-  const functions = getFunctions(auth.app);
+
 
   useEffect(() => {
-    const db = getFirestore(app);
-    let uid = auth.currentUser.uid;
-    const RiderRef = doc(db, "riders/" + uid);
 
-    const requestsRef = collection(RiderRef, "requests");
+    const uid  = auth().currentUser.uid;
+    const RiderRef = firestore().collection('riders').doc(uid).collection('requests');
 
     // Listen for changes to the requests collection
-    const unsubscribe = onSnapshot(requestsRef, (snapshot) => {
+    const unsubscribe = RiderRef.onSnapshot((snapshot) => {
       let updatedRequests = [];
-      snapshot.docs.forEach((doc) => {
+      snapshot.forEach((doc) => {
         updatedRequests.push({ ...doc.data(), id: doc.id });
       });
       compareArray(updatedRequests);
@@ -35,32 +34,33 @@ export default function UserRequestCard({mode, setRidePhaseKey, setRideStatus}) 
     };
   }, []);
 
-  const acceptingRide = async ( userId,pickup,dropoff,loc1,loc2,price ) => {
-    const data = {
-      uid:auth.currentUser.uid, 
-      mode:mode,
-      userId:userId,
-      riderId:auth.currentUser.uid,
-      pickup:pickup,
-      dropoff:dropoff,
-      pickup_lat:loc1.latitude,
-      pickup_lng:loc1.longitude,
-      dropoff_lat:loc2.latitude,
-      dropoff_lng:loc2.longitude,
-      price:price,
-    }
-    console.log("this is data" + data);
-    const makeNewGoRideBid = httpsCallable(functions, 'makeNewGoRideBid');
-    try {
-      const result = await makeNewGoRideBid(data);
-      console.log('new ride bid document ' + JSON.stringify(result.data));
-      setRidePhaseKey(result.data.bidKey);
-      console.log("this is rideBidKey Rider side " + result.data.bidKey );
-      setRideStatus(result.data.status);
-    } catch (error) {
-      console.error("Error calling makeNewGoRideBid:", error);
-    }
+const acceptingRide = async (userId, pickup, dropoff, loc1, loc2, price) => {
+  const data = {
+    uid: auth().currentUser.uid,
+    mode: mode,
+    userId: userId,
+    riderId: auth().currentUser.uid,
+    pickup: pickup,
+    dropoff: dropoff,
+    pickup_lat: loc1.latitude,
+    pickup_lng: loc1.longitude,
+    dropoff_lat: loc2.latitude,
+    dropoff_lng: loc2.longitude,
+    price: price,
   };
+  console.log("this is data", data);
+
+  const makeNewGoRideBid = functions().httpsCallable('makeNewGoRideBid');
+  try {
+    const result = await makeNewGoRideBid(data);
+    console.log('new ride bid document', JSON.stringify(result.data));
+    setRidePhaseKey(result.data.bidKey);
+    console.log("this is rideBidKey Rider side", result.data.bidKey);
+    setRideStatus(result.data.status);
+  } catch (error) {
+    console.error("Error calling makeNewGoRideBid:", error);
+  }
+};
 
   useEffect(() => {
     let interval;

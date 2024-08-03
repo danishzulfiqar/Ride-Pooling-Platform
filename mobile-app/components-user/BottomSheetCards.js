@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import RiderCard from './ridercard';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { auth, app } from "../firebase";
+import firestore from  '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
 
 export default function Slider({
   l1,l2, 
@@ -13,7 +14,6 @@ export default function Slider({
   uid, setRiderBooked, setRidePhaseKey, 
   loc1lat, loc1lng }) {
   const snapPoints = useMemo(() => ['40%', '50%', '80%'], []);
-  const db = getFirestore(app);
 
   function back(){
     set(0)
@@ -23,20 +23,20 @@ export default function Slider({
   /////////////////// Set Rider Availability //////////////////////
 
   const setAvailability = async (available) => {
-
-    const availabilityRef = doc(db, "users", uid);
+    const availabilityRef = firestore().collection('users').doc(uid);
+    console.log(availabilityRef);
     const updateData = {
-      "availability": available,
+        availability: available,
     };
-  
+
     try {
-      await updateDoc(availabilityRef, updateData);
-       console.log("Availability updated successfully!");
+        await availabilityRef.update(updateData);
+        console.log("Availability updated successfully!");
     } catch (error) {
-      console.error("Error updating availability: ", error);
+        console.error("Error updating availability: ", error);
     }
-    
-  };
+};
+
 
   return (
     

@@ -3,15 +3,13 @@ import {
   StyleSheet, View, Text, TextInput, TouchableOpacity,
   TouchableWithoutFeedback, Alert, Image, Keyboard
 } from 'react-native';
-import { auth } from '../../firebase';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
-import { signInWithPhoneNumber, PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast from 'react-native-toast-message';
 import OTPTextInput from 'react-native-otp-textinput';
 import PhoneInput from "react-native-phone-number-input";
+import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
 
 let UID;
 
@@ -23,29 +21,21 @@ const ScreenStates = {
 
 
 function SignIn({ setUser, backbutton, role, sethaveaccount }) {
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [confirm, setConfirm] = useState(null);
   const [formattedValue, setFormattedValue] = useState("");
   const [otpInput, setOtpInput] = useState("");
-  const [verificationId, setVerificationId] = useState(null);
   const [currentScreen, setCurrentScreen] = useState(ScreenStates.NUMBER_SCREEN);
-  const recaptchaVerifier = useRef(null);
-  const [userID , setUserId] = useState(null);
   const [code, setCode] = useState(new Array(6).fill(""));
   const [loading, setLoading] = useState(false);
-  const [value, setValue] = useState("");
-  const [valid, setValid] = useState(false);
-  const [showMessage, setShowMessage] = useState(false);
   const phoneInputRef = useRef(null); // Use correct ref type
 
-  const functions = getFunctions(auth.app);
 
   const setback = () => {
     backbutton(0);
   };
 
   const callCheckDataFunction = async (uid, role) => {
-    UID = uid;
-    const checkData = httpsCallable(functions, 'checkData');
+    const checkData = functions().httpsCallable('checkData');
     try {
       const result = await checkData({ uid, role });
       console.log(result.data);
@@ -56,84 +46,60 @@ function SignIn({ setUser, backbutton, role, sethaveaccount }) {
     }
   };
 
+  ////////////////// Verification Code ////////////////////////
+
   const sendVerification = async () => {
-    const country = phoneInputRef.current?.getCallingCode(formattedValue);
-    if (country === "92") {
-      const isValid = phoneInputRef.current?.isValidNumber(formattedValue);
-      if (isValid) {
-        try {
-          console.log(formattedValue);
-          const phoneProvider = new PhoneAuthProvider(auth);
-          const verificationId = await phoneProvider.verifyPhoneNumber(formattedValue, recaptchaVerifier.current);
-          setVerificationId(verificationId);
-          setCurrentScreen(ScreenStates.CODE_SCREEN);
-          Toast.show({
-            type: 'success',
-            text1: 'Code Sent',
-            text1Style: {
-              fontSize: 18
-            },
-            text2: 'Verification code sent to your phone number',
-          });
-        } catch (error) {
-          console.error(error);
-          if (error.code === "auth/invalid-phone-number") {
-            Toast.show({
-              type: 'error',
-              text1: 'Invalid Number',
-              text1Style: {
-                fontSize: 18
-              },
-              text2: 'Please enter a correct phone number',
-            });
-          } else {
-            Toast.show({
-              type: 'error',
-              text1: 'System Error',
-              text1Style: {
-                fontSize: 18
-              },
-              text2: String(error),
-            });
-          }
-        }
-      } else {
+    try {
+        const confirmation = await auth().signInWithPhoneNumber(formattedValue);
+        setConfirm(confirmation);
+        setCurrentScreen(ScreenStates.CODE_SCREEN);
         Toast.show({
-          type: 'error',
-          text1: 'Invalid Phone number',
+          type: 'success',
+          text1: 'Code Sent',
           text1Style: {
             fontSize: 18
           },
-          text2: "Enter correct phone number without 0",
-          text2Style: {
-            fontSize: 13
-          },
-        });
-      }
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Unsupported Region',
-        text1Style: {
-          fontSize: 18
-        },
-        text2: 'Service is only present in Pakistan',
-      });
+          text2: 'Verification code sent to your phone number',
+          });
+    } catch (error) {
+        console.log('Error: ', error);
+        if (error.code === "auth/invalid-phone-number") {
+          Toast.show({
+            type: 'error',
+            text1: 'Invalid Number',
+            text1Style: {
+              fontSize: 18
+            },
+            text2: 'Please enter a correct phone number',
+          });
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'System Error',
+            text1Style: {
+              fontSize: 18
+            },
+            text2: String(error),
+          });
+        }
     }
-  };
+};
+
+  ///////////////////// Confirm Code ////////////////////////
 
   const confirmCode = async () => {
-    setLoading(true);
     try {
-      const credential = PhoneAuthProvider.credential(verificationId, otpInput);
-      const userCredential = await signInWithCredential(auth, credential);
-      await callCheckDataFunction(userCredential.user.uid, role);
-      console.log(role);
-      setUser(userCredential.user);
-      setCurrentScreen(ScreenStates.LOGGED_IN_SCREEN);
+      const userCredentials = await confirm.confirm(otpInput);
+        const user = userCredentials.user;
+        await callCheckDataFunction(user.uid, role);
+        console.log('User UID: ' + user.uid + ' auth.currentuser.uid:' + auth().currentUser.uid);
+        setUser(userCredentials.user);
+        UID = user.uid;
+        setCurrentScreen(ScreenStates.LOGGED_IN_SCREEN);
     } catch (error) {
-      setLoading(false);
-      console.error(error);
+        console.log('Error: ', error);
+        setLoading(false);
+        console.error(error);
       if (error.code === 'auth/invalid-verification-code') {
         Toast.show({
           type: 'error',
@@ -154,7 +120,11 @@ function SignIn({ setUser, backbutton, role, sethaveaccount }) {
         });
       }
     }
-  };
+};
+ 
+  ////////////////////////////////////////////////////////////
+
+
 
   const onCodeChange = (index, value) => {
     const newCode = [...code];
@@ -200,9 +170,6 @@ function SignIn({ setUser, backbutton, role, sethaveaccount }) {
                 <TouchableOpacity style={styles.backbtn} onPress={setback}>
                   <Icon name="arrow-left" size={30} color="grey" />
                 </TouchableOpacity>
-                <FirebaseRecaptchaVerifierModal
-                  ref={recaptchaVerifier}
-                  firebaseConfig={auth.app.options} />
 
                 {currentScreen === ScreenStates.NUMBER_SCREEN && (
 

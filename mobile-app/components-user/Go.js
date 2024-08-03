@@ -1,7 +1,6 @@
 import { React, useState, useMemo, useEffect, useRef } from "react";
 import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
-import { getFunctions, httpsCallable } from 'firebase/functions';
 import { AirbnbRating } from 'react-native-ratings'
 import {
   View,
@@ -20,14 +19,16 @@ import * as Location from "expo-location";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Slider from "./BottomSheetCards";
 import newstyle from "../styles/mapstyle";
-import { auth, app } from '../firebase';
 import { UID } from '../screens/user/SignIn';
 import RiderOnWay from "./on-way-rider";
 import { useRoute } from '@react-navigation/native';
 import Navigation from '../component-Chatbox/navigation';
-import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import firestore from  '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
+import Constants from 'expo-constants';
 
-
+// const API_KEY = Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
 export default function Go() {
@@ -66,9 +67,6 @@ export default function Go() {
   const [B, setB] = useState("ENTER  DROP-OFF  LOCATION");
   const snapPoints1 = useMemo(() => ["20%", "100%"], []);
   const [loading, setLoading] = useState(false);
-  const db = getFirestore(app);
-  const uid = auth.currentUser.uid;
-  const functions = getFunctions(auth.app);
 
 
 
@@ -77,28 +75,28 @@ export default function Go() {
 
   }
 
-  const ratingFunc = async ()=> {
+  const ratingFunc = async () => {
     const data = {
-      uid: auth.currentUser.uid,
-      ridebidKey: ridePhaseKey,
-      role: role,
-      mode: 'GO',
-      rating: rating,
-      review:review,
-    }
-  
+        uid: auth().currentUser.uid,
+        ridebidKey: ridePhaseKey,
+        role: role,
+        mode: 'GO',
+        rating: rating,
+        review: review,
+    };
+
     console.log("this is data for end ride " + JSON.stringify(data));
-  
-          const addReviewAndRating  = httpsCallable(functions, "addReviewAndRating");
-          try {
-            const result = await addReviewAndRating (data);
-            console.log("this is result " + JSON.stringify(result));
-            setReviewBox(!reviewBox);
-          } catch (error) {
-            console.error("Error calling endGoRideBid:", error);
-          }
-  
-  }
+
+    const addReviewAndRating = functions().httpsCallable("addReviewAndRating");
+    try {
+        const result = await addReviewAndRating(data);
+        console.log("this is result " + JSON.stringify(result));
+        setReviewBox(!reviewBox);
+    } catch (error) {
+        console.error("Error calling addReviewAndRating:", error);
+    }
+};
+
 
 
   function showingSlider() {
@@ -316,19 +314,21 @@ export default function Go() {
     /////////////////// Set user Availability //////////////////////
 
     const setAvailability = async (available) => {
-      const availabilityRef = doc(db, "users", uid);
-      console.log(availabilityRef);
+      console.log('this is available UID:' + UID);
+      const availabilityRef = firestore().collection('users').doc(UID);
+      console.log('this is availabilityRef:' + JSON.stringify(availabilityRef));
       const updateData = {
-        availability: available,
+          availability: available,
       };
   
       try {
-        await updateDoc(availabilityRef, updateData);
-        console.log("Availability updated successfully!");
+          await availabilityRef.update(updateData);
+          console.log("Availability updated successfully!");
       } catch (error) {
-        console.error("Error updating availability: ", error);
+          console.error("Error updating availability: ", error);
       }
-    };
+  };
+  
   
 
   ////////////////////////////////////////////////////////////////////

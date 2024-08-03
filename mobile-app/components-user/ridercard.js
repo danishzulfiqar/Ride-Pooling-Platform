@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
-import { auth, app } from "../firebase";
-import { getFirestore, collection, getDocs, doc, onSnapshot } from "firebase/firestore";
 import { ProgressBar } from 'react-native-paper';
-import { getFunctions, httpsCallable } from 'firebase/functions';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import firestore from  '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
 
 export default function RiderCard({ setRiderBooked, l1, l2, loc1coords, loc2coords, uid, setRidePhaseKey, loc1lat, loc1lng}) {
   const [timer, setTimer] = useState(0);
   const [progressTime, setProgressTime] = useState(1);
   const [riderCardData, setRiderCardData] = useState(null);
-  const functions = getFunctions(auth.app);
+  
   // console.log("this is rider information" + JSON.stringify(riderCardData));
 
 
   useEffect(() => {
-    const db = getFirestore(app);
-    let uid = auth.currentUser?.uid;
-    if (uid) {
-      const usersRef = doc(db, "users/" + uid);
+    if (auth().currentUser.uid) {
+      const uid = auth().currentUser.uid;
+      const usersRef = firestore().collection('users').doc(uid);
 
-      // Listen for changes to the users collection
-      const unsubscribe = onSnapshot(usersRef, (snapshot) => {
-        if (snapshot.exists()) {
+      // Listen for changes to the users document
+      const unsubscribe = usersRef.onSnapshot((snapshot) => {
+        if (snapshot.exists) {
           const userData = { uid: snapshot.id, ...snapshot.data() };
           console.log("this is " + JSON.stringify(userData));
           console.log("this is ride status " + userData.current_ride.rideStatus);
@@ -38,11 +37,11 @@ export default function RiderCard({ setRiderBooked, l1, l2, loc1coords, loc2coor
         unsubscribe();
       };
     }
-  }, []);
+  }, [auth().currentUser.uid]);
 
 //////////////////////// Getting Rider Card ////////////////////////// 
 const data = {
-  uid:auth.currentUser?.uid,
+  uid: auth().currentUser.uid,
   lat:loc1lat,
   lng:loc1lng,
   radius:100000,
@@ -63,7 +62,7 @@ useEffect(() => {
 }, []);
 
 const getGoRidersDataFunction = async (data) => {
-  const getGoRiders = httpsCallable(functions, 'getGoRiders');
+  const getGoRiders = functions().httpsCallable('getGoRiders');
   try {
     const result = await getGoRiders(data);
     setRiderCardData(result.data);
@@ -76,19 +75,22 @@ const getGoRidersDataFunction = async (data) => {
   /////////////// SENDING RIDER REQUEST ///////////////////
 
 
-  const requestingRider = async ( userId ) => {
+  const requestingRider = async (userId) => {
     const data = {
-      uid:uid, 
-      pickup:l1,
-      dropoff:l2, 
-      pickup_lat:loc1coords.lat, 
-      pickup_lng:loc1coords.lng, 
-      dropoff_lat:loc2coords.lat, 
-      dropoff_lng:loc2coords.lng,
-      riderUID:userId
-    }
+      uid: auth().currentUser.uid, 
+      pickup: l1,
+      dropoff: l2, 
+      pickup_lat: loc1coords.lat, 
+      pickup_lng: loc1coords.lng, 
+      dropoff_lat: loc2coords.lat, 
+      dropoff_lng: loc2coords.lng,
+      riderUID: userId
+    };
+    
     console.log(data);
-    const sendRequestToRider = httpsCallable(functions, 'sendRequestToRider');
+    
+    const sendRequestToRider = functions().httpsCallable('sendRequestToRider');
+    
     try {
       const result = await sendRequestToRider(data);
       console.log(result.data);

@@ -13,18 +13,19 @@ import {
   createDrawerNavigator,
 } from "@react-navigation/drawer";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { auth } from "../../firebase";
+import auth from '@react-native-firebase/auth';
 import Toast from "react-native-toast-message";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Home from "../../components-rider/home";
 
 const Drawer = createDrawerNavigator();
 
-export default function drawerNavRider({setrole, role}) {
+export default function drawerNavRider({setrole, role, setCurrentUser}) {
   const handleSignOut = async () => {
     setrole(0);
+    setCurrentUser(null);
     try {
-      await auth.signOut();
+      await auth().signOut();
       Toast.show({
         type: "error",
         text1: "Logged Out",

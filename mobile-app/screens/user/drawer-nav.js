@@ -2,23 +2,23 @@ import React from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { DrawerItemList, createDrawerNavigator } from '@react-navigation/drawer';
-import Homescreen1 from '../homescreen1';
 import Go from '../../components-user/Go';
 import Pooling from '../../components-user/Pooling';
 import Sharing from '../../components-user/Sharing'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { auth } from '../../firebase';
+import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const Drawer = createDrawerNavigator();
 
-export default function drawerNav({setrole, role}) {
+export default function drawerNav({setrole, role, setCurrentUser}) {
 
     const handleSignOut = async () => {
         setrole(0);
+        setCurrentUser(null);
         try {
-            await auth.signOut();
+            await auth().signOut()
             Toast.show({
                 type: 'error',
                 text1: 'Logged Out',
@@ -36,6 +36,7 @@ export default function drawerNav({setrole, role}) {
                 },
                 text2: String(error),
             });
+            console.log(error);
         }
     };
 

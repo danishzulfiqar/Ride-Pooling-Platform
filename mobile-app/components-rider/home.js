@@ -19,18 +19,10 @@ import UserRequestCard from "./userRequestCard";
 import NavigationToUser from "./navigationToUser";
 import Navigation from "../component-Chatbox/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { AirbnbRating } from 'react-native-ratings'
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  doc,
-  onSnapshot,
-  updateDoc,
-} from "firebase/firestore";
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { auth, app } from "../firebase";
-import { set } from "firebase/database";
+import { AirbnbRating } from 'react-native-ratings';
+import firestore from  '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -54,52 +46,55 @@ export default function Home() {
   const [riderLatitude, setRiderLatitude] = useState();
   const [riderLongitude, setRiderLongitude] = useState();
   const snapPoints = useMemo(() => ["35%", "70%"], []);
-  const functions = getFunctions(auth.app);
-  const db = getFirestore(app);
-  const uid = auth.currentUser.uid;
+
 
   const ratingCompleted = (rating) => {
     setRating(rating);
   }
 
-  const ratingFunc = async ()=> {
+  const ratingFunc = async () => {
     const data = {
-      uid: auth.currentUser.uid,
+      uid: auth().currentUser.uid,
       ridebidKey: ridePhaseKey,
       role: role,
       mode: 'GO',
       rating: rating,
-      review:review,
-    }
+      review: review,
+    };
   
     console.log("this is data for end ride " + JSON.stringify(data));
   
-          const addReviewAndRating  = httpsCallable(functions, "addReviewAndRating");
-          try {
-            const result = await addReviewAndRating (data);
-            console.log("this is result " + JSON.stringify(result));
-            setReviewBox(!reviewBox);
-          } catch (error) {
-            console.error("Error calling addReviewAndRating:", error);
-          }
+    const addReviewAndRating = functions().httpsCallable('addReviewAndRating');
   
-  }
+    try {
+      const result = await addReviewAndRating(data);
+      console.log("this is result " + JSON.stringify(result.data));
+      setReviewBox(!reviewBox);
+    } catch (error) {
+      console.error("Error calling addReviewAndRating:", error);
+    }
+  };
   
   
 
 
   useEffect(() => {
-    const RiderRef = doc(db, "riders/" + uid);
+    const uid = auth().currentUser.uid;
+    const RiderRef = firestore().collection("riders").doc(uid);
 
-    const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
-      let updatedRiderData = snapshot.data();
-      console.log(updatedRiderData);
-      setRideBooked(updatedRiderData.crest.activities.rides_booked);
-      setRideBooked(updatedRiderData.crest.activities.rides_cancelled);
-      setRiderName(
-        updatedRiderData.crest.UserData.first_name +
+    const unsubscribe = RiderRef.onSnapshot(snapshot => {
+      if (snapshot.exists) {
+        let updatedRiderData = snapshot.data();
+        console.log(updatedRiderData);
+        setRideBooked(updatedRiderData.crest.activities.rides_booked);
+        setRideCancelled(updatedRiderData.crest.activities.rides_cancelled);
+        setRiderName(
+          updatedRiderData.crest.UserData.first_name + ' ' +
           updatedRiderData.crest.UserData.last_name
-      );
+        );
+      } else {
+        console.log("No such document!");
+      }
     });
 
     return () => {
@@ -111,36 +106,38 @@ export default function Home() {
   /////////////////// Set Rider Availability //////////////////////
 
   const setAvailability = async (available) => {
-    const availabilityRef = doc(db, "riders", uid);
-    console.log(availabilityRef);
+    const uid = auth().currentUser.uid;
+    const availabilityRef = firestore().collection("riders").doc(uid);
+    
     const updateData = {
       availability: available,
     };
-
+  
     try {
-      await updateDoc(availabilityRef, updateData);
+      await availabilityRef.update(updateData);
       console.log("Availability updated successfully!");
     } catch (error) {
       console.error("Error updating availability: ", error);
     }
   };
 
-  const updateRiderLocation = async (available) => {
-    const availabilityRef = doc(db, "riders", uid);
-    console.log(availabilityRef);
+  const updateRiderLocation = async () => {
+    const uid = auth().currentUser.uid;
+    const availabilityRef = firestore().collection("riders").doc(uid);
+    
     const updateData = {
       location: {
         geohash: "ttgyvx3m1p",
         geopoint: {
           latitude: riderLatitude,
           longitude: riderLongitude,
-        }
+        }, // Use GeoPoint for latitude and longitude
       }
     };
-
+  
     try {
-      await updateDoc(availabilityRef, updateData);
-      console.log("rider location updated successfully!");
+      await availabilityRef.update(updateData);
+      console.log("Rider location updated successfully!");
     } catch (error) {
       console.error("Error updating rider location: ", error);
     }

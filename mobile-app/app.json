@@ -2,6 +2,7 @@
   "expo": {
     "name": "RidePool",
     "slug": "RidePool",
+    "plugins": ["expo-font", "@react-native-firebase/app", "@react-native-firebase/auth"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/Hicon.png",
@@ -24,13 +25,22 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
+      },
+      "googleServicesFile": "./google-services.json",
+      "package": "com.ridepool.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "YOUR_GOOGLE_API_KEY"
+        }
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-font"
-    ]
+    "extra": {
+      "eas": {
+        "projectId": "7ecefd03-0c1e-4281-b27c-e3b23f30aacc"
+      }
+    }
   }
 }

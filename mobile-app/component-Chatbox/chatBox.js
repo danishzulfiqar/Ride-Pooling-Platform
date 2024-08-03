@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity, ScrollView, TextInput, TouchableWithoutFeedback, Keyboard } from "react-native";
-import { auth, app } from "../firebase";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { set } from 'firebase/database';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import firestore from  '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
 
 export default function ChatBox({setChatBox, ridePhaseKey, role}){
     const [chatBoxData, setChatBoxData ] = useState();
@@ -16,46 +15,43 @@ export default function ChatBox({setChatBox, ridePhaseKey, role}){
     const [userUID, setUserUID] = useState(null);
     const [riderName, setRiderName] = useState(null);
     const [userName, setUserName] = useState(null);
-    const functions = getFunctions(auth.app);
     const scrollViewRef = useRef();
 
     useEffect(() => {
-        const db = getFirestore(app);
-    
-        const rideDocRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
-
-        const unsubscribe1 = onSnapshot(rideDocRef, (snapshot) => {
-            if (snapshot.exists()) {
-              const updatedRequest = snapshot.data(); // Retrieve the data of the specific document
-              console.log("this is bidkey information " + JSON.stringify(updatedRequest.riderData.rider_id)); 
-              setRiderUID(updatedRequest.riderData.rider_id);
-              setUserUID(updatedRequest.userData.user_id);
-              setRiderName(updatedRequest.riderData.riderInfo.name);
-              setUserName(updatedRequest.userData.userInfo.name);
-              
-            } else {
-              console.log("No such document!");
-            }
-          });
-            
-
-        const chatCollectionRef = collection(rideDocRef, "chat");
-    
-        const unsubscribe = onSnapshot(chatCollectionRef, (snapshot) => {
-          const updatedChatData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          setChatBoxData(updatedChatData);
-          console.log(JSON.stringify(updatedChatData));
-        });
-    
-        // Cleanup subscription when component unmounts
-        return () => {
-          unsubscribe1();
-          unsubscribe();
-        };
-      }, []);
+      const rideDocRef = firestore().collection("Rides").doc("Bids").collection("GO").doc(ridePhaseKey);
+  
+      // Listen for changes to the ride document
+      const unsubscribe1 = rideDocRef.onSnapshot((snapshot) => {
+        if (snapshot.exists) {
+          const updatedRequest = snapshot.data();
+          console.log("this is bidkey information " + JSON.stringify(updatedRequest.riderData.rider_id));
+          setRiderUID(updatedRequest.riderData.rider_id);
+          setUserUID(updatedRequest.userData.user_id);
+          setRiderName(updatedRequest.riderData.riderInfo.name);
+          setUserName(updatedRequest.userData.userInfo.name);
+        } else {
+          console.log("No such document!");
+        }
+      });
+  
+      // Listen for changes to the chat collection
+      const chatCollectionRef = rideDocRef.collection("chat");
+  
+      const unsubscribe2 = chatCollectionRef.onSnapshot((snapshot) => {
+        const updatedChatData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setChatBoxData(updatedChatData);
+        console.log(JSON.stringify(updatedChatData));
+      });
+  
+      // Cleanup subscriptions when component unmounts
+      return () => {
+        unsubscribe1();
+        unsubscribe2();
+      };
+    }, [ridePhaseKey]);
 
       useEffect(() => {
         if (scrollViewRef.current) {
@@ -67,25 +63,33 @@ export default function ChatBox({setChatBox, ridePhaseKey, role}){
 
       const sendMessage = async () => {
         const data = {
-          uid: auth.currentUser.uid,
+          uid: auth().currentUser.uid,
           ridebidKey: ridePhaseKey,
           role: role,
           msg: messages,
           mode: "GO",
+          timestamp: firestore.FieldValue.serverTimestamp(), // Add a timestamp
         };
-
-        console.log("this is data" + JSON.stringify(data));
-
-        const sendMsgInChat = httpsCallable(functions, "sendMsgInChat");
+      
+        console.log("this is data " + JSON.stringify(data));
+      
         try {
-          const result = await sendMsgInChat(data);
-          console.log(result.data);
+          const chatCollectionRef = firestore()
+            .collection("Rides")
+            .doc("Bids")
+            .collection("GO")
+            .doc(ridePhaseKey)
+            .collection("chat");
+      
+          await chatCollectionRef.add(data);
+      
+          console.log("Message sent successfully");
+          setMessages(null);
         } catch (error) {
-          console.error("Error calling sendMsgInChat:", error);
+          console.error("Error sending message:", error);
         }
-
+      
         console.log("sending message " + messages);
-        setMessages(null);
       };
 
     return (

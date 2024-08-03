@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { auth } from '../../firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast from 'react-native-toast-message';
+import { auth } from '@react-native-firebase/auth';
+import { firestore } from '@react-native-firebase/firestore';
+import { functions } from '@react-native-firebase/functions';
 
 
 const GenderSelector = ({ selectedGender, onSelectGender }) => {
@@ -46,7 +47,6 @@ export default function formRider({ backbutton, currentUser, sethaveaccount }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const functions = getFunctions(auth.app);
 
   const UID = currentUser.uid;
   const phoneNumber = currentUser.phoneNumber;
@@ -81,16 +81,17 @@ export default function formRider({ backbutton, currentUser, sethaveaccount }) {
   };
 
   const callSaveRiderDataFunction = async (data) => {
-    const saveRiderData  = httpsCallable(functions, 'saveRiderData');
+    const saveRiderData = functions().httpsCallable('saveRiderData');
     try {
-      const result = await saveRiderData (data);
-      console.log(result.data);
-      setLoading(false);
-      sethaveaccount(result.data.status);
+        const result = await saveRiderData(data);
+        console.log(result.data);
+        setLoading(false);
+        sethaveaccount(result.data.status);
     } catch (error) {
-      console.error("Error calling Savepassenger Function:", error);
+        console.error("Error calling saveRiderData function:", error);
     }
-  };
+};
+
 
   const setback = () => {
     backbutton(0);

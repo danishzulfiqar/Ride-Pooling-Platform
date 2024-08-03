@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { View, StyleSheet, Image, Text, TouchableOpacity, Modal, TextInput } from "react-native";
 import polyline from "@mapbox/polyline";
-import { auth, app } from "../firebase";
 import * as Location from "expo-location";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import MapView, { Marker, Polyline } from "react-native-maps";
 import { faMessage, faPhone, faStar, faShieldHalved } from "@fortawesome/free-solid-svg-icons";
-import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import ChatBox from "../component-Chatbox/chatBox";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import firestore from  '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import functions from '@react-native-firebase/functions';
 
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
@@ -39,51 +39,49 @@ export default function Route({ridePhaseKey, role, setNavigationPhase, setRideSt
     latitude: 33.7077,
     longitude: 73.0498,
   });
-  const functions = getFunctions(auth.app);
   const snapPoints = useMemo(() => ['20%', chatBox ? '100%' : '55%'], [chatBox]);
-  const db = getFirestore(app);
 
-  const cancelRide = async ()=> {
+  const cancelRide = async () => {
     const data = {
-      uid: auth.currentUser.uid,
+      uid: auth().currentUser.uid,
       mode: 'GO',
       ridebidKey: ridePhaseKey,
       role: role,
-      reason:cancelComment,
+      reason: cancelComment,
+    };
+  
+    console.log("this is data for end ride", JSON.stringify(data));
+  
+    const cancelGoRideBid = functions().httpsCallable('cancelGoRideBid');
+    try {
+      const result = await cancelGoRideBid(data);
+      console.log("this is result", JSON.stringify(result));
+      setReviewBox(result.data.status);
+      setNavigationPhase(false);
+      setRideStatus(false);
+    } catch (error) {
+      console.error("Error calling cancelGoRideBid:", error);
     }
-  
-    console.log("this is data for end ride " + JSON.stringify(data));
-  
-          const cancelGoRideBid  = httpsCallable(functions, "cancelGoRideBid");
-          try {
-            const result = await cancelGoRideBid (data);
-            console.log("this is result " + JSON.stringify(result));
-            setReviewBox(result.data.status);
-            setNavigationPhase(false);
-            setRideStatus(false);
-          } catch (error) {
-            console.error("Error calling cancelGoRideBid:", error);
-          }
-  }
+  };
 
 ////////////////// reading bids->go->rideBidKey from firestore /////////////////////
 
 useEffect(() => {
-  const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
+  const RiderRef = firestore().collection('Rides').doc('Bids').collection('GO').doc(ridePhaseKey);
 
   // Listen for changes to the RiderRef
-  const unsubscribe = onSnapshot(RiderRef, (snapshot) => {
-    if (snapshot.exists()) {
+  const unsubscribe = RiderRef.onSnapshot((snapshot) => {
+    if (snapshot.exists) {
       const updatedRequest = snapshot.data(); // Retrieve the data of the specific document
       console.log(JSON.stringify(updatedRequest));
-        setL({
-          latitude: updatedRequest.destination.destinationLoc.latitude,
-          longitude: updatedRequest.destination.destinationLoc.longitude,
-        });
-        setUserName(updatedRequest.userData.userInfo.name);
-        setUserPhone(updatedRequest.userData.userInfo.phone);
-        setPickupLocation(updatedRequest.userData.pickup);
-       setUserRating(updatedRequest.userData.userInfo.rating);
+      setL({
+        latitude: updatedRequest.destination.destinationLoc.latitude,
+        longitude: updatedRequest.destination.destinationLoc.longitude,
+      });
+      setUserName(updatedRequest.userData.userInfo.name);
+      setUserPhone(updatedRequest.userData.userInfo.phone);
+      setPickupLocation(updatedRequest.userData.pickup);
+      setUserRating(updatedRequest.userData.userInfo.rating);
     } else {
       console.log("No such document!");
     }
@@ -93,7 +91,7 @@ useEffect(() => {
     // Unsubscribe from the snapshot listener when component unmounts
     unsubscribe();
   };
-}, []);
+}, [ridePhaseKey]);
 
 /////////////// get distance //////////////////
 
@@ -165,21 +163,20 @@ const checkDistance = (distanceValue) => {
   ///////////////// Update Rider location in firebase ///////////////////
 
   const updateRiderLocation = async (lat, lng) => {
-
-    const RiderRef = doc(db, "Rides/Bids/GO", ridePhaseKey);
+    const RiderRef = firestore().collection('Rides').doc('Bids').collection('GO').doc(ridePhaseKey);
+  
     const updateData = {
-      "riderData.location.geopoint.latitude": lat,
-    "riderData.location.geopoint.longitude": lng,
-    "riderData.location.geohash": "ttgyvx3m1p"
+      'riderData.location.geopoint.latitude': lat,
+      'riderData.location.geopoint.longitude': lng,
+      'riderData.location.geohash': 'ttgyvx3m1p',
     };
   
     try {
-      await updateDoc(RiderRef, updateData);
-      // console.log("Rider rides updated successfully!");
+      await RiderRef.update(updateData);
+      console.log("Rider location updated successfully!");
     } catch (error) {
-      console.error("Error updating rider rides: ", error);
+      console.error("Error updating rider location: ", error);
     }
-    
   };
 
   ////////// get users location after 1 sec ///////////
