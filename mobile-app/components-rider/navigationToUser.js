@@ -10,6 +10,7 @@ import ChatBox from "../component-Chatbox/chatBox";
 import firestore from  '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import functions from '@react-native-firebase/functions';
+import ngeohash from 'ngeohash';
 
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
@@ -164,11 +165,13 @@ const checkDistance = (distanceValue) => {
 
   const updateRiderLocation = async (lat, lng) => {
     const RiderRef = firestore().collection('Rides').doc('Bids').collection('GO').doc(ridePhaseKey);
+    const geohash = ngeohash.encode(lat, lng);
+    console.log('this is riders geohash update: ',geohash);
   
     const updateData = {
       'riderData.location.geopoint.latitude': lat,
       'riderData.location.geopoint.longitude': lng,
-      'riderData.location.geohash': 'ttgyvx3m1p',
+      'riderData.location.geohash': geohash,
     };
   
     try {

@@ -26,9 +26,7 @@ import Navigation from '../component-Chatbox/navigation';
 import firestore from  '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import functions from '@react-native-firebase/functions';
-import Constants from 'expo-constants';
 
-// const API_KEY = Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
 export default function Go() {
@@ -63,6 +61,7 @@ export default function Go() {
   const [loc2Coordinates, setLoc2Coordinates] = useState();
   const [ridersDistanceVal, setRidersDistanceVal] = useState();
   const [navigationPhase, setNavigationPhase] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(false);
   const [A, setA] = useState("ENTER  PICK-UP LOCATION");
   const [B, setB] = useState("ENTER  DROP-OFF  LOCATION");
   const snapPoints1 = useMemo(() => ["20%", "100%"], []);
@@ -156,7 +155,7 @@ export default function Go() {
     setLocation(currentLocation);
 
     // Animate to the user's current location once it is obtained
-    if (mapRef.current) {
+    if (mapRef.current && !hasAnimated) {
       mapRef.current.animateToRegion(
         {
           latitude: currentLocation.coords.latitude,
@@ -166,6 +165,7 @@ export default function Go() {
         },
         1000
       );
+      setHasAnimated(true);
       setLoading(false);
     } else {
       // In case mapRef.current is not available, ensure loading is also set to false
@@ -316,7 +316,6 @@ export default function Go() {
     const setAvailability = async (available) => {
       console.log('this is available UID:' + UID);
       const availabilityRef = firestore().collection('users').doc(UID);
-      console.log('this is availabilityRef:' + JSON.stringify(availabilityRef));
       const updateData = {
           availability: available,
       };
@@ -591,12 +590,12 @@ export default function Go() {
                     fontSize: 16,
                     fontFamily: "Custom",
                   },
-                  predefinedPlacesDescription: { color: "orange" },
+                  predefinedPlacesDescription: { color: "black" },
                 }}
                 placeholder="Enter pick-up point"
                 onPress={async (data, details = null) => {
                   // 'details' is provided when fetchDetails = true
-
+                  console.log('this is API KEY', API_KEY);
                   await movetoloc(data.description);
                   const location1 = data.description;
                   setA(location1);
@@ -665,7 +664,7 @@ export default function Go() {
                     fontSize: 16,
                     fontFamily: "Custom",
                   },
-                  predefinedPlacesDescription: { color: "orange" },
+                  predefinedPlacesDescription: { color: "black" },
                 }}
                 placeholder="Enter your destination"
                 onPress={async (data, details = null) => {

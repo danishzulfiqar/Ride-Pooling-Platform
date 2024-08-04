@@ -23,6 +23,7 @@ import { AirbnbRating } from 'react-native-ratings';
 import firestore from  '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import functions from '@react-native-firebase/functions';
+import ngeohash from "ngeohash";
 
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -124,10 +125,12 @@ export default function Home() {
   const updateRiderLocation = async () => {
     const uid = auth().currentUser.uid;
     const availabilityRef = firestore().collection("riders").doc(uid);
+    const geohash = ngeohash.encode(riderLatitude, riderLongitude);
+    console.log('this is riders HOME geohash update: ',geohash);
     
     const updateData = {
       location: {
-        geohash: "ttgyvx3m1p",
+        geohash:  geohash,
         geopoint: {
           latitude: riderLatitude,
           longitude: riderLongitude,
