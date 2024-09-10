@@ -1,287 +1,258 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Image, Text, StyleSheet, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import Spinner from 'react-native-loading-spinner-overlay';
-import Toast from 'react-native-toast-message';
-import { auth } from '@react-native-firebase/auth';
-import { firestore } from '@react-native-firebase/firestore';
-import { functions } from '@react-native-firebase/functions';
+import { ActivityIndicator, Text, View, StyleSheet, TextInput, TouchableOpacity, Modal, Platform } from 'react-native';
+import DatePicker from 'react-native-modern-datepicker';
+import { responsiveFontSize, responsiveHeight } from 'react-native-responsive-dimensions';
+import { useSelector } from "react-redux";
+import fireStore from '@react-native-firebase/firestore';
+import functions from '@react-native-firebase/functions';
+import auth from '@react-native-firebase/auth';
+
+export default function FormRider({navigation}) {
+    const [open, setOpen] = useState(false);
+    const [fname, setfname] = useState('');
+    const [lname, setlname] = useState('');
+    const [email, setemail] = useState('');
+    const [selectedDate, setSelectedDate] = useState('2024/09/19');
+    const [gender, setGender] = useState('');
+    const [loading, setLoading] = useState(false);
 
 
-const GenderSelector = ({ selectedGender, onSelectGender }) => {
-  return (
-    <View style={styles.genderSelector}>
-      {['Male', 'Female', 'Other'].map((gender) => (
-        <TouchableOpacity
-          key={gender}
-          style={[
-            styles.genderOption,
-            selectedGender === gender && styles.genderOptionSelected,
-          ]}
-          onPress={() => onSelectGender(gender)}
-        >
-          <Text
-            style={[
-              styles.genderText,
-              selectedGender === gender && styles.genderTextSelected,
-            ]}
-          >
-            {gender}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-};
+    const callSaveRiderDataFunction = async () => {
 
+        const UID = auth().currentUser.uid;
+        const phoneNumber = auth().currentUser.phoneNumber;
+        const genderCode = gender === "Male" ? "M" : gender === "Female" ? "F" : gender === "Other" ? "O" : "";
+        const dobString = selectedDate;
+        const emailString = email.toLowerCase();
 
-export default function formRider({ backbutton, currentUser, sethaveaccount }) {
+        const data = {
+            uid: UID,
+            fname: fname,
+            lname: lname,
+            dob: dobString,
+            email: emailString,
+            gender: genderCode,
+            phone: phoneNumber
+          }
 
-  const [fname, setfname] = useState('');
-  const [lname, setlname] = useState('');
-  const [email, setemail] = useState('');
-  const [dob, setdob] = useState(new Date());
-  const [gender, setGender] = useState('');
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-
-  const UID = currentUser.uid;
-  const phoneNumber = currentUser.phoneNumber;
-  const genderCode = gender === "Male" ? "M" : gender === "Female" ? "F" : gender === "Other" ? "O" : "";
-  const dobString = dob.toDateString();
-  const emailString = email.toLowerCase();
-
-  const data = {
-    uid: UID,
-    fname: fname,
-    lname: lname,
-    dob: dobString,
-    email: emailString,
-    gender: genderCode,
-    phone: phoneNumber
-  }
-
-  async function senddata() {
-    setLoading(true);
-    console.log("sending data for user", data);
-    await callSaveRiderDataFunction(data)
-      .catch((error) => {
-        console.error("Error in senddata:", error);
-      })
-  }
-
-  const handleDateChange = (event, selectedDate) => {
-    if (selectedDate !== undefined) {
-      setdob(selectedDate);
-    }
-    setShowDatePicker(false);
-  };
-
-  const callSaveRiderDataFunction = async (data) => {
-    const saveRiderData = functions().httpsCallable('saveRiderData');
-    try {
-        const result = await saveRiderData(data);
-        console.log(result.data);
-        setLoading(false);
-        sethaveaccount(result.data.status);
-    } catch (error) {
-        console.error("Error calling saveRiderData function:", error);
-    }
-};
-
-
-  const setback = () => {
-    backbutton(0);
-  };
-
-  return (
-    <View style={{ flex: 1 }}>
-      <Spinner
-        visible={loading}
-        textContent={'Please wait'}
-        textStyle={{ color: 'white' }}
-        overlayColor="rgba(0,0,0,0.5)"
-      />
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        {
-          <View>
-            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-              <View style={styles.container}>
-                <TouchableOpacity style={styles.backbtn} onPress={setback}>
-                  <Icon name="arrow-left" size={30} color="grey" />
-                </TouchableOpacity>
-
-                <View style={styles.ddcontainer}>
-                  <Image
-                    style={styles.imgstyle}
-                    resizeMode="contain"
-                    source={require('../../assets/Hlogo.png')}
-                  />
-                </View>
-                <View>
-                  <View style={styles.name}>
-                    <TextInput style={styles.inputStyles1}
-                      placeholder=" FIRST NAME..."
-                      onChangeText={(text) => setfname(text)}
-                      value={fname}
-                    />
-                    <TextInput style={styles.inputStyles1}
-                      placeholder=" LAST NAME..."
-                      onChangeText={(text) => setlname(text)}
-                      value={lname}
-                    />
-                  </View>
-                  <TextInput style={styles.inputStyles}
-                    inputMode='email'
-                    placeholder=" EMAIL..."
-                    onChangeText={(text) => setemail(text)}
-                    value={email}
-                  />
-                  <View style={styles.datePickerContainer}>
-                    <Text style={styles.label}>Date of Birth:</Text>
-                    <TouchableOpacity
-                      style={styles.datePicker}
-                      onPress={() => setShowDatePicker(true)}
-                    >
-                      <Text style={{ fontFamily: 'Custom', }}>{dob.toDateString()}</Text>
-                    </TouchableOpacity>
-                    {showDatePicker && (
-                      <DateTimePicker
-                        value={dob}
-                        mode="date"
-                        display="default"
-                        onChange={handleDateChange}
-                      />
-                    )}
-                  </View>
-                  <Text style={{ marginTop: 20, marginBottom: 10, color: "grey", fontSize: 15 }}>Gender:</Text>
-                  <GenderSelector selectedGender={gender} onSelectGender={setGender} />
-                  <TouchableOpacity style={styles.buttonstyle} onPress={senddata}>
-                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
-                      Continue
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
+        const saveRiderData = functions().httpsCallable('saveRiderData');
+        try {
+            const result = await saveRiderData(data);
+            console.log(result.data);
+            setLoading(false);
+            navigation.navigate('DrawerNavigationRider');
+        } catch (error) {
+            console.error("Error calling saveRiderData function:", error);
         }
-      </TouchableWithoutFeedback>
-    </View>
-  );
+    };
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.headerText}>| Rider Registration</Text>
+            <View style={styles.form}>
+                <View style={styles.namePick}>
+                    <TextInput style={styles.name} placeholder='First Name' onChangeText={(text) => setfname(text)} />
+                    <TextInput style={styles.name} placeholder='Last Name' onChangeText={(text) => setlname(text)} />
+                </View>
+                <TextInput style={styles.email} placeholder='Email' onChangeText={(text) => setemail(text)} />
+                <View style={{ flexDirection: 'column', gap: 10, width: '100%' }}>
+                <Text style={styles.label}>Date of Birth:</Text>
+                <Modal 
+                visible={open} 
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setOpen(false)}>
+                <View style={styles.centeredView}>
+                <DatePicker
+                options={{
+                    backgroundColor: 'white',
+                    textHeaderColor: '#FF6969',
+                    textDefaultColor: 'black',
+                    selectedTextColor: 'white',
+                    mainColor: '#FF6969',
+                    textSecondaryColor: 'black',
+                }}
+                mode="calendar"
+                style={{ borderRadius: 10, elevation: 10, }}
+                onSelectedChange={(date) => {setSelectedDate(date); console.log(date)}}/>
+                <TouchableOpacity style={styles.datePicker1} onPress={() => setOpen(false)}>
+                <Text style={styles.textBtn1}>Confirm</Text>
+                </TouchableOpacity>
+                </View>
+                </Modal>
+                <TouchableOpacity style={styles.datePicker} onPress={() => setOpen(true)}>
+                    <Text style={styles.textBtn}>{selectedDate}</Text>
+                </TouchableOpacity>
+                </View>
+                
+
+                <View style={{ flexDirection: 'column', gap: 10, width: '100%' }}>
+                <Text style={styles.label}>Select Gender</Text>
+                <View style={styles.genderPicker}>
+                    <TouchableOpacity style={ gender === 'Male' ? styles.genderSelected : styles.gender } onPress={() => setGender('Male')}>
+                    <Text style={ gender === 'Male' ? styles.genderTextselected : styles.genderText }>Male</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={ gender === 'Female' ? styles.genderSelected : styles.gender } onPress={() => setGender('Female')}>
+                    <Text style={ gender === 'Female' ? styles.genderTextselected : styles.genderText }>Female</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={ gender === 'Other' ? styles.genderSelected : styles.gender } onPress={() => setGender('Other')}>
+                    <Text style={ gender === 'Other' ? styles.genderTextselected : styles.genderText }>Other</Text>
+                    </TouchableOpacity>
+                </View>
+                </View>
+            </View>
+            <TouchableOpacity style={styles.buttonstyle} onPress={()=>{callSaveRiderDataFunction(); setLoading(true);}}>
+            {loading ? (
+                        <ActivityIndicator size="small" color="#ffffff" />
+                      ) : (
+                        <Text style={styles.btnText}>Submit</Text>
+                      )}
+            </TouchableOpacity>
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    margin: 40
-  },
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        margin: 15,
+        gap: responsiveHeight(5),
+    },
 
-  ddcontainer: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
+    headerText: {
+        fontSize: responsiveFontSize(3),
+        fontFamily:'customb',
+    },
 
-  name: {
-    flexDirection: 'row',
-    width: '100%'
+    form: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+    },
 
-  },
+    namePick: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
 
-  inputStyles1: {
-    width: '49%',
-    height: 35,
-    fontSize: 16,
-    marginRight: 4,
-    padding: 5,
-    marginBottom: 24,
-    backgroundColor: 'white',
-    fontFamily: 'Custom',
-    borderRadius: 5,
-    borderWidth: 0.3,
-    borderColor: "grey"
-  },
+    name: {
+        backgroundColor: 'white',
+        width: '48%',
+        height: responsiveHeight(6),
+        padding: 10,
+        borderRadius: 5,
+        elevation:5,
+    },
 
-  inputStyles2: {
-    height: 10,
-    marginBottom: 24,
-    backgroundColor: 'white',
-    fontFamily: 'Custom',
-    borderRadius: 5,
-    borderColor: "black"
-  },
+    email: {
+        backgroundColor: 'white',
+        width: '100%',
+        height: responsiveHeight(6),
+        padding: 10,
+        borderRadius: 5,
+        elevation:5,
+    },
 
-  inputStyles: {
-    height: 35,
-    fontSize: 16,
-    marginBottom: 24,
-    backgroundColor: 'white',
-    padding: 5,
-    fontFamily: 'Custom',
-    borderRadius: 5,
-    borderWidth: 0.3,
-    borderColor: "grey"
-  },
+    datePicker :{
+        backgroundColor: 'white',
+        width: '100%',
+        height: responsiveHeight(6),
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation:5,
+    },
 
-  imgstyle: {
-    width: 450,
-    height: 200,
-  },
-  buttonstyle: {
+    datePicker1 :{
+        backgroundColor: '#FF6969',
+        width: '60%',
+        height: responsiveHeight(6),
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation:5,
+    },
+
+    textBtn: {
+        fontSize: responsiveFontSize(2),
+        fontFamily:'customb',
+    },
+
+    textBtn1: {
+        fontSize: responsiveFontSize(2),
+        color: 'white',
+        fontFamily:'customb',
+    },
+
+    centeredView: {
+    flex: 1,
     justifyContent: 'center',
-    marginTop: 40,
-    alignSelf: 'center',
-    height: 40,
-    width: 320,
-    borderBlockColor: "white",
-    borderWidth: 0,
-    borderRadius: 10,
     alignItems: 'center',
-    // backgroundColor: '#198754',
-    backgroundColor: "#f34a5e"
+    backgroundColor: 'rgba(211, 211, 211, 0.7)',
   },
-  datePickerContainer: {
-    flexDirection: 'column',
-    // alignItems: 'flex-start',
-    marginVertical: 0,
-  },
-  label: {
-    fontSize: 16,
-    color: "grey",
-    marginBottom: 5,
-  },
-  datePicker: {
-    width: '100%',
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#e2e2e2',
-    borderRadius: 5,
-    backgroundColor: '#fff',
-  },
-  genderSelector: {
+
+  genderPicker :{
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 0,
+    width: '100%',
+    gap: 10,
   },
-  genderOption: {
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e1e1e1',
-    backgroundColor: '#f9f9f9',
+
+  gender: {
+    backgroundColor: 'white',
+    width: '30%',
+    height: responsiveHeight(6),
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation:5,
+    backgroundColor: '#F0F0F0',
   },
-  genderOptionSelected: {
-    backgroundColor: '#f34a5e',
-    borderColor: '#f34a5e',
+
+  genderSelected: {
+    backgroundColor: 'white',
+    width: '30%',
+    height: responsiveHeight(6),
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation:10,
+    backgroundColor: '#FF6969',
   },
+
   genderText: {
-    textAlign: 'center',
-    color: '#555',
+    fontSize: responsiveFontSize(2),
+    fontFamily:'custom',
   },
-  genderTextSelected: {
-    color: '#fff',
+
+  genderTextselected: {
+    fontSize: responsiveFontSize(2),
+    color: 'white',
+    fontFamily:'custom',
   },
+
+  label: {
+    fontSize: responsiveFontSize(2.3),
+    fontFamily:'custom',
+    color: "grey",
+  },
+
+  buttonstyle: {
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: Platform.OS === 'android' ? responsiveHeight(5) : responsiveHeight(6),
+    width: '100%',
+    borderRadius: 5,
+    alignItems: 'center',
+    backgroundColor: '#FF6969',
+    },
+
+    btnText: {
+    fontFamily: 'customb',
+    fontSize: responsiveFontSize(2),
+    color: 'white',
+    },
 });

@@ -2,28 +2,21 @@
   "expo": {
     "name": "RidePool",
     "slug": "RidePool",
-    "plugins": ["expo-font", "@react-native-firebase/app", "@react-native-firebase/auth"],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/ridepool.png",
+    "icon": "./assets/Hicon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/Hicon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/ridepool.png",
+        "foregroundImage": "./assets/Hicon.png",
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./google-services.json",
@@ -35,12 +28,15 @@
       }
     },
     "web": {
-      "favicon": "./assets/ridepool.png"
+      "favicon": "./assets/Hicon.png"
     },
     "extra": {
       "eas": {
         "projectId": "7ecefd03-0c1e-4281-b27c-e3b23f30aacc"
       }
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
