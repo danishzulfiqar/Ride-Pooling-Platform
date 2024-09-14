@@ -16,6 +16,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import firestore from '@react-native-firebase/firestore';
 import functions from "@react-native-firebase/functions";
 import ngeohash from 'ngeohash';
+import Toast from 'react-native-toast-message';
 import { SetRidePhaseKey, SetNavigationPhase } from "../redux/action";
 import RBSheet from "react-native-raw-bottom-sheet";
 import ChatBox from "../components/chatBox";
@@ -152,6 +153,20 @@ const startRideNav = async () => {
             if(updatedRequest.userData.pickup_status === true){
                 dispatch(SetNavigationPhase(true));
                 navigation.navigate('Home');
+              }
+              if(updatedRequest.cancel_status.status === true){
+                setReviewBox(false);
+                dispatch(SetRidePhaseKey(null));
+                navigation.navigate('Home');
+                Toast.show({
+                  type: "info",
+                  text1: "Ride Cancelled",
+                  text1Style: {
+                    fontSize: 18,
+                    fontFamily:'custom'
+                  },
+                  text2: `User Cancelled the Ride`,
+                });
               }
           } else {
             console.log("No such document!");

@@ -17,6 +17,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords, SetRidePhaseKey, SetNavigationPhase } from '../../redux/action';
 import ChatBox from '../../components/chatBox';
+import { update } from 'lodash';
 
 
 export default function WaitingForRider({navigation}) {
@@ -65,6 +66,24 @@ export default function WaitingForRider({navigation}) {
         if(updatedRequest.userData.pickup_status === true){
           dispatch(SetNavigationPhase(true));
           navigation.navigate('Go');
+        }
+        if(updatedRequest.cancel_status.status === true){
+          setReviewBox(false);
+          dispatch(SetPickupLocation('Enter Pickup Location'));
+          dispatch(SetPickupLocationCoords(null));
+          dispatch(SetDropoffLocation('Enter Dropoff Location'));
+          dispatch(SetDropoffLocationCoords(null));
+          dispatch(SetRidePhaseKey(null));
+          navigation.navigate('Go');
+          Toast.show({
+            type: "info",
+            text1: "Ride Cancelled",
+            text1Style: {
+              fontSize: 18,
+              fontFamily:'custom'
+            },
+            text2: `Rider Cancelled the Ride`,
+          });
         }
       } else {
         console.log("No such document!");
