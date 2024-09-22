@@ -69,18 +69,16 @@ export default function NavigateToUser({navigation, setReviewBoxHome }){
             console.log(l);
             // setDropoffStatus(updatedRequest.userData.dropoff_status);
       
-            if (updatedRequest.userData.dropoff_status === true) {
-              console.log('trueeeeeeeee dropoff status');
-              dispatch(SetPickupLocation('Enter Pickup Location'));
-              dispatch(SetPickupLocationCoords(null));
-              dispatch(SetDropoffLocation('Enter Dropoff Location'));
-              dispatch(SetDropoffLocationCoords(null));
-              dispatch(SetRidePhaseKey(null));
-              dispatch(SetNavigationPhase(false));
-              setReviewBoxHome(true);
-              
-            } else {
-              console.log('else ' + updatedRequest.userData.dropoff_status);
+            if(role === 'user'){
+              if (updatedRequest.userData.dropoff_status === true) {
+                dispatch(SetPickupLocation('Enter Pickup Location'));
+                dispatch(SetPickupLocationCoords(null));
+                dispatch(SetDropoffLocation('Enter Dropoff Location'));
+                dispatch(SetDropoffLocationCoords(null));
+                dispatch(SetRidePhaseKey(null));
+                dispatch(SetNavigationPhase(false));
+                setReviewBoxHome(true);
+              } 
             }
           } else {
             console.log("No such document!");
