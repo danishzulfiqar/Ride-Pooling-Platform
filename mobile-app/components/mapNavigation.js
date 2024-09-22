@@ -8,7 +8,8 @@ import { useSelector, useDispatch } from "react-redux";
 import mapStyle from "../styles/mapStyle";
 import firestore from '@react-native-firebase/firestore';
 import functions from "@react-native-firebase/functions";
-import { SetNavigationPhase } from "../redux/action";
+import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
+  SetDropoffLocationCoords, SetNavigationPhase, SetRidePhaseKey } from "../redux/action";
 
 
 export default function NavigateToUser({navigation, setReviewBoxHome }){
@@ -21,7 +22,7 @@ export default function NavigateToUser({navigation, setReviewBoxHome }){
     const [route, setRoute] = useState(null);
     const [distance, setDistance] = useState(null);
     const [duration, setDuration] = useState(null);
-    const [reachedDestination, setReachedDestination] = useState(true);
+    const [reachedDestination, setReachedDestination] = useState(false);
     const [markerPosition, setMarkerPosition] = useState({
         latitude: 33.6844,
         longitude: 73.0479,
@@ -70,6 +71,11 @@ export default function NavigateToUser({navigation, setReviewBoxHome }){
       
             if (updatedRequest.userData.dropoff_status === true) {
               console.log('trueeeeeeeee dropoff status');
+              dispatch(SetPickupLocation('Enter Pickup Location'));
+              dispatch(SetPickupLocationCoords(null));
+              dispatch(SetDropoffLocation('Enter Dropoff Location'));
+              dispatch(SetDropoffLocationCoords(null));
+              dispatch(SetRidePhaseKey(null));
               dispatch(SetNavigationPhase(false));
               setReviewBoxHome(true);
               
@@ -215,7 +221,8 @@ async function getRoute() {
         const endGoRideBid = functions().httpsCallable('endGoRideBid');
         try {
           const result = await endGoRideBid(data);
-          dispatch(SetNavigationPhase(true));
+          dispatch(SetNavigationPhase(false));
+          dispatch(SetRidePhaseKey(null));
           setReviewBoxHome(true);
         } catch (error) {
           console.error("Error calling endGoRideBid:", error);
