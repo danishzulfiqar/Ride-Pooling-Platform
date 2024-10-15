@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Modal, TextInput } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Modal, TextInput, Platform, Linking } from "react-native";
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from "react-native-responsive-dimensions";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import * as Location from "expo-location";
 import polyline from "@mapbox/polyline";
 import { useSelector, useDispatch } from "react-redux";
-import mapStyle from "../styles/mapStyle";
+import mapStyle from '../styles/mapstyle';
 import firestore from '@react-native-firebase/firestore';
 import functions from "@react-native-firebase/functions";
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
@@ -227,8 +227,41 @@ async function getRoute() {
         }
       };
 
+      const openMaps = () => {
+        if (!destinationlocation || destinationlocation.trim() === '') {
+          console.warn('Destination location is not available');
+          return;
+        }
+        
+        const encodedDest = encodeURIComponent(destinationlocation);
+    
+        let url;
+        if (Platform.OS === 'ios') {
+          url = `maps://app?daddr=${encodedDest}`;
+        } else {
+          url = `google.navigation:q=${encodedDest}`;
+        }
+    
+        Linking.canOpenURL(url).then(supported => {
+          if (supported) {
+            return Linking.openURL(url);
+          } else {
+            const webUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedDest}`;
+            return Linking.openURL(webUrl);
+          }
+        });
+      };
+
     return(
         <SafeAreaView style={styles.container}>
+        <TouchableOpacity style={styles.navBtn} onPress={() => {openMaps();}}>
+            <Image source={ Platform.OS === 'android' ? require("../assets/maps.png") : require("../assets/imaps.png") } 
+            style={{width: 20, height: 20}} />
+            <Text style={styles.navBtnText}>
+            Use {Platform.OS === 'android' ? 'Google Maps' : 'Apple Maps'} Navigation
+            </Text>
+        </TouchableOpacity>
+
             <MapView
                 ref={mapRef}
                 style={styles.map}
@@ -284,6 +317,28 @@ const styles = StyleSheet.create({
 
   map: {
     flex: 1,
+  },
+
+  navBtn:{
+    position: 'absolute',
+    top: responsiveHeight(10),
+    right: responsiveWidth(0),
+    zIndex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderTopLeftRadius: responsiveWidth(2),
+    borderBottomLeftRadius: responsiveWidth(2),
+    padding: responsiveWidth(5),
+    elevation: 5,
+    width: responsiveWidth(50),
+    gap: responsiveHeight(1),
+  },
+
+  navBtnText:{
+    fontFamily: "customb",
+    color: "black",
+    fontSize: responsiveFontSize(2),
   },
 
   BottomContainer :{

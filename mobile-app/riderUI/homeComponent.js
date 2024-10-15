@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Modal, Te
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import { useSelector, useDispatch } from 'react-redux';
 import MapView from "react-native-maps";
-import mapStyle from '../styles/mapStyle';
+import mapStyle from '../styles/mapstyle';
 import * as Location from "expo-location";
 import Toast from 'react-native-toast-message';
 import auth from '@react-native-firebase/auth';

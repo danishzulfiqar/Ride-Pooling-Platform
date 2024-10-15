@@ -12,12 +12,11 @@ import functions from '@react-native-firebase/functions';
 import { useDispatch, useSelector } from 'react-redux';
 import MapView, { Marker, Polyline } from "react-native-maps";
 import polyline from "@mapbox/polyline";
-import mapStyle from '../../styles/mapStyle';
+import mapStyle from '../../styles/mapstyle';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords, SetRidePhaseKey, SetNavigationPhase } from '../../redux/action';
 import ChatBox from '../../components/chatBox';
-import { update } from 'lodash';
 
 
 export default function WaitingForRider({navigation}) {

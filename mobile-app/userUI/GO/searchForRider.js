@@ -1,16 +1,11 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { ActivityIndicator, View, TouchableOpacity, Text, StyleSheet, SafeAreaView, Image } from 'react-native';
-import { ProgressBar } from 'react-native-paper';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, SafeAreaView, Image } from 'react-native';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import firestore from  '@react-native-firebase/firestore';
-import { ScrollView } from 'react-native-gesture-handler';
-import functions from '@react-native-firebase/functions';
 import { useDispatch, useSelector } from 'react-redux';
 import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from 'react-native-maps-directions';
-import mapStyle from '../../styles/mapStyle';
-import BottomSheet from '@gorhom/bottom-sheet';
-import Entypo from '@expo/vector-icons/Entypo';
+import mapStyle from '../../styles/mapstyle';
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords, SetRidePhaseKey } from '../../redux/action';
 import GetRiderFunction from './getRiderFunction';

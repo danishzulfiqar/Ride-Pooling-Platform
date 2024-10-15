@@ -5,7 +5,7 @@ import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from 'react-native-maps-directions';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import mapStyle from '../../styles/mapStyle';
+import mapStyle from '../../styles/mapstyle';
 import * as Location from "expo-location";
 import { useDispatch, useSelector } from 'react-redux';
 import firestore from  '@react-native-firebase/firestore';

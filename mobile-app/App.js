@@ -1,13 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { Image, StyleSheet, View, Text } from 'react-native';
+import { Image, StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { Provider } from 'react-redux';
 import { useFonts } from 'expo-font';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './redux/store';
-import NavigationScreen from './Screens/navigation';
+import NavigationScreen from './screens/navigation';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
-import FormRider from './Screens/rider/formRider';
 
 Text.defaultProps = Text.defaultProps || {};
 Text.defaultProps.allowFontScaling = false;
@@ -22,7 +21,7 @@ export default function App() {
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
-        <Image source={require('./assets/Hicongif.gif')} resizeMode='contain' style={{ width: 100, height: 100 }} />
+        <ActivityIndicator size="large" color="black" />
       </View>
     );
   }
