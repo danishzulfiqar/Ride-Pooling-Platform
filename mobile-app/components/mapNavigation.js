@@ -254,13 +254,7 @@ async function getRoute() {
 
     return(
         <SafeAreaView style={styles.container}>
-        <TouchableOpacity style={styles.navBtn} onPress={() => {openMaps();}}>
-            <Image source={ Platform.OS === 'android' ? require("../assets/maps.png") : require("../assets/imaps.png") } 
-            style={{width: 20, height: 20}} />
-            <Text style={styles.navBtnText}>
-            Use {Platform.OS === 'android' ? 'Google Maps' : 'Apple Maps'} Navigation
-            </Text>
-        </TouchableOpacity>
+        
 
             <MapView
                 ref={mapRef}
@@ -292,7 +286,14 @@ async function getRoute() {
             </View>
             <Text style={styles.text1}>away from</Text>
             <Text style={styles.text2}>{destinationlocation}</Text>
-             { role === 'rider' ? (
+            <TouchableOpacity style={styles.navBtn} onPress={() => {openMaps();}}>
+            <Image source={ Platform.OS === 'android' ? require("../assets/maps.png") : require("../assets/imaps.png") } 
+            style={{width: 20, height: 20}} />
+            <Text style={styles.navBtnText}>
+            Use {Platform.OS === 'android' ? 'Google Maps' : 'Apple Maps'} Navigation
+            </Text>
+           </TouchableOpacity>
+             { 'rider' === 'rider' ? (
                 <TouchableOpacity style={styles.endBtn} onPress={endRide} disabled={!reachedDestination}>
               <Text 
               style={reachedDestination === true ? styles.btntext1 : styles.btntext}>
@@ -313,6 +314,7 @@ async function getRoute() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        marginTop: Platform.OS === "android" ? 20 : 0,
     },
 
   map: {
@@ -320,19 +322,16 @@ const styles = StyleSheet.create({
   },
 
   navBtn:{
-    position: 'absolute',
-    top: responsiveHeight(10),
-    right: responsiveWidth(0),
     zIndex: 1,
+    backgroundColor:'lightblue',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
-    borderTopLeftRadius: responsiveWidth(2),
-    borderBottomLeftRadius: responsiveWidth(2),
+    justifyContent: 'center',
+    borderRadius: 10,
     padding: responsiveWidth(5),
-    elevation: 5,
     width: responsiveWidth(50),
     gap: responsiveHeight(1),
+    width: responsiveWidth(90),
   },
 
   navBtnText:{
@@ -418,18 +417,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 
-  startBtn: {
-    backgroundColor: "#ECECEC",
-    height: 50,
-    borderRadius: 10,
-    justifyContent: "center",
-    borderColor: "lightgrey",
-    borderWidth: 2,
-    borderRadius: 10,
-    width: "85%",
-    alignSelf: "center",
-  },
-
   endBtn: {
     backgroundColor: "#ECECEC",
     height: 50,
@@ -438,7 +425,7 @@ const styles = StyleSheet.create({
     borderColor: "lightgrey",
     borderWidth: 2,
     borderRadius: 10,
-    width: "85%",
+    width: responsiveWidth(90),
     alignSelf: "center",
     marginTop: 10,
   },

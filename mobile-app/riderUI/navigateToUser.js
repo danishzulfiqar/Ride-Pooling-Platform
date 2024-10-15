@@ -345,14 +345,7 @@ const startRideNav = async () => {
               </View>
             </Modal>
 
-            <TouchableOpacity style={styles.navBtn} onPress={() => {openMaps();}}>
-            <Image source={ Platform.OS === 'android' ? require("../assets/maps.png") : require("../assets/imaps.png") } 
-            style={{width: 20, height: 20}} />
-            <Text style={styles.navBtnText}>
-            Use {Platform.OS === 'android' ? 'Google Maps' : 'Apple Maps'} Navigation
-            </Text>
-
-            </TouchableOpacity>
+            
 
             <MapView
                 ref={mapRef}
@@ -479,6 +472,14 @@ const startRideNav = async () => {
                       <MaterialIcons name="report-gmailerrorred" size={35} color="white" />
                       </TouchableOpacity>
                   </View>
+                  <TouchableOpacity style={styles.navBtn} onPress={() => {openMaps();}}>
+            <Image source={ Platform.OS === 'android' ? require("../assets/maps.png") : require("../assets/imaps.png") } 
+            style={{width: 20, height: 20}} />
+            <Text style={styles.navBtnText}>
+            Use {Platform.OS === 'android' ? 'Google Maps' : 'Apple Maps'} Navigation
+            </Text>
+
+            </TouchableOpacity>
                         {startRide ? (
                             <TouchableOpacity style={styles.cancelBtn} onPress={() => startRideNav()}>
                                 <Text style={styles.cancelBtnText}>start Ride</Text>
@@ -505,19 +506,17 @@ const startRideNav = async () => {
   },
 
   navBtn:{
-    position: 'absolute',
-    top: responsiveHeight(10),
-    right: responsiveWidth(0),
     zIndex: 1,
+    backgroundColor:'lightblue',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
-    borderTopLeftRadius: responsiveWidth(2),
-    borderBottomLeftRadius: responsiveWidth(2),
+    justifyContent: 'center',
+    borderRadius: 10,
     padding: responsiveWidth(5),
-    elevation: 5,
     width: responsiveWidth(50),
     gap: responsiveHeight(1),
+    width: responsiveWidth(90),
+
   },
 
   navBtnText:{
