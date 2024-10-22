@@ -22,7 +22,7 @@ export default function FormUser({navigation}) {
         const phoneNumber = auth().currentUser.phoneNumber;
         const genderCode = gender === "Male" ? "M" : gender === "Female" ? "F" : gender === "Other" ? "O" : "";
         const dobString = selectedDate;
-        const emailString = email.toLowerCase();
+        const emailString = email.toLowerCase().trim();
 
         const data = {
             uid: UID,
@@ -39,7 +39,7 @@ export default function FormUser({navigation}) {
               const result = await savePassengerData(data);
               console.log(result.data);
               setLoading(false);
-              DrawerNavigationUser
+              navigation.navigate('DrawerNavigationUser');
             } catch (error) {
               console.error("Error calling savePassengerData function:", error);
             }
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         justifyContent: 'center',
-        margin: 15,
+        padding: 15,
         gap: responsiveHeight(5),
     },
 

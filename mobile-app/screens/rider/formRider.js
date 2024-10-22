@@ -23,7 +23,7 @@ export default function FormRider({navigation}) {
         const phoneNumber = auth().currentUser.phoneNumber;
         const genderCode = gender === "Male" ? "M" : gender === "Female" ? "F" : gender === "Other" ? "O" : "";
         const dobString = selectedDate;
-        const emailString = email.toLowerCase();
+        const emailString = email.toLowerCase().trim();
 
         const data = {
             uid: UID,
@@ -34,6 +34,8 @@ export default function FormRider({navigation}) {
             gender: genderCode,
             phone: phoneNumber
           }
+
+          console.log(data);
 
         const saveRiderData = functions().httpsCallable('saveRiderData');
         try {
@@ -117,7 +119,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         justifyContent: 'center',
-        margin: 15,
+        padding: 15,
         gap: responsiveHeight(5),
     },
 

@@ -31,7 +31,7 @@ export default function App() {
       <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <NavigationScreen />
-        <StatusBar style='auto' backgroundColor='lightgrey'/>
+        <StatusBar style='auto' backgroundColor='white'/>
         <Toast />
       </PersistGate>
     </Provider>
