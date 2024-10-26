@@ -34,7 +34,7 @@ export default function SignInUser({ navigation }) {
         setLoading(false);
         setFormattedValue('');
         setAuthScreen('phoneNumber');
-        navigation.navigate('DrawerNavigationUser');
+        navigation.replace('DrawerNavigationUser');
       } else {
         setLoading(false);
         setFormattedValue('');

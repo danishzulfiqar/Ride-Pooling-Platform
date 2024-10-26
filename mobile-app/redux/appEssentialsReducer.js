@@ -1,4 +1,3 @@
-import { SetRidePhaseKey } from "./action";
 import { SET_ROLE, SET_UID, SET_RIDE_PHASE_KEY, SET_NAVIGATION_PHASE } from "./constants";
 
 const initialState = {

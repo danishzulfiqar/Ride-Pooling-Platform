@@ -1,4 +1,3 @@
-import { current } from "@reduxjs/toolkit";
 import { SET_CURRENT_SCREEN, SET_CURRENT_SCREEN_GO, RESET_SCREEN, RESET_SCREEN_GO } from "./constants";
 
 const initialState = {

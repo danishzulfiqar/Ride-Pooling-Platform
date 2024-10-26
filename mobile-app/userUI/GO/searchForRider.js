@@ -5,7 +5,7 @@ import firestore from  '@react-native-firebase/firestore';
 import { useDispatch, useSelector } from 'react-redux';
 import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from 'react-native-maps-directions';
-import mapStyle from '../../styles/mapstyle';
+import MapStyle from '../../styles/mapStyle';
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords, SetRidePhaseKey } from '../../redux/action';
 import GetRiderFunction from './getRiderFunction';
@@ -40,7 +40,7 @@ export default function SearchForRider({navigation, setSearchForRiders}) {
             if (userData.current_ride.rideStatus) {
               dispatch(SetRidePhaseKey(userData.current_ride.RidebidKey));
               setSearchForRiders(false);
-              navigation.navigate('WaitingForRider');
+              navigation.replace('WaitingForRider');
               console.log('true');
             } else {
               console.log('searching on')
@@ -74,7 +74,7 @@ export default function SearchForRider({navigation, setSearchForRiders}) {
                 zoom: 10,
               }}
               loadingEnabled={true}
-              customMapStyle={mapStyle}
+              customMapStyle={MapStyle}
             >
             {pickupCoords &&
                 dropoffCoords && (

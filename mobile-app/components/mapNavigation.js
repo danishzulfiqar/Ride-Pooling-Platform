@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Modal, TextInput, Platform, Linking } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Modal, TextInput, Platform, Linking, BackHandler } from "react-native";
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from "react-native-responsive-dimensions";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import * as Location from "expo-location";
 import polyline from "@mapbox/polyline";
 import { useSelector, useDispatch } from "react-redux";
-import mapStyle from '../styles/mapstyle';
+import MapStyle from '../styles/mapStyle';
 import firestore from '@react-native-firebase/firestore';
 import functions from "@react-native-firebase/functions";
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
@@ -252,6 +252,30 @@ async function getRoute() {
         });
       };
 
+      useEffect(()=>{
+        const handleBackButton = () => {
+    
+          return false;
+        };
+    
+        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+        return () => {
+          BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+        };
+      },[])
+
+      useEffect(()=>{
+        const handleBackButton = () => {
+    
+          return false;
+        };
+    
+        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+        return () => {
+          BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+        };
+      },[])
+
     return(
         <SafeAreaView style={styles.container}>
         
@@ -260,7 +284,7 @@ async function getRoute() {
                 ref={mapRef}
                 style={styles.map}
                 showsCompass={true}
-                customMapStyle={mapStyle}>
+                customMapStyle={MapStyle}>
                     {location && (
                         <Marker coordinate={markerPosition} anchor={{ x: 0.47, y: 0.7 }}>
                             <Image

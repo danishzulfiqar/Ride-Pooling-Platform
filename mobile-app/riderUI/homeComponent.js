@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Modal, Te
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import { useSelector, useDispatch } from 'react-redux';
 import MapView from "react-native-maps";
-import mapStyle from '../styles/mapstyle';
+import MapStyle from '../styles/mapStyle';
 import * as Location from "expo-location";
 import Toast from 'react-native-toast-message';
 import auth from '@react-native-firebase/auth';
@@ -12,6 +12,7 @@ import functions from '@react-native-firebase/functions';
 import { AirbnbRating } from 'react-native-ratings';
 import UserRequest from './userRequest';
 import MapNavigation from '../components/mapNavigation';
+import ngeohash from "ngeohash";
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords, SetRidePhaseKey, SetNavigationPhase } from '../redux/action';
 
@@ -24,6 +25,8 @@ export default function HomeComponent({navigation}) {
     const [checkUserReq, setCheckUserReq] = useState(false);
     const [reviewBox, setReviewBox] = useState(false);
     const [rating, setRating] = useState(5);
+    const [riderLatitude, setRiderLatitude] = useState(null);
+    const [riderLongitude, setRiderLongitude] = useState(null);
     const [review, setReview] = useState(null);
 
 
@@ -72,6 +75,8 @@ export default function HomeComponent({navigation}) {
         }
     
         let currentLocation = await Location.getCurrentPositionAsync({});
+        setRiderLatitude(currentLocation.coords.latitude);
+        setRiderLongitude(currentLocation.coords.longitude);
         const response = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation.coords.latitude},${currentLocation.coords.longitude}&key=${API_KEY}`
         );
@@ -110,6 +115,30 @@ export default function HomeComponent({navigation}) {
           console.log("Availability updated successfully!");
         } catch (error) {
           console.error("Error updating availability: ", error);
+        }
+      };
+
+      const updateRiderLocation = async () => {
+        const uid = auth().currentUser.uid;
+        const availabilityRef = firestore().collection("riders").doc(uid);
+        const geohash = ngeohash.encode(riderLatitude, riderLongitude);
+        console.log('this is riders HOME geohash update: ',geohash);
+        
+        const updateData = {
+          location: {
+            geohash:  geohash,
+            geopoint: {
+              latitude: riderLatitude,
+              longitude: riderLongitude,
+            }, // Use GeoPoint for latitude and longitude
+          }
+        };
+      
+        try {
+          await availabilityRef.update(updateData);
+          console.log("Rider location updated successfully!");
+        } catch (error) {
+          console.error("Error updating rider location: ", error);
         }
       };
 
@@ -198,7 +227,7 @@ export default function HomeComponent({navigation}) {
               userLocationPriority='high'
               showsUserLocation={true}
               loadingEnabled={true}
-              customMapStyle={mapStyle}
+              customMapStyle={MapStyle}
               onMapReady={async () => {
                   await setUserLocation();
                 }}
@@ -264,6 +293,7 @@ export default function HomeComponent({navigation}) {
                         },
                       });
                     } else {
+                      updateRiderLocation();
                       setAvailability(true);
                       setCheckUserReq(true);
                     }

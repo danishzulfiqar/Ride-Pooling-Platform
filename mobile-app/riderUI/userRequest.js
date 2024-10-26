@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ActivityIndicator, BackHandler } from "react-native";
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from "react-native-responsive-dimensions";
 import { ProgressBar } from 'react-native-paper';
 import { useSelector, useDispatch } from "react-redux";
@@ -120,12 +120,28 @@ export default function UserRequest({ navigation, setCheckUserReq, mode }) {
           dispatch(SetRidePhaseKey(result.data.bidKey));
           if(result.data.status === true) {
             setCheckUserReq(false);
-            navigation.navigate("NavigateToUser");
+            deleteRequestDocument(userId);
+            navigation.replace("NavigateToUser");
           }
         } catch (error) {
           console.error("Error calling makeNewGoRideBid:", error);
         }
       };
+
+      useEffect(()=>{
+        const onBackPress = ()=>{
+          setAvailability(false);
+          setCheckUserReq(false);
+
+          return true;
+        }
+
+        BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+        return ()=>{
+          BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        }
+      },[]);
 
     return(
         <SafeAreaView style={styles.container}>
@@ -135,7 +151,7 @@ export default function UserRequest({ navigation, setCheckUserReq, mode }) {
             <Text style={styles.headerText}>Searchng for user request....</Text>
             <TouchableOpacity style={styles.headerBtn} onPress={()=>{
                 setAvailability(false);
-                setCheckUserReq(false)}}>
+                setCheckUserReq(false);}}>
                 <Text style={styles.headerBtnText}>Stop</Text>
             </TouchableOpacity>
             </View>

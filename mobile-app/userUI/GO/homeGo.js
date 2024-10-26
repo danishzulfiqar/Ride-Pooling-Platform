@@ -1,19 +1,21 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, SafeAreaView, Image, Platform, ScrollView, Modal, TextInput } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, SafeAreaView, Image, Platform, ScrollView, Modal, TextInput, ActivityIndicator } from 'react-native';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from 'react-native-maps-directions';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import mapStyle from '../../styles/mapstyle';
+import MapStyle from '../../styles/mapStyle';
 import * as Location from "expo-location";
 import { useDispatch, useSelector } from 'react-redux';
 import firestore from  '@react-native-firebase/firestore';
 import functions from '@react-native-firebase/functions';
 import Toast from 'react-native-toast-message';
+import ngeohash from "ngeohash";
 import SearchForRider from './searchForRider';
 import { AirbnbRating } from 'react-native-ratings';
 import MapNavigation from '../../components/mapNavigation';
+import auth from '@react-native-firebase/auth';
 import { SetUserLocationCoords, SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords, SetRidePhaseKey, SetNavigationPhase } from '../../redux/action';
 
@@ -25,9 +27,9 @@ export default function HomeGo({navigation}) {
   const refRBSheet2 = useRef();
   const [hasAnimated, setHasAnimated] = useState(false);
   const [chooseFromMap, setChooseFromMap] = useState('');
-  const [onChangeLocPickupAddress, setOnChangeLocPickupAddress] = useState(false);
+  const [onChangeLocPickupAddress, setOnChangeLocPickupAddress] = useState('Location loading ...');
   const [onChangeLocPickupCoords, setOnChangeLocPickupCoords] = useState(false);
-  const [onChangeLocDropoffAddress, setOnChangeLocDropoffAddress] = useState(false);
+  const [onChangeLocDropoffAddress, setOnChangeLocDropoffAddress] = useState('Location loading ...');
   const [onChangeLocDropoffCoords, setOnChangeLocDropoffCoords] = useState(false);
   const [searchForRiders, setSearchForRiders] = useState(false);
 
@@ -212,6 +214,31 @@ export default function HomeGo({navigation}) {
     }
 };
 
+
+const updateUserLocation = async () => {
+  const uid = auth().currentUser.uid;
+  const availabilityRef = firestore().collection("users").doc(uid);
+  const geohash = ngeohash.encode(userLocationCoords.latitude, userLocationCoords.longitude);
+  console.log('this is Users HOME geohash update: ',geohash);
+  
+  const updateData = {
+    location: {
+      geohash:  geohash,
+      geopoint: {
+        latitude: userLocationCoords.latitude,
+        longitude: userLocationCoords.longitude,
+      }, // Use GeoPoint for latitude and longitude
+    }
+  };
+
+  try {
+    await availabilityRef.update(updateData);
+    console.log("Rider location updated successfully!");
+  } catch (error) {
+    console.error("Error updating rider location: ", error);
+  }
+};
+
   return (
     <>
       { searchForRiders ? (
@@ -234,7 +261,7 @@ export default function HomeGo({navigation}) {
               onRegionChangeComplete={onChangeLoc1}
               showsUserLocation={true}
               userLocationPriority="high"
-              customMapStyle={mapStyle}
+              customMapStyle={MapStyle}
               onLayout={() => {
                 if (mapRef2.current) {
                   mapRef2.current.animateToRegion(
@@ -262,10 +289,16 @@ export default function HomeGo({navigation}) {
             </View>
           </View>
           <View style={styles.BottomContainer2}>
-          <TouchableOpacity style={styles.chooseFromMapbtn} onPress={()=>{setChooseFromMap('');}}>
+          {/* <TouchableOpacity style={styles.chooseFromMapbtn} 
+          onPress={()=>{
+            setChooseFromMap('');
+            refRBSheet1.current.open();
+          }}>
               <Text style={styles.btnText2}>Enter Location</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.chooseFromMapbtn1} 
+          </TouchableOpacity> */}
+          <TouchableOpacity 
+          disabled={ !onChangeLocPickupAddress ? true : false}
+          style={styles.chooseFromMapbtn1} 
           onPress={()=>{
             dispatch(SetPickupLocation(onChangeLocPickupAddress));
             dispatch(SetPickupLocationCoords({
@@ -274,7 +307,11 @@ export default function HomeGo({navigation}) {
             }));
             setChooseFromMap('');
             }}>
-              <Text style={styles.btnText}>Done</Text>
+              { !onChangeLocPickupAddress ? (
+                <ActivityIndicator size="small" color="#ffffff" />
+              ) : (
+                <Text style={styles.btnText}>Done</Text>
+              ) }
           </TouchableOpacity>
           </View>
         </View>
@@ -294,8 +331,8 @@ export default function HomeGo({navigation}) {
               onRegionChangeComplete={onChangeLoc2}
               showsUserLocation={true}
               userLocationPriority="high"
-              customMapStyle={mapStyle}
-              onLayout={() => {
+              customMapStyle={MapStyle}
+              onMapReady={() => {
                 if (mapRef3.current) {
                   mapRef3.current.animateToRegion(
                     {
@@ -322,10 +359,16 @@ export default function HomeGo({navigation}) {
             </View>
           </View>
           <View style={styles.BottomContainer2}>
-          <TouchableOpacity style={styles.chooseFromMapbtn} onPress={()=>{setChooseFromMap('');}}>
+          {/* <TouchableOpacity style={styles.chooseFromMapbtn} 
+          onPress={()=>{
+            setChooseFromMap('');
+            refRBSheet2.current.open();
+            }}>
               <Text style={styles.btnText2}>Enter Location</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.chooseFromMapbtn1} 
+          </TouchableOpacity> */}
+          <TouchableOpacity 
+          disabled={ !onChangeLocDropoffAddress ? true : false}
+          style={styles.chooseFromMapbtn1} 
           onPress={()=>{
             dispatch(SetDropoffLocation(onChangeLocDropoffAddress));
             dispatch(SetDropoffLocationCoords({
@@ -334,7 +377,11 @@ export default function HomeGo({navigation}) {
             }));
             setChooseFromMap('');
             }}>
-              <Text style={styles.btnText}>Done</Text>
+              { !onChangeLocDropoffAddress ? (
+                <ActivityIndicator size="small" color="#ffffff" />
+              ) : (
+                <Text style={styles.btnText}>Done</Text>
+              ) }
           </TouchableOpacity>
           </View>
         </View>
@@ -388,7 +435,7 @@ export default function HomeGo({navigation}) {
                 zoom: 10,
               }}
               loadingEnabled={true}
-              customMapStyle={mapStyle}
+              customMapStyle={MapStyle}
               showsUserLocation={true}
               userLocationPriority="high"
               onLayout={async () => {
@@ -590,6 +637,7 @@ export default function HomeGo({navigation}) {
                           },
                           });
                           } else {
+                            updateUserLocation();
                             setAvailability(true);
                             setSearchForRiders(true);
                             }

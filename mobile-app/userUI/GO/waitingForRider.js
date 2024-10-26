@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { ActivityIndicator, View, TouchableOpacity, Text, StyleSheet, SafeAreaView, Image, Modal, TextInput } from 'react-native';
+import { ActivityIndicator, View, TouchableOpacity, Text, StyleSheet, SafeAreaView, Image, Modal, TextInput, BackHandler } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -12,11 +12,12 @@ import functions from '@react-native-firebase/functions';
 import { useDispatch, useSelector } from 'react-redux';
 import MapView, { Marker, Polyline } from "react-native-maps";
 import polyline from "@mapbox/polyline";
-import mapStyle from '../../styles/mapstyle';
+import MapStyle from '../../styles/mapStyle';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords, SetRidePhaseKey, SetNavigationPhase } from '../../redux/action';
 import ChatBox from '../../components/chatBox';
+import Toast from 'react-native-toast-message';
 
 
 export default function WaitingForRider({navigation}) {
@@ -64,16 +65,17 @@ export default function WaitingForRider({navigation}) {
         setRiderRating(updatedRequest.riderData.riderInfo.rating.toFixed(1));
         if(updatedRequest.userData.pickup_status === true){
           dispatch(SetNavigationPhase(true));
-          navigation.navigate('Go');
+          navigation.replace('Go');
         }
         if(updatedRequest.cancel_status.status === true){
           setReviewBox(false);
+          handleFirebaseRidePhaseNode();
           dispatch(SetPickupLocation('Enter Pickup Location'));
           dispatch(SetPickupLocationCoords(null));
           dispatch(SetDropoffLocation('Enter Dropoff Location'));
           dispatch(SetDropoffLocationCoords(null));
           dispatch(SetRidePhaseKey(null));
-          navigation.navigate('Go');
+          navigation.replace('Go');
           Toast.show({
             type: "info",
             text1: "Ride Cancelled",
@@ -182,16 +184,58 @@ try {
       const result = await cancelGoRideBid(data);
       console.log("this is result " + JSON.stringify(result));
       setReviewBox(false);
+      handleFirebaseRidePhaseNode();
       dispatch(SetPickupLocation('Enter Pickup Location'));
       dispatch(SetPickupLocationCoords(null));
       dispatch(SetDropoffLocation('Enter Dropoff Location'));
       dispatch(SetDropoffLocationCoords(null));
       dispatch(SetRidePhaseKey(null));
-      navigation.navigate('Go');
+      navigation.replace('Go');
+      Toast.show({
+        type: 'success',
+        text1: "Ride Cancelled",
+        text1Style: {
+          fontSize: 18,
+          fontFamily:'custom'
+        },
+        text2: `Ride Cancelled Successfully`,
+      });
     } catch (error) {
       console.error("Error calling cancelGoRideBid:", error);
     }
   };
+
+  const handleFirebaseRidePhaseNode = async () => {
+    const ref = firestore().collection("users").doc(UID);
+
+    const updateDoc = {
+      current_ride: {
+      RidebidKey: '',
+      rideStatus: false,
+    }
+    };
+
+    try{
+      await ref.update(updateDoc);
+      console.log("Ride Phase Node Updated");
+    }
+    catch(error){
+      console.log(error);
+    }
+    
+  };
+
+  useEffect(()=>{
+    const handleBackButton = () => {
+
+      return false;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+    };
+  },[])
 
 
   return (
@@ -234,7 +278,7 @@ try {
                 zoom: 10,
               }}
               loadingEnabled={true}
-              customMapStyle={mapStyle}
+              customMapStyle={MapStyle}
             >
             {pickupCoords &&
                 dropoffCoords && (
@@ -406,13 +450,10 @@ try {
                       <MaterialIcons name="report-gmailerrorred" size={35} color="white" />
                       </TouchableOpacity>
                   </View>
-                  {startRide ? (
-                            null
-                        ) : (
                             <TouchableOpacity style={styles.cancelBtn} onPress={() => setReviewBox(true)}>
                                 <Text style={styles.cancelBtnText}>Cancel Ride</Text>
                             </TouchableOpacity>
-                        )}
+                        
               </View>
               </ScrollView>
           </BottomSheet>

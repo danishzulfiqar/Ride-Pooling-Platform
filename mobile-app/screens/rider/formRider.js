@@ -42,7 +42,7 @@ export default function FormRider({navigation}) {
             const result = await saveRiderData(data);
             console.log(result.data);
             setLoading(false);
-            navigation.navigate('DrawerNavigationRider');
+            navigation.replace('DrawerNavigationRider');
         } catch (error) {
             console.error("Error calling saveRiderData function:", error);
         }

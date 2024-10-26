@@ -1,5 +1,5 @@
-import React from "react";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
+import { View, TouchableOpacity, Text, StyleSheet, BackHandler, Alert } from "react-native";
 import {
   DrawerItemList,
   createDrawerNavigator,
@@ -61,6 +61,24 @@ export default function DrawerNavigationRider({navigation}) {
       });
     }
   };
+
+  useEffect(() => {
+    // Disable back button behavior
+    const onBackPress = () => {
+      Alert.alert('Exit', 'Are you sure you want to exit the app?', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Exit',
+          onPress: () => BackHandler.exitApp(), // Exit the app if needed
+        },
+      ]);
+      return true; // Return true to stop the back action
+    };
+  
+    BackHandler.addEventListener('hardwareBackPress', onBackPress);
+  
+    return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+  }, []);
 
   return (
       <Drawer.Navigator

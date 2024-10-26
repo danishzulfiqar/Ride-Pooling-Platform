@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { useFonts } from 'expo-font';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './redux/store';
-import NavigationScreen from './screens/navigation';
+import NavigationScreen from './Screens/navigation';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 

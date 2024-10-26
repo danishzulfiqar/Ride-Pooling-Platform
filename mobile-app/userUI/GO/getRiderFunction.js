@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { ActivityIndicator, View, TouchableOpacity, Text, StyleSheet, SafeAreaView, Image } from 'react-native';
+import { ActivityIndicator, View, TouchableOpacity, Text, StyleSheet, SafeAreaView, Image, BackHandler } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import firestore from  '@react-native-firebase/firestore';
@@ -10,6 +10,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import Entypo from '@expo/vector-icons/Entypo';
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords } from '../../redux/action';
+import { set } from 'lodash';
 
 
 export default function GetRiderFunction({ navigation, setSearchForRiders}) {
@@ -152,6 +153,25 @@ export default function GetRiderFunction({ navigation, setSearchForRiders}) {
         console.error("Error updating availability: ", error);
     }
 };
+
+////////////////////////// Mobile Back button handler ///////////////////////////////
+
+useEffect(() => {
+  // Disable back button behavior
+  const onBackPress = () => {
+    setAvailability(false);
+    dispatch(SetPickupLocation('Enter Pickup Location'));
+    dispatch(SetPickupLocationCoords(null));
+    dispatch(SetDropoffLocation('Enter Dropoff Location'));
+    dispatch(SetDropoffLocationCoords(null));
+    setSearchForRiders(false);
+    return true; // Return true to stop the back action
+  };
+
+  BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+  return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+}, []);
 
   return (
     <BottomSheet index={1} snapPoints={snapPoints}>

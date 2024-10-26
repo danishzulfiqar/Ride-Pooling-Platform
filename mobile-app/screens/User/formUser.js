@@ -39,7 +39,7 @@ export default function FormUser({navigation}) {
               const result = await savePassengerData(data);
               console.log(result.data);
               setLoading(false);
-              navigation.navigate('DrawerNavigationUser');
+              navigation.replace('DrawerNavigationUser');
             } catch (error) {
               console.error("Error calling savePassengerData function:", error);
             }

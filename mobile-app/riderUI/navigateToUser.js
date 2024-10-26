@@ -1,12 +1,12 @@
 import React, { useRef, useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Modal, TextInput, Platform, Linking } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Modal, TextInput, Platform, Linking, BackHandler } from "react-native";
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from "react-native-responsive-dimensions";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import { useDispatch } from "react-redux";
 import * as Location from "expo-location";
 import polyline from "@mapbox/polyline";
 import { useSelector } from "react-redux";
-import mapStyle from '../styles/mapstyle';
+import MapStyle from '../styles/mapStyle';
 import BottomSheet from "@gorhom/bottom-sheet";
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -104,8 +104,18 @@ export default function NavigateToUser({navigation}){
           const result = await cancelGoRideBid(data);
           console.log("this is result", JSON.stringify(result));
           setReviewBox(false);
+          handleFirebaseRidePhaseNode();
           dispatch(SetRidePhaseKey(null));
-          navigation.navigate('Home');
+          navigation.replace('Home');
+          Toast.show({
+            type: 'success',
+            text1: "Ride Cancelled",
+            text1Style: {
+              fontSize: 18,
+              fontFamily:'custom'
+            },
+            text2: `Ride Cancelled Successfully`,
+          });
         } catch (error) {
           console.error("Error calling cancelGoRideBid:", error);
         }
@@ -128,7 +138,7 @@ const startRideNav = async () => {
       console.log(result.data);
       if(result.data === true) {
         SetNavigationPhase(true);
-        navigation.navigate('Home');
+        navigation.replace('Home');
       }
     } catch (error) {
       console.error("Error calling updateGoRideBidPickupStatus:", error);
@@ -152,12 +162,13 @@ const startRideNav = async () => {
             setUserRating(updatedRequest.userData.userInfo.rating.toFixed(1));
             if(updatedRequest.userData.pickup_status === true){
                 dispatch(SetNavigationPhase(true));
-                navigation.navigate('Home');
+                navigation.replace('Home');
               }
               if(updatedRequest.cancel_status.status === true){
                 setReviewBox(false);
+                handleFirebaseRidePhaseNode();
                 dispatch(SetRidePhaseKey(null));
-                navigation.navigate('Home');
+                navigation.replace('Home');
                 Toast.show({
                   type: "info",
                   text1: "Ride Cancelled",
@@ -316,6 +327,38 @@ const startRideNav = async () => {
         });
       };
 
+      useEffect(()=>{
+        const handleBackButton = () => {
+    
+          return false;
+        };
+    
+        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+        return () => {
+          BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+        };
+      },[])
+
+      const handleFirebaseRidePhaseNode = async () => {
+        const ref = firestore().collection("riders").doc(UID);
+    
+        const updateDoc = {
+          current_ride: {
+          RidebidKey: '',
+          rideStatus: false,
+        }
+        };
+    
+        try{
+          await ref.update(updateDoc);
+          console.log("Ride Phase Node Updated");
+        }
+        catch(error){
+          console.log(error);
+        }
+        
+      };
+
     return(
         <SafeAreaView style={styles.container}>
         <Modal
@@ -351,7 +394,7 @@ const startRideNav = async () => {
                 ref={mapRef}
                 style={styles.map}
                 showsCompass={true}
-                customMapStyle={mapStyle}
+                customMapStyle={MapStyle}
             >
                     {location && (
                         <Marker coordinate={markerPosition} anchor={{ x: 0.47, y: 0.7 }}>
@@ -480,15 +523,14 @@ const startRideNav = async () => {
             </Text>
 
             </TouchableOpacity>
-                        {startRide ? (
                             <TouchableOpacity style={styles.cancelBtn} onPress={() => startRideNav()}>
-                                <Text style={styles.cancelBtnText}>start Ride</Text>
+                                <Text style={styles.cancelBtnText}>Start Ride</Text>
                             </TouchableOpacity>
-                        ) : (
+                       
                             <TouchableOpacity style={styles.cancelBtn} onPress={() => setReviewBox(true)}>
                                 <Text style={styles.cancelBtnText}>Cancel Ride</Text>
                             </TouchableOpacity>
-                        )}
+                        
               </View>
               </ScrollView>
           </BottomSheet>
