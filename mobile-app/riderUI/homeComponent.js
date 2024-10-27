@@ -16,7 +16,7 @@ import ngeohash from "ngeohash";
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords, SetRidePhaseKey, SetNavigationPhase } from '../redux/action';
 
-export default function HomeComponent({navigation}) {
+export default function HomeComponent() {
     const mapRef = useRef(null);
     const [mode, setMode] = useState(null);
     const [riderName, setRiderName] = useState(null);
@@ -77,6 +77,7 @@ export default function HomeComponent({navigation}) {
         let currentLocation = await Location.getCurrentPositionAsync({});
         setRiderLatitude(currentLocation.coords.latitude);
         setRiderLongitude(currentLocation.coords.longitude);
+        console.log('location set');
         const response = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentLocation.coords.latitude},${currentLocation.coords.longitude}&key=${API_KEY}`
         );
@@ -178,7 +179,7 @@ export default function HomeComponent({navigation}) {
   return (
     <SafeAreaView style={styles.container}>
      { navigationPhase === true ? (
-      <MapNavigation navigation={navigation} setReviewBoxHome={setReviewBox} />
+      <MapNavigation setReviewBoxHome={setReviewBox} />
      ) : (
       <>
       <Modal
@@ -236,7 +237,7 @@ export default function HomeComponent({navigation}) {
             </View>
 
             { checkUserReq === true ? (
-                <UserRequest navigation={navigation} setCheckUserReq={setCheckUserReq} mode={mode}/>
+                <UserRequest setCheckUserReq={setCheckUserReq} mode={mode}/>
             ) : (
                 <View style={styles.viewContainer}>
                 <View style={styles.options}>
@@ -283,7 +284,7 @@ export default function HomeComponent({navigation}) {
 
                 <TouchableOpacity
                   style={styles.btnStart}
-                  onPress={function () {
+                  onPress={async function () {
                     if (mode === null) {
                       Toast.show({
                         type: "error",
@@ -293,8 +294,9 @@ export default function HomeComponent({navigation}) {
                         },
                       });
                     } else {
-                      updateRiderLocation();
+                      // await setUserLocation();
                       setAvailability(true);
+                      updateRiderLocation();
                       setCheckUserReq(true);
                     }
                   }}

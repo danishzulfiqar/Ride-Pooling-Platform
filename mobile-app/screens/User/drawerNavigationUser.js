@@ -13,7 +13,7 @@ import HomeSharing from '../../userUI/SHARING/homeSharing';
 import { useDispatch } from "react-redux";
 import { SetRole, SetUid, SetUserLocation, SetUserLocationCoords, SetPickupLocation, 
   SetPickupLocationCoords, SetDropoffLocation, SetDropoffLocationCoords, SetCurrentScreenGo, 
-  SetNavigationPhase, SetRidePhaseKey, ResetScreenGo } from '../../redux/action';
+  SetNavigationPhase, SetRidePhaseKey } from '../../redux/action';
 import auth from '@react-native-firebase/auth';
 import { DrawerActions } from '@react-navigation/native';
 import { responsiveWidth, responsiveFontSize, responsiveHeight } from "react-native-responsive-dimensions";
@@ -36,7 +36,6 @@ export default function DrawerNavigationRider({navigation}) {
       dispatch(SetCurrentScreenGo(null));
       dispatch(SetRidePhaseKey(null));
       dispatch(SetNavigationPhase(false));
-      dispatch(ResetScreenGo());
       await auth().signOut();
       navigation.dispatch(DrawerActions.closeDrawer());
       Toast.show({
@@ -48,7 +47,7 @@ export default function DrawerNavigationRider({navigation}) {
         },
         text2: `You are Logged Out`,
       });
-      navigation.navigate("RoleScreen");
+      navigation.replace("RoleScreen");
     } catch (error) {
       Toast.show({
         type: "error",

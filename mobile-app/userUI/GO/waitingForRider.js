@@ -15,7 +15,7 @@ import polyline from "@mapbox/polyline";
 import MapStyle from '../../styles/mapStyle';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
-  SetDropoffLocationCoords, SetRidePhaseKey, SetNavigationPhase } from '../../redux/action';
+  SetDropoffLocationCoords, SetRidePhaseKey, SetNavigationPhase, SetCurrentScreenGo } from '../../redux/action';
 import ChatBox from '../../components/chatBox';
 import Toast from 'react-native-toast-message';
 
@@ -65,7 +65,7 @@ export default function WaitingForRider({navigation}) {
         setRiderRating(updatedRequest.riderData.riderInfo.rating.toFixed(1));
         if(updatedRequest.userData.pickup_status === true){
           dispatch(SetNavigationPhase(true));
-          navigation.replace('Go');
+          dispatch(SetCurrentScreenGo('home'));
         }
         if(updatedRequest.cancel_status.status === true){
           setReviewBox(false);
@@ -75,7 +75,7 @@ export default function WaitingForRider({navigation}) {
           dispatch(SetDropoffLocation('Enter Dropoff Location'));
           dispatch(SetDropoffLocationCoords(null));
           dispatch(SetRidePhaseKey(null));
-          navigation.replace('Go');
+          dispatch(SetCurrentScreenGo('home'));
           Toast.show({
             type: "info",
             text1: "Ride Cancelled",
@@ -190,7 +190,7 @@ try {
       dispatch(SetDropoffLocation('Enter Dropoff Location'));
       dispatch(SetDropoffLocationCoords(null));
       dispatch(SetRidePhaseKey(null));
-      navigation.replace('Go');
+      dispatch(SetCurrentScreenGo('home'));
       Toast.show({
         type: 'success',
         text1: "Ride Cancelled",

@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useDispatch, useSelector } from 'react-redux';
-import { SetCurrentScreen, ResetScreen } from '../redux/action';
+import { SetCurrentScreen } from '../redux/action';
 import IntroScreen from './introScreen';
 import RoleScreen from './roleScreen';
 import SignInUser from './User/signInUser';
@@ -24,7 +24,6 @@ export default function NavigationScreen() {
       <NavigationContainer
       onStateChange={(state) => {
         const currentRouteName = state.routes[state.index].name;
-        dispatch(ResetScreen());
         dispatch(SetCurrentScreen(currentRouteName));
       }}>
         <stack.Navigator initialRouteName={currentScreen}>

@@ -19,7 +19,7 @@ import auth from '@react-native-firebase/auth';
 import { SetUserLocationCoords, SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords, SetRidePhaseKey, SetNavigationPhase } from '../../redux/action';
 
-export default function HomeGo({navigation}) {
+export default function HomeGo() {
   const mapRef = useRef(null);
   const mapRef2 = useRef(null);
   const mapRef3 = useRef(null);
@@ -32,7 +32,10 @@ export default function HomeGo({navigation}) {
   const [onChangeLocDropoffAddress, setOnChangeLocDropoffAddress] = useState('Location loading ...');
   const [onChangeLocDropoffCoords, setOnChangeLocDropoffCoords] = useState(false);
   const [searchForRiders, setSearchForRiders] = useState(false);
-
+  const [rideRole, setRideRole] = useState('');
+  const [reviewBox, setReviewBox] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [review, setReview] = useState('');
 
   const dispatch = useDispatch();
   const navigationPhase = useSelector(state => state.appEssentials.navigationPhase);
@@ -44,11 +47,6 @@ export default function HomeGo({navigation}) {
   const dropoffAddress = useSelector(state => state.location.dropoffLocation);
   const pickupCoords = useSelector(state => state.location.pickupLocationCoords);
   const dropoffCoords = useSelector(state => state.location.dropoffLocationCoords);
-  const [rideRole, setRideRole] = useState('');
-  const [reviewBox, setReviewBox] = useState(false);
-  const [rating, setRating] = useState(5);
-  const [review, setReview] = useState('');
-
 
   const API_KEY = "YOUR_GOOGLE_API_KEY";
 
@@ -242,7 +240,7 @@ const updateUserLocation = async () => {
   return (
     <>
       { searchForRiders ? (
-        <SearchForRider navigation={navigation}  setSearchForRiders={setSearchForRiders} />
+        <SearchForRider   setSearchForRiders={setSearchForRiders} />
       ) : (
         <SafeAreaView style={styles.container}>
     { chooseFromMap === 'pickup' ? (
@@ -297,7 +295,7 @@ const updateUserLocation = async () => {
               <Text style={styles.btnText2}>Enter Location</Text>
           </TouchableOpacity> */}
           <TouchableOpacity 
-          disabled={ !onChangeLocPickupAddress ? true : false}
+          disabled={ !onChangeLocPickupAddress === 'Location loading ...' ? true : false}
           style={styles.chooseFromMapbtn1} 
           onPress={()=>{
             dispatch(SetPickupLocation(onChangeLocPickupAddress));
@@ -307,7 +305,7 @@ const updateUserLocation = async () => {
             }));
             setChooseFromMap('');
             }}>
-              { !onChangeLocPickupAddress ? (
+              { onChangeLocPickupAddress === 'Location loading ...' ? (
                 <ActivityIndicator size="small" color="#ffffff" />
               ) : (
                 <Text style={styles.btnText}>Done</Text>
@@ -367,7 +365,7 @@ const updateUserLocation = async () => {
               <Text style={styles.btnText2}>Enter Location</Text>
           </TouchableOpacity> */}
           <TouchableOpacity 
-          disabled={ !onChangeLocDropoffAddress ? true : false}
+          disabled={ !onChangeLocDropoffAddress === 'Location loading ...' ? true : false}
           style={styles.chooseFromMapbtn1} 
           onPress={()=>{
             dispatch(SetDropoffLocation(onChangeLocDropoffAddress));
@@ -377,7 +375,7 @@ const updateUserLocation = async () => {
             }));
             setChooseFromMap('');
             }}>
-              { !onChangeLocDropoffAddress ? (
+              { onChangeLocDropoffAddress === 'Location loading ...' ? (
                 <ActivityIndicator size="small" color="#ffffff" />
               ) : (
                 <Text style={styles.btnText}>Done</Text>
@@ -388,7 +386,7 @@ const updateUserLocation = async () => {
       ) : (
       <>
       { navigationPhase === true ? (
-        <MapNavigation navigation={navigation}  setReviewBoxHome={setReviewBox}/> 
+        <MapNavigation   setReviewBoxHome={setReviewBox}/> 
       ) : (
         <>
           <Modal
@@ -438,10 +436,10 @@ const updateUserLocation = async () => {
               customMapStyle={MapStyle}
               showsUserLocation={true}
               userLocationPriority="high"
-              onLayout={async () => {
-                console.log('map ready');
-                await setUserLocation();
-              }}
+              // onLayout={async () => {
+              //   console.log('map ready');
+              //   await setUserLocation();
+              // }}
             >
             {pickupCoords &&
                 dropoffCoords && (

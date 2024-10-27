@@ -10,9 +10,10 @@ import firestore from '@react-native-firebase/firestore';
 import functions from "@react-native-firebase/functions";
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
   SetDropoffLocationCoords, SetNavigationPhase, SetRidePhaseKey } from "../redux/action";
+import BottomSheet from "@gorhom/bottom-sheet";
 
 
-export default function NavigateToUser({navigation, setReviewBoxHome }){
+export default function NavigateToUser({ setReviewBoxHome }){
     const mapRef = useRef(null);
     const [heading, setHeading] = useState();
     const [location, setLocation] = useState(null);
@@ -22,7 +23,7 @@ export default function NavigateToUser({navigation, setReviewBoxHome }){
     const [route, setRoute] = useState(null);
     const [distance, setDistance] = useState(null);
     const [duration, setDuration] = useState(null);
-    const [reachedDestination, setReachedDestination] = useState(false);
+    const [reachedDestination, setReachedDestination] = useState(true);
     const [markerPosition, setMarkerPosition] = useState({
         latitude: 33.6844,
         longitude: 73.0479,
@@ -38,6 +39,7 @@ export default function NavigateToUser({navigation, setReviewBoxHome }){
     const role = useSelector(state => state.appEssentials.role);
     const ridePhaseKey = useSelector(state => state.appEssentials.ridePhaseKey);
     const navigationPhase = useSelector(state => state.appEssentials.navigationPhase);
+    const snapPoints = useMemo(() => [responsiveHeight(20), role === 'user' ? responsiveHeight(35) : responsiveHeight(55)], []);
 
               ////////// get users location after 1 sec ///////////
   useEffect(() => {
@@ -71,13 +73,14 @@ export default function NavigateToUser({navigation, setReviewBoxHome }){
       
             if(role === 'user'){
               if (updatedRequest.userData.dropoff_status === true) {
+                setReviewBoxHome(true);
+                handleFirebaseRidePhaseNode();
                 dispatch(SetPickupLocation('Enter Pickup Location'));
                 dispatch(SetPickupLocationCoords(null));
                 dispatch(SetDropoffLocation('Enter Dropoff Location'));
                 dispatch(SetDropoffLocationCoords(null));
-                dispatch(SetRidePhaseKey(null));
                 dispatch(SetNavigationPhase(false));
-                setReviewBoxHome(true);
+                
               } 
             }
           } else {
@@ -220,7 +223,7 @@ async function getRoute() {
         try {
           const result = await endGoRideBid(data);
           dispatch(SetNavigationPhase(false));
-          dispatch(SetRidePhaseKey(null));
+          handleFirebaseRidePhaseNode();
           setReviewBoxHome(true);
         } catch (error) {
           console.error("Error calling endGoRideBid:", error);
@@ -276,6 +279,26 @@ async function getRoute() {
         };
       },[])
 
+      const handleFirebaseRidePhaseNode = async () => {
+        const ref = firestore().collection("riders").doc(UID);
+    
+        const updateDoc = {
+          current_ride: {
+          RidebidKey: '',
+          rideStatus: false,
+        }
+        };
+    
+        try{
+          await ref.update(updateDoc);
+          console.log("Ride Phase Node Updated");
+        }
+        catch(error){
+          console.log(error);
+        }
+        
+      };
+
     return(
         <SafeAreaView style={styles.container}>
         
@@ -299,6 +322,7 @@ async function getRoute() {
                     )}
             </MapView>
 
+            <BottomSheet index={1} snapPoints={snapPoints} >
             <View style={styles.BottomContainer}>
             <View style={styles.boxContainer}>
               <View style={styles.infoBox1}>
@@ -310,14 +334,17 @@ async function getRoute() {
             </View>
             <Text style={styles.text1}>away from</Text>
             <Text style={styles.text2}>{destinationlocation}</Text>
-            <TouchableOpacity style={styles.navBtn} onPress={() => {openMaps();}}>
-            <Image source={ Platform.OS === 'android' ? require("../assets/maps.png") : require("../assets/imaps.png") } 
-            style={{width: 20, height: 20}} />
-            <Text style={styles.navBtnText}>
-            Use {Platform.OS === 'android' ? 'Google Maps' : 'Apple Maps'} Navigation
-            </Text>
+
+            { role === 'rider' ? (
+              <TouchableOpacity style={styles.navBtn} onPress={() => {openMaps();}}>
+              <Image source={ Platform.OS === 'android' ? require("../assets/maps.png") : require("../assets/imaps.png") } 
+              style={{width: 20, height: 20}} />
+              <Text style={styles.navBtnText}> Use {Platform.OS === 'android' ? 'Google Maps' : 'Apple Maps'} Navigation
+              </Text>
            </TouchableOpacity>
-             { 'rider' === 'rider' ? (
+            ) : null }
+
+             { role === 'rider' ? (
                 <TouchableOpacity style={styles.endBtn} onPress={endRide} disabled={!reachedDestination}>
               <Text 
               style={reachedDestination === true ? styles.btntext1 : styles.btntext}>
@@ -329,6 +356,7 @@ async function getRoute() {
              ) }
               </View>
             </View>
+            </BottomSheet>
             
 
         </SafeAreaView>
@@ -365,10 +393,9 @@ const styles = StyleSheet.create({
   },
 
   BottomContainer :{
+    flex: 1,
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
-    position: 'absolute',
-    bottom: 0,
     width: responsiveWidth(100),
     backgroundColor: 'white',
     padding: responsiveWidth(5),
@@ -408,21 +435,22 @@ const styles = StyleSheet.create({
   },
 
   distanceInfo: {
-    fontFamily: 'Custom',
+    fontFamily: 'custom',
     fontSize: 20,
     color: 'white',
   },
 
   text1:{
+    fontFamily: 'customb',
     marginTop: 10,
   },
 
   text2: {
-    fontFamily: 'Custom',
+    fontFamily: 'custom',
     fontSize: 15,
     color: 'gray',
     textAlign: 'center',
-    marginTop: 10,
+    padding: 10,
   },
 
   btnContacts:{

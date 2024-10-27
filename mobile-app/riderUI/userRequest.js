@@ -7,11 +7,11 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import { ScrollView } from "react-native-gesture-handler";
 import firestore from "@react-native-firebase/firestore";
 import functions  from "@react-native-firebase/functions";
-import { SetRidePhaseKey } from "../redux/action";
+import { SetRidePhaseKey, SetCurrentScreenRider } from "../redux/action";
 
 
 
-export default function UserRequest({ navigation, setCheckUserReq, mode }) {
+export default function UserRequest({ setCheckUserReq, mode }) {
     const [requests, setRequests] = useState([]);
     const [searching, SetSearching] = useState(false);
     const snapPoints = useMemo(() => [responsiveHeight(20), responsiveHeight(80)], []);
@@ -121,7 +121,7 @@ export default function UserRequest({ navigation, setCheckUserReq, mode }) {
           if(result.data.status === true) {
             setCheckUserReq(false);
             deleteRequestDocument(userId);
-            navigation.replace("NavigateToUser");
+            dispatch(SetCurrentScreenRider('rideNavigatioState'));
           }
         } catch (error) {
           console.error("Error calling makeNewGoRideBid:", error);

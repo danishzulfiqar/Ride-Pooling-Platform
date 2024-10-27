@@ -1,12 +1,19 @@
-import { SET_CURRENT_SCREEN, SET_ROLE, SET_UID, SET_CURRENT_SCREEN_GO, 
+import { SET_CURRENT_SCREEN, SET_CURRENT_SCREEN_RIDER, SET_ROLE, SET_UID, SET_CURRENT_SCREEN_GO, 
   SET_USER_LOCATION, SET_USER_LOCATION_COORDS, SET_DROPOFF_LOCATION, 
   SET_DROPOFF_LOCATION_COORDS, SET_PICKUP_LOCATION, SET_PICKUP_LOCATION_COORDS, 
-  SET_RIDE_PHASE_KEY, SET_NAVIGATION_PHASE, RESET_SCREEN, RESET_SCREEN_GO } from './constants';
+  SET_RIDE_PHASE_KEY, SET_NAVIGATION_PHASE } from './constants';
 
 
 export const SetCurrentScreen = (screenName) => {
   return {
     type: SET_CURRENT_SCREEN,
+    data: screenName,
+  };
+};
+
+export const SetCurrentScreenRider = (screenName) => {
+  return {
+    type: SET_CURRENT_SCREEN_RIDER,
     data: screenName,
   };
 };
@@ -88,14 +95,3 @@ export const SetNavigationPhase = (phase) => {
   };
 };
 
-export const ResetScreen = () => {
-  return {
-    type: RESET_SCREEN,
-  };
-};
-
-export const ResetScreenGo = () => {
-  return {
-    type: RESET_SCREEN_GO,
-  };
-};

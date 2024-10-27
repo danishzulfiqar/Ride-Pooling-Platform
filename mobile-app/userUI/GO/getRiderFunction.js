@@ -13,7 +13,7 @@ import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation,
 import { set } from 'lodash';
 
 
-export default function GetRiderFunction({ navigation, setSearchForRiders}) {
+export default function GetRiderFunction({ setSearchForRiders}) {
   const snapPoints = useMemo(() => [responsiveHeight(20), responsiveHeight(80)], []);
   const [riders, setRiders] = useState([]);
 
@@ -79,7 +79,6 @@ export default function GetRiderFunction({ navigation, setSearchForRiders}) {
         return [...prevRiders, ...uniqueRiders];
       });
   
-      console.log("available rider " + JSON.stringify(result.data));
     } catch (error) {
       console.error("Error calling Function:", error);
     }

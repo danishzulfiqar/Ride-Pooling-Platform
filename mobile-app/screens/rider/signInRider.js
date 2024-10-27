@@ -13,6 +13,7 @@ import { SetUid } from '../../redux/action';
 import Toast from "react-native-toast-message";
 import auth from '@react-native-firebase/auth';
 import functions from '@react-native-firebase/functions';
+import { SetCurrentScreenRider } from "../../redux/action";
 
 export default function SignInUser({ navigation }) {
   const [authScreen, setAuthScreen] = useState('phoneNumber');
@@ -39,7 +40,7 @@ export default function SignInUser({ navigation }) {
         setLoading(false);
         setFormattedValue('');
         setAuthScreen('phoneNumber');
-        navigation.navigate('FormRider');
+        navigation.replace('FormRider');
       }
     } catch (error) {
       console.error("Error calling checkData Function:", error);
@@ -183,7 +184,12 @@ export default function SignInUser({ navigation }) {
                       offTintColor="#BBB"
                       inputCount={6}
                     />
-                    <TouchableOpacity style={styles.buttonstyle} onPress={confirmCode}>
+                    <TouchableOpacity style={styles.buttonstyle} onPress={
+                      ()=>{
+                        confirmCode();
+                        dispatch(SetCurrentScreenRider('home'));
+                      }
+                    }>
                       { loading ? (
                         <ActivityIndicator size="small" color="#ffffff" />
                       ) : (

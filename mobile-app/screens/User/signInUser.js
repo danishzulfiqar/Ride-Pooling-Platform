@@ -2,17 +2,16 @@ import react, { useState, useRef } from "react";
 import { ActivityIndicator, View, Text, StyleSheet, Keyboard, TouchableOpacity, SafeAreaView, Platform, TouchableWithoutFeedback } from 'react-native';
 import {
   responsiveHeight,
-  responsiveFontSize
-} from 'react-native-responsive-dimensions';
+  responsiveFontSize } from 'react-native-responsive-dimensions';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import PhoneInput from 'react-native-phone-number-input';
 import OTPTextInput from 'react-native-otp-textinput';
-import { useDispatch } from "react-redux";
 import { SetUid } from '../../redux/action';
 import Toast from "react-native-toast-message";
 import auth from '@react-native-firebase/auth';
 import functions from '@react-native-firebase/functions';
+import { SetCurrentScreenGo } from '../../redux/action';
 
 export default function SignInUser({ navigation }) {
   const [authScreen, setAuthScreen] = useState('phoneNumber');
@@ -39,7 +38,7 @@ export default function SignInUser({ navigation }) {
         setLoading(false);
         setFormattedValue('');
         setAuthScreen('phoneNumber');
-        navigation.navigate('FormUser');
+        navigation.replace('FormUser');
       }
       
     } catch (error) {
@@ -184,7 +183,12 @@ export default function SignInUser({ navigation }) {
                       offTintColor="#BBB"
                       inputCount={6}
                     />
-                    <TouchableOpacity style={styles.buttonstyle} onPress={confirmCode}>
+                    <TouchableOpacity style={styles.buttonstyle} onPress={
+                      ()=>{
+                        confirmCode();
+                        dispatch(SetCurrentScreenGo('home'));
+                      }
+                    }>
                       { loading ? (
                         <ActivityIndicator size="small" color="#ffffff" />
                       ) : (

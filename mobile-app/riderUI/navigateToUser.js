@@ -17,13 +17,13 @@ import firestore from '@react-native-firebase/firestore';
 import functions from "@react-native-firebase/functions";
 import ngeohash from 'ngeohash';
 import Toast from 'react-native-toast-message';
-import { SetRidePhaseKey, SetNavigationPhase } from "../redux/action";
+import { SetRidePhaseKey, SetNavigationPhase, SetCurrentScreenRider } from "../redux/action";
 import RBSheet from "react-native-raw-bottom-sheet";
 import ChatBox from "../components/chatBox";
 
 
 
-export default function NavigateToUser({navigation}){
+export default function NavigateToUser(){
     const mapRef = useRef(null);
     const [heading, setHeading] = useState();
     const [location, setLocation] = useState(null);
@@ -106,7 +106,7 @@ export default function NavigateToUser({navigation}){
           setReviewBox(false);
           handleFirebaseRidePhaseNode();
           dispatch(SetRidePhaseKey(null));
-          navigation.replace('Home');
+          dispatch(SetCurrentScreenRider('home'));
           Toast.show({
             type: 'success',
             text1: "Ride Cancelled",
@@ -138,7 +138,7 @@ const startRideNav = async () => {
       console.log(result.data);
       if(result.data === true) {
         SetNavigationPhase(true);
-        navigation.replace('Home');
+        SetCurrentScreenRider('home');
       }
     } catch (error) {
       console.error("Error calling updateGoRideBidPickupStatus:", error);
@@ -162,13 +162,13 @@ const startRideNav = async () => {
             setUserRating(updatedRequest.userData.userInfo.rating.toFixed(1));
             if(updatedRequest.userData.pickup_status === true){
                 dispatch(SetNavigationPhase(true));
-                navigation.replace('Home');
+                dispatch(SetCurrentScreenRider('home'));
               }
               if(updatedRequest.cancel_status.status === true){
                 setReviewBox(false);
                 handleFirebaseRidePhaseNode();
                 dispatch(SetRidePhaseKey(null));
-                navigation.replace('Home');
+                dispatch(SetCurrentScreenRider('home'));
                 Toast.show({
                   type: "info",
                   text1: "Ride Cancelled",
@@ -432,7 +432,7 @@ const startRideNav = async () => {
               <ChatBox sheetRef={refRBSheet} />
             </RBSheet>
 
-            <BottomSheet index={0} snapPoints={snapPoints}>
+            <BottomSheet index={1} snapPoints={snapPoints}>
               <ScrollView>
               <View  style={styles.containerBottom}>
               { startRide ? (
@@ -523,9 +523,11 @@ const startRideNav = async () => {
             </Text>
 
             </TouchableOpacity>
-                            <TouchableOpacity style={styles.cancelBtn} onPress={() => startRideNav()}>
+                            { startRide ? (
+                              <TouchableOpacity style={styles.cancelBtn} onPress={() => startRideNav()}>
                                 <Text style={styles.cancelBtnText}>Start Ride</Text>
                             </TouchableOpacity>
+                            ) : null }
                        
                             <TouchableOpacity style={styles.cancelBtn} onPress={() => setReviewBox(true)}>
                                 <Text style={styles.cancelBtnText}>Cancel Ride</Text>
@@ -540,7 +542,6 @@ const startRideNav = async () => {
     const styles = StyleSheet.create({
         container: {
         flex: 1,
-        marginTop: Platform.OS === "android" ? 20 : 0,
     },
 
   map: {

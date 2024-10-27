@@ -10,7 +10,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useDispatch } from "react-redux";
 import { SetRole, SetUid, SetUserLocation, SetUserLocationCoords, SetPickupLocation, 
   SetPickupLocationCoords, SetDropoffLocation, SetDropoffLocationCoords, SetCurrentScreenGo, 
-  SetNavigationPhase, SetRidePhaseKey, ResetScreenGo } from '../../redux/action';
+  SetNavigationPhase, SetRidePhaseKey } from '../../redux/action';
 import auth from '@react-native-firebase/auth';
 import { responsiveWidth, responsiveFontSize, responsiveHeight } from "react-native-responsive-dimensions";
 import { DrawerActions } from '@react-navigation/native';
@@ -33,7 +33,6 @@ export default function DrawerNavigationRider({navigation}) {
       dispatch(SetCurrentScreenGo(null));
       dispatch(SetRidePhaseKey(null));
       dispatch(SetNavigationPhase(false));
-      dispatch(ResetScreenGo());
       navigation.dispatch(DrawerActions.closeDrawer());
       Toast.show({
         type: "error",
@@ -44,7 +43,7 @@ export default function DrawerNavigationRider({navigation}) {
         },
         text2: `You are Logged Out`,
       });
-      navigation.navigate("RoleScreen");
+      navigation.replace("RoleScreen");
     } catch (error) {
       Toast.show({
         type: "error",

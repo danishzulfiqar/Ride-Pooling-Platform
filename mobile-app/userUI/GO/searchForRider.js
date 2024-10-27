@@ -7,11 +7,11 @@ import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from 'react-native-maps-directions';
 import MapStyle from '../../styles/mapStyle';
 import { SetPickupLocation, SetPickupLocationCoords, SetDropoffLocation, 
-  SetDropoffLocationCoords, SetRidePhaseKey } from '../../redux/action';
+  SetDropoffLocationCoords, SetRidePhaseKey, SetCurrentScreenGo } from '../../redux/action';
 import GetRiderFunction from './getRiderFunction';
 
 
-export default function SearchForRider({navigation, setSearchForRiders}) {
+export default function SearchForRider({ setSearchForRiders}) {
   const mapRef = useRef(null);
 
   const API_KEY = "YOUR_GOOGLE_API_KEY";
@@ -22,43 +22,29 @@ export default function SearchForRider({navigation, setSearchForRiders}) {
   const dropoffAddress = useSelector(state => state.location.dropoffLocation);
   const pickupCoords = useSelector(state => state.location.pickupLocationCoords);
   const dropoffCoords = useSelector(state => state.location.dropoffLocationCoords);
-
+    
   useEffect(() => {
-
     const usersRef = firestore().collection('users').doc(UID);
-  
-      const unsubscribe = usersRef.onSnapshot((snapshot) => {
+    
+    // Real-time listener with server-side data
+    const unsubscribe = usersRef.onSnapshot({
+      includeMetadataChanges: true
+    }, (snapshot) => {
+      if (!snapshot.metadata.fromCache) {
         if (snapshot.exists) {
-          const userData = { uid: snapshot.id, ...snapshot.data() };
-  
-          console.log("User document exists:", userData);
-  
-          // Ensure current_ride and rideStatus exist before checking
-          if (userData.current_ride && typeof userData.current_ride.rideStatus === 'boolean') {
-            console.log("This is the ride status: ", userData.current_ride.rideStatus);
-  
-            if (userData.current_ride.rideStatus) {
-              dispatch(SetRidePhaseKey(userData.current_ride.RidebidKey));
-              setSearchForRiders(false);
-              navigation.replace('WaitingForRider');
-              console.log('true');
-            } else {
-              console.log('searching on')
-            }
-          } else {
-            console.log("current_ride or rideStatus is undefined");
+          let userData = snapshot.data();
+          console.log(userData);
+          if (userData.current_ride.rideStatus === true && userData.current_ride.RidebidKey !== null) {
+            setSearchForRiders(false);            
+            dispatch(SetRidePhaseKey(userData.current_ride.RidebidKey));
+            dispatch(SetCurrentScreenGo('rideNavigatioStateGo'));
           }
-        } else {
-          console.log("User document does not exist");
         }
-      });
-  
-      return () => {
-        unsubscribe();
-      };
+      }
+    });
 
+    return () => unsubscribe();
   }, []);
-  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -124,7 +110,7 @@ export default function SearchForRider({navigation, setSearchForRiders}) {
             </MapView>
           </View>
 
-          <GetRiderFunction setSearchForRiders={setSearchForRiders} navigation={navigation} />
+          <GetRiderFunction setSearchForRiders={setSearchForRiders} />
     </SafeAreaView>
   );
 }
