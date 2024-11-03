@@ -59,7 +59,7 @@ export default function NavigateToUser(){
     useEffect(() => {
       const interval = setInterval(() => {
         getUserLocation();
-      }, 5000);
+      }, 1000);
       return () => clearInterval(interval);
     }, []);
 
@@ -253,13 +253,7 @@ const startRideNav = async () => {
           }
         };
 
-          ////////// get users location after 1 sec ///////////
-  useEffect(() => {
-    const interval = setInterval(() => {
-      getUserLocation();
-    }, 100000);
-    return () => clearInterval(interval);
-  }, []);
+
 
 ////////////////// getting route ///////////////////////
   async function getRoute() {
