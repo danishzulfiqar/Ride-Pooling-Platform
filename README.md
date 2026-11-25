@@ -15,7 +15,6 @@
 
 <p align="center"><img src="assets/landing-page.png" alt="RidePool landing page: Ride together, save together" width="92%"></p>
 
-
 > 📘 **Full write-up with figures:** [danishzulfiqar-projects.vercel.app/ride-pooling](https://danishzulfiqar-projects.vercel.app/ride-pooling)
 
 ## Overview
