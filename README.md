@@ -4,6 +4,7 @@
 
 **RidePool, a ride-hailing and ride-pooling platform for Pakistan. Passengers can book a private ride, pool with others going the same way, or share a ride with friends, and a serverless Firebase backend matches them to nearby drivers in real time.**
 
+[![Documentation](https://img.shields.io/badge/Documentation-Read%20the%20project%20page-1d2836?logo=readthedocs&logoColor=white)](https://danishzulfiqar-projects.vercel.app/ride-pooling)
 ![React Native](https://img.shields.io/badge/React%20Native-Expo%2051-305b8a?logo=react&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-Functions%20%C2%B7%20Firestore%20%C2%B7%20Auth-b47b40?logo=firebase&logoColor=white)
 ![Google Maps](https://img.shields.io/badge/Google%20Maps-Places%20%C2%B7%20Directions-5f8a6e?logo=googlemaps&logoColor=white)
@@ -13,6 +14,9 @@
 </div>
 
 <p align="center"><img src="assets/landing-page.png" alt="RidePool landing page: Ride together, save together" width="92%"></p>
+
+
+> 📘 **Full write-up with figures:** [danishzulfiqar-projects.vercel.app/ride-pooling](https://danishzulfiqar-projects.vercel.app/ride-pooling)
 
 ## Overview
 
