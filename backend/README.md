@@ -6,7 +6,8 @@ Contains cloud functions related to RidePool master app
 
 1. Clone repo
 ```
-git clone https://github.com/RidePool-PK/App-Backend.git
+git clone https://github.com/danishzulfiqar/Ride-Pooling-Platform.git
+cd Ride-Pooling-Platform/backend
 ```
 2. Install Dependencies
 ```

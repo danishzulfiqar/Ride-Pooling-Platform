@@ -20,8 +20,8 @@ RidePool is a ride booking web application designed specifically for users in Pa
 
 ## Installation and Setup
 
-1. Clone the repository: `git clone https://github.com/danishzulfiqar/ridepool.git`
-2. Open the project directory.
+1. Clone the repository: `git clone https://github.com/danishzulfiqar/Ride-Pooling-Platform.git`
+2. Open the `web-app/` directory.
 3. Set up Firebase:
    - Create a Firebase project and obtain the necessary configuration details (Firebase API keys, authentication settings).
    - Update the Firebase configuration in the JavaScript files (`firebase.js`) to establish the connection.
