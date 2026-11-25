@@ -2,7 +2,7 @@
 
 # Ride-Pooling Platform
 
-**A ride-hailing and ride-pooling platform for Pakistan, built under the brand *RidePool* (Urdu for "fellow traveller"). Passengers can book a private ride, pool with others going the same way, or share a ride with friends, and a serverless Firebase backend matches them to nearby drivers in real time.**
+**RidePool, a ride-hailing and ride-pooling platform for Pakistan. Passengers can book a private ride, pool with others going the same way, or share a ride with friends, and a serverless Firebase backend matches them to nearby drivers in real time.**
 
 ![React Native](https://img.shields.io/badge/React%20Native-Expo%2051-305b8a?logo=react&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-Functions%20%C2%B7%20Firestore%20%C2%B7%20Auth-b47b40?logo=firebase&logoColor=white)
@@ -53,13 +53,13 @@ passenger                     Cloud Functions                         driver
 
 | Folder | What it is | Stack | Origin |
 |---|---|---|---|
-| [`mobile-app/`](mobile-app) | Production passenger and driver app with GO, Pooling and Sharing flows | Expo 51, React Native 0.74, Redux Toolkit, react-native-maps, Firebase SDK | `RidePool-App` (133 commits) |
-| [`backend/`](backend) | Serverless API: callable Cloud Functions for users, riders, rides, chat and ratings | Node.js, Firebase Functions v2, Firestore, GeoFire, Nodemailer | `App-Backend` (32) |
-| [`web-app/`](web-app) | First version: browser-based booking with live paths and WhatsApp notifications | HTML/CSS/JS, Firebase Auth and Realtime Database, Google Maps, Twilio | `RidePool` (36) |
-| [`website/landing/`](website/landing) | Responsive marketing site for riders and drivers | HTML/CSS/JS | `Front-page` (9) |
-| [`website/company/`](website/company) | Company homepage for RidePool | HTML/CSS/JS | `RidePool-Home` (5) |
-| [`prototypes/firebase-auth/`](prototypes/firebase-auth) | Sign-up, sign-in and sign-out prototype for React Native + Firebase | Expo, Firebase Auth | `Prototype-Funcs` (5) |
-| [`prototypes/navigation/`](prototypes/navigation) | Map navigation prototype: animated car marker following a decoded route polyline | Expo, react-native-maps | `Navigation-Prototype` (8) |
+| [`mobile-app/`](mobile-app) | Production passenger and driver app with GO, Pooling and Sharing flows | Expo 51, React Native 0.74, Redux Toolkit, react-native-maps, Firebase SDK | mobile app repo (133 commits) |
+| [`backend/`](backend) | Serverless API: callable Cloud Functions for users, riders, rides, chat and ratings | Node.js, Firebase Functions v2, Firestore, GeoFire, Nodemailer | backend repo (32) |
+| [`web-app/`](web-app) | First version: browser-based booking with live paths and WhatsApp notifications | HTML/CSS/JS, Firebase Auth and Realtime Database, Google Maps, Twilio | web app repo (36) |
+| [`website/landing/`](website/landing) | Responsive marketing site for riders and drivers | HTML/CSS/JS | landing page repo (9) |
+| [`website/company/`](website/company) | Company homepage | HTML/CSS/JS | company site repo (5) |
+| [`prototypes/firebase-auth/`](prototypes/firebase-auth) | Sign-up, sign-in and sign-out prototype for React Native + Firebase | Expo, Firebase Auth | auth prototype repo (5) |
+| [`prototypes/navigation/`](prototypes/navigation) | Map navigation prototype: animated car marker following a decoded route polyline | Expo, react-native-maps | navigation prototype repo (8) |
 
 ## Getting started
 
@@ -107,6 +107,6 @@ cd web-app && python3 -m http.server 8080      # http://localhost:8080
 
 The project grew across separate repositories, which were merged here with `git filter-repo`, keeping every component's history under its own folder:
 
-`RidePool` (web app, Feb 2023) → `Front-page` and `RidePool-Home` (websites, 2023) → `RidePool-App` (mobile app, Oct 2023 – Nov 2024) → `Prototype-Funcs` and `App-Backend` (2024) → `Navigation-Prototype` (2024).
+web app (Feb 2023) → landing page and company site (2023) → mobile app (Oct 2023 – Nov 2024) → auth prototype and backend (2024) → navigation prototype (2024).
 
 Run `git log -- <folder>` to see the history of a single component.

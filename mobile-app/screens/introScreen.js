@@ -12,7 +12,7 @@ export default function IntroScreen({navigation}) {
       <Image
         style={styles.imgstyle}
         resizeMode="contain"
-        source={require('../assets/Hlogo.png')}
+        source={require('../assets/logo.png')}
       />
       <Text style={styles.paragraph}>
           Introducing Pakistan's first fully self-developed ride booking app!

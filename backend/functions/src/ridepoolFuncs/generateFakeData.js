@@ -19,7 +19,7 @@ exports.generateFakeRiderData = functions.https.onCall(async (data, context) => 
         first_name: "Fake",
         last_name: "Rider",
         DOB: "1990-01-01",
-        email: "fake_rider_" + Math.floor(Math.random() * 1000000) + "@ridepool.com",
+        email: "fake_rider_" + Math.floor(Math.random() * 1000000) + "@ridepool.app",
         email_verification: false,
         gender: "male",
         phone_number: "0300" + Math.floor(Math.random() * 10000000),
